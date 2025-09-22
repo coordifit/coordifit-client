@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUpload } from "../model/useUpload";
+import { useUpload } from "../../services/useUpload";
 
 import styles from "./UploadForm.module.css";
 import clsx from "clsx";

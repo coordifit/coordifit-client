@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadImage } from "../api/uploadApi";
+import { uploadImage } from "./uploadApi";
 
 export const useUpload = (onSuccess) => {
   const [loading, setLoading] = useState(false);

@@ -1,4 +1,4 @@
-import { api } from "@/shared/api/axiosInstance";
+import { api } from "@/services/axiosInstance";
 
 export const uploadImage = async (file) => {
   const formData = new FormData();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { api } from "@/shared/api/axiosInstance";
-import { UploadForm } from "@/features/imageUpload/ui/UploadForm";
-import { ImageItem } from "@/entities/image/ui/ImageItem";
+import { api } from "@/services/axiosInstance";
+import { UploadForm } from "@/components/imageUpload/UploadForm";
+import { ImageItem } from "@/components/imageItem/ImageItem";
 import styles from "./ImagePage.module.css";
 
 export const ImagePage = () => {

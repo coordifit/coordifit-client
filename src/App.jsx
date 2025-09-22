@@ -1,7 +1,7 @@
+import { ImagePage } from "@/pages/ImagePage/ImagePage";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ImagePage } from "@/pages/ImagePage/ui/ImagePage";
 
-export const Router = () => {
+const App = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -11,3 +11,5 @@ export const Router = () => {
     </BrowserRouter>
   );
 };
+
+export default App;

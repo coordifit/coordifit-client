@@ -4,7 +4,7 @@ import { useUpload } from "../../services/useUpload";
 import styles from "./UploadForm.module.css";
 import clsx from "clsx";
 
-export const UploadForm = ({ onSuccess }) => {
+const UploadForm = ({ onSuccess }) => {
   const [file, setFile] = useState(null);
   const { handleUpload, loading } = useUpload(onSuccess);
 
@@ -25,3 +25,5 @@ export const UploadForm = ({ onSuccess }) => {
     </div>
   );
 };
+
+export default UploadForm;

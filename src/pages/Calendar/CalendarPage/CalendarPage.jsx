@@ -3,9 +3,9 @@ import { useState } from "react";
 
 import Calendar from "react-calendar";
 import classNames from "classnames/bind";
+import DatePicker from "../DatePicker/DatePicker";
 
 import Modal from "@/components/Modal/Modal";
-// import DatePicker from "../DatePicker/DatePicker";
 
 import "react-calendar/dist/Calendar.css";
 import styles from "./CalendarPage.module.css";
@@ -68,16 +68,16 @@ const CalendarPage = () => {
     }
   };
 
-  // const handleDatePicker = (date) => {
-  //   console.log("date.month", date.month);
-  //   const pickedDate = `${date.year}-${date.month}-${date.day}`;
-  //   const pickedDateObject = new Date(pickedDate);
+  const handleDatePicker = (date) => {
+    console.log("date.month", date.month);
+    const pickedDate = `${date.year}-${date.month}-${date.day}`;
+    const pickedDateObject = new Date(pickedDate);
 
-  //   setIsModalOpen(false);
-  //   setTargetDate(pickedDateObject);
-  //   setViewMode("daily");
-  //   navigate(`/calendar/${pickedDate}`);
-  // };
+    setIsModalOpen(false);
+    setTargetDate(pickedDateObject);
+    setViewMode("daily");
+    navigate(`/calendar/${pickedDate}`);
+  };
 
   const ModalContent = (
     <ul>
@@ -121,7 +121,7 @@ const CalendarPage = () => {
               onClose={() => handleModal("close")}
               children={ModalContent}
             >
-              {/* <DatePicker onConfirm={handleDatePicker} /> */}
+              <DatePicker onConfirm={handleDatePicker} />
             </Modal>
           )}
         </>

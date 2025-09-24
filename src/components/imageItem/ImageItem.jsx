@@ -1,7 +1,7 @@
 import styles from "./ImageItem.module.css";
 import clsx from "clsx";
 
-export const ImageItem = ({ image, active }) => {
+const ImageItem = ({ image, active }) => {
   return (
     <li className={clsx(styles.item, active && styles.active)}>
       <p>{image.fileName}</p>
@@ -9,3 +9,5 @@ export const ImageItem = ({ image, active }) => {
     </li>
   );
 };
+
+export default ImageItem;

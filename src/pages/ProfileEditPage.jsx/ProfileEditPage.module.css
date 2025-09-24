@@ -1,0 +1,129 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+}
+.top-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #888;
+    font-size: 13px;
+}
+.helper {
+    color: #999;
+}
+.save {
+    border: none;
+    background: #222;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+.avatar {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+}
+.avatar img {
+    width: 120px;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    object-fit: cover;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+.change-photo {
+    border: none;
+    background: #f1f1f1;
+    color: #444;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+.fields {
+    display: grid;
+    gap: 12px;
+}
+.field {
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+    color: #555;
+}
+.field input,
+.field select {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 15px;
+}
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: #f8f8f8;
+    font-size: 15px;
+    font-weight: 500;
+}
+.toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+}
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #c8c8c8;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+.slider::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+}
+.toggle input:checked + .slider {
+    background: #222;
+}
+.toggle input:checked + .slider::after {
+    transform: translateX(20px);
+}
+.actions {
+    display: grid;
+    gap: 12px;
+}
+.actions button {
+    border: none;
+    border-radius: 16px;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: 600;
+}
+.actions button:first-of-type {
+    background: #f1f1f1;
+    color: #444;
+}
+.danger-button {
+    background: #ffecec;
+    color: #c11;
+}
+.modal-message {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+}

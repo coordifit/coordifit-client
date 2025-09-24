@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "@/components/Layout/Layout";
 import CalendarPage from "@/pages/CalendarPage/CalendarPage";
 import ClosetPage from "@/pages/ClosetPage/ClosetPage";
+import ClosetDetailPage from "@/pages/ClosetDetailPage/ClosetDetailPage";
+import ClosetRegisterPage from "@/pages/ClosetRegisterPage/ClosetRegisterPage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import MainPage from "@/pages/MainPage/MainPage";
 import PasswordReset from "@/pages/PasswordResetPage/PasswordResetPage";
@@ -53,6 +55,26 @@ const router = createBrowserRouter([
                     showBack: true,
                     showHeader: true,
                     showTabbar: true,
+                },
+            },
+            {
+                path: "/closet/register",
+                element: <ClosetRegisterPage />,
+                handle: {
+                    title: "옷 등록",
+                    showBack: true,
+                    showHeader: true,
+                    showTabbar: false,
+                },
+            },
+            {
+                path: "/closet/item/:itemId",
+                element: <ClosetDetailPage />,
+                handle: {
+                    title: "옷 상세보기",
+                    showBack: true,
+                    showHeader: true,
+                    showTabbar: false,
                 },
             },
             {

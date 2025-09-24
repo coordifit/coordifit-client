@@ -1,3 +1,369 @@
-.color {
-  color: blue;
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 20px 24px;
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.tabList {
+    display: flex;
+    gap: 8px;
+}
+
+.tabButton {
+    flex: 0 0 auto;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.activeTab {
+    background: #111;
+    border-color: #111;
+    color: #fff;
+}
+
+.toolbarActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selectButton,
+.registerButton {
+    border: none;
+    border-radius: 18px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.selectButton {
+    background: #f2f2f2;
+    color: #333;
+}
+
+.selecting {
+    background: #111;
+    color: #fff;
+}
+
+.registerButton {
+    background: #111;
+    color: #fff;
+}
+
+.categories {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.categoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.categoryMainList {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.categoryButton {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: none;
+    background: #f5f5f5;
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.activeCategory {
+    background: #111;
+    color: #fff;
+}
+
+.panelToggle {
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.subCategoryList {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+
+.subCategoryButton {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    background: #f8f8f8;
+    color: #777;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.activeSubCategory {
+    border-color: #111;
+    background: #fff;
+    color: #111;
+    font-weight: 600;
+}
+
+.gridSection {
+    position: relative;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.card,
+.addCard {
+    position: relative;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    min-height: 150px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover,
+.addCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.cardSelectable {
+    border-color: #111;
+}
+
+.cardImageWrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 120%;
+    overflow: hidden;
+}
+
+.cardImage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.checkbox {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.checkboxChecked {
+    background: #111;
+    border-color: #111;
+}
+
+.cardContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+}
+
+.cardName {
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.cardMeta {
+    font-size: 12px;
+    color: #888;
+}
+
+.addCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+    border: 1px dashed #cfcfcf;
+}
+
+.addIcon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.addLabel {
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.observerTarget {
+    width: 100%;
+    height: 1px;
+}
+
+.categoryPanel {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    width: 220px;
+    max-height: calc(100vh - 120px);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 20;
+}
+
+.categoryPanelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.categoryPanelTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+}
+
+.categoryPanelClose {
+    border: none;
+    background: transparent;
+    color: #999;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.categoryPanelBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+}
+
+.categoryPanelGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.categoryPanelMain {
+    border: none;
+    background: #f3f3f3;
+    border-radius: 14px;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+}
+
+.activePanelMain {
+    background: #111;
+    color: #fff;
+}
+
+.categoryPanelSubList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.categoryPanelSub {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    background: #fff;
+    color: #666;
+}
+
+.activePanelSub {
+    border-color: #111;
+    color: #111;
+    font-weight: 600;
+}
+
+.selectionBar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #111;
+    color: #fff;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 30;
+}
+
+.selectionInfo {
+    font-size: 14px;
+}
+
+.deleteButton {
+    border: none;
+    background: #ff5a5a;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .categoryPanel {
+        position: fixed;
+        inset: auto 16px 100px 16px;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }

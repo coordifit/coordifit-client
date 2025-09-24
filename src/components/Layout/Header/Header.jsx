@@ -1,38 +1,37 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { MdArrowBack } from "react-icons/md";
+// components/Layout/Header/Header.jsx
+import { useMatches, useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
-const TITLES = {
-    "/": "홈",
-    "/calendar": "코디 캘린더",
-    "/snap": "스냅",
-    "/closet": "내 옷장",
-    "/images": "스냅 갤러리",
-    "/mypage": "마이페이지",
-    "/profile/edit": "프로필 수정",
-};
-const ROOT_ROUTES = new Set([
-    "/",
-    "/calendar",
-    "/snap",
-    "/closet",
-    "/images",
-    "/mypage",
-]);
+import backIcon from "../../../assets/images/chevron-left.svg";
+
 const Header = () => {
-    const location = useLocation();
+    const matches = useMatches();
     const navigate = useNavigate();
-    const title = TITLES[location.pathname] ?? "CoordiFit";
-    const showBackButton = !ROOT_ROUTES.has(location.pathname);
+
+    const active = matches[matches.length - 1];
+    const handle = active?.handle ?? {};
+
+    const title =
+        typeof handle.title === "function"
+            ? handle.title(active.params, active)
+            : handle.title ?? "";
+
+    const showBack = handle.showBack ?? true;
+
+    const onBack = () => {
+        if (window.history.state && window.history.state.idx > 0) navigate(-1);
+        else navigate("/main");
+    };
+
     return (
         <header className={styles.header}>
-            {showBackButton ? (
+            {showBack ? (
                 <button
                     type="button"
-                    className={styles["back-button"]}
-                    onClick={() => navigate(-1)}
+                    className={styles.backButton}
+                    onClick={onBack}
                     aria-label="이전으로"
                 >
-                    <MdArrowBack size={24} />
+                    <img src={backIcon} alt="" className={styles.backIcon} />
                 </button>
             ) : (
                 <div className={styles.placeholder} />
@@ -42,4 +41,5 @@ const Header = () => {
         </header>
     );
 };
+
 export default Header;

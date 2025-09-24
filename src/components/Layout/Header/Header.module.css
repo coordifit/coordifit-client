@@ -2,28 +2,27 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 68px;
     padding: 12px 20px;
-    border-bottom: 1px solid #ededed;
     background: #ffffff;
     position: sticky;
     top: 0;
     z-index: 30;
 }
 .title {
+    font-family: "Pretendard";
     font-size: 16px;
     font-weight: 600;
     color: #222;
 }
-.back-button {
+.backButton {
     border: none;
-    background: none;
-    padding: 4px;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #222;
 }
-.back-button:active {
+.backButton:active {
     opacity: 0.7;
 }
 .placeholder {

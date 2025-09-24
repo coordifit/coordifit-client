@@ -1,46 +1,34 @@
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import styles from "./BottomNav.module.css";
-import clsx from "clsx";
 
-import {
-    MdCalendarToday,
-    MdCameraAlt,
-    MdCheckroom,
-    MdPerson,
-    MdHome,
-} from "react-icons/md";
+import closetIcon from "@/assets/images/closet.svg";
+import calendarIcon from "@/assets/images/calendar.svg";
+import homeIcon from "@/assets/images/home.svg";
+import snapIcon from "@/assets/images/snap.svg";
+import mypageIcon from "@/assets/images/mypage.svg";
+
+const tabs = [
+    { to: "/closet", icon: closetIcon, label: "내 옷장" },
+    { to: "/calendar", icon: calendarIcon, label: "코디 캘린더" },
+    { to: "/main", icon: homeIcon, label: "홈" }, // ✅ 홈은 /main
+    { to: "/snap", icon: snapIcon, label: "스냅" },
+    { to: "/mypage", icon: mypageIcon, label: "마이페이지" },
+];
 
 const BottomNav = () => {
-    const location = useLocation();
-
-    const tabs = [
-        { to: "/closet", icon: <MdCheckroom size={26} />, label: "내 옷장" },
-        {
-            to: "/calendar",
-            icon: <MdCalendarToday size={24} />,
-            label: "코디 캘린더",
-        },
-        { to: "/", icon: <MdHome size={24} />, label: "홈" },
-        { to: "/snap", icon: <MdCameraAlt size={24} />, label: "스냅" },
-        { to: "/mypage", icon: <MdPerson size={24} />, label: "마이페이지" },
-    ];
-
     return (
-        <nav className={styles["bottom-nav"]}>
+        <nav className={styles.bottomNav}>
             {tabs.map((tab) => (
-                <Link
+                <NavLink
                     key={tab.to}
                     to={tab.to}
-                    className={clsx(styles["tab-item"], {
-                        [styles.active]:
-                            location.pathname === tab.to ||
-                            (tab.to !== "/" &&
-                                location.pathname.startsWith(`${tab.to}/`)),
-                    })}
+                    className={({ isActive }) =>
+                        `${styles.tabItem} ${isActive ? styles.active : ""}`
+                    }
                 >
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                </Link>
+                    <img src={tab.icon} alt="" className={styles.icon} />
+                    <span className={styles.label}>{tab.label}</span>
+                </NavLink>
             ))}
         </nav>
     );

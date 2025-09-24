@@ -1,0 +1,16 @@
+.color {
+  color: red;
+}
+
+.viewmode-box {
+  display: flex;
+}
+
+.viewmode {
+  border: 1px solid black;
+  color: black;
+}
+
+.active {
+  color: blue;
+}

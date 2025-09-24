@@ -1,0 +1,26 @@
+.tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background: #f3f3f3;
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+.tab {
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #777;
+}
+.tab:active {
+    transform: translateY(1px);
+}
+.tab.active {
+    background: #ffffff;
+    color: #222;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}

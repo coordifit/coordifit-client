@@ -1,39 +1,115 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../services/axiosInstance";
 
 import styles from "./LoginPage.module.css";
 
 const Login = () => {
     const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        email: "",
+        password: ""
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleSubmit = (event) => {
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        // 에러 메시지 초기화
+        if (error) setError("");
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        navigate("/main");
+        
+        // 입력값 검증
+        if (!formData.email.trim()) {
+            setError("이메일을 입력해주세요.");
+            return;
+        }
+        if (!formData.password.trim()) {
+            setError("비밀번호를 입력해주세요.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const response = await api.post("http://localhost:8080/api/auth/login", {
+                email: formData.email,
+                password: formData.password
+            });
+
+            if (response.data.success) {
+                // 로그인 성공 - 사용자 정보 저장
+                const userData = response.data.data.user;
+                localStorage.setItem("user", JSON.stringify(userData));
+                
+                // 메인 페이지로 이동
+                navigate("/main");
+            } else {
+                setError(response.data.message || "로그인에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("로그인 오류:", error);
+            if (error.response?.data?.message) {
+                setError(error.response.data.message);
+            } else {
+                setError("로그인 처리 중 오류가 발생했습니다.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className={styles.container}>
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1 className={styles.logo}>CoordiFit</h1>
+                
+                {error && (
+                    <div className={styles.errorMessage}>
+                        {error}
+                    </div>
+                )}
+                
                 <label className={styles.label} htmlFor="email">
                     이메일 주소
                 </label>
                 <input
                     id="email"
+                    name="email"
                     className={styles.input}
                     type="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder="예) coordifit@codifit.com"
+                    disabled={isLoading}
                 />
                 <label className={styles.label} htmlFor="password">
                     비밀번호
                 </label>
                 <input
                     id="password"
+                    name="password"
                     className={styles.input}
                     type="password"
+                    value={formData.password}
+                    onChange={handleChange}
                     placeholder="비밀번호"
+                    disabled={isLoading}
                 />
-                <button type="submit" className={styles.loginButton}>
-                    로그인
+                <button 
+                    type="submit" 
+                    className={styles.loginButton}
+                    disabled={isLoading}
+                >
+                    {isLoading ? "로그인 중..." : "로그인"}
                 </button>
                 <div className={styles.links}>
                     <button

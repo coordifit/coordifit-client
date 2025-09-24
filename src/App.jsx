@@ -12,6 +12,7 @@ import SnapPage from "@/pages/SnapPage/SnapPage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "./pages/ProfileEditPage.jsx/ProfileEditPage";
+import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 
 // ✅ 라우터 정의
 const router = createBrowserRouter([
@@ -20,7 +21,8 @@ const router = createBrowserRouter([
     { path: "/login", element: <LoginPage /> },
     { path: "/signup", element: <SignUpPage /> },
     { path: "/password-reset", element: <PasswordReset /> },
-
+    { path: "/common-codes", element: <CommonCodePage /> },
+    
     // ✅ Layout 안에 들어가는 일반 페이지들
     {
         element: <Layout />,

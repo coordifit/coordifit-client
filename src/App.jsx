@@ -12,18 +12,17 @@ import SnapPage from "@/pages/SnapPage/SnapPage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
-import CalendarMonthly from "./pages/Calendar/CalendatMonthly/CalendarMonthly";
-import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
+import CalendarRouter from "./pages/Calendar/CalendarRouter";
 
-// ✅ 라우터 정의
+// 라우터 정의
 const router = createBrowserRouter([
-  // ✅ 풀스크린 계열 → Layout 안 쓰니까 handle 필요 없음
+  // 풀스크린 계열 → Layout 안 쓰니까 handle 필요 없음
   { path: "/", element: <Start /> },
   { path: "/login", element: <LoginPage /> },
   { path: "/signup", element: <SignUpPage /> },
   { path: "/password-reset", element: <PasswordReset /> },
 
-  // ✅ Layout 안에 들어가는 일반 페이지들
+  // Layout 안에 들어가는 일반 페이지들
   {
     element: <Layout />,
     children: [
@@ -48,22 +47,8 @@ const router = createBrowserRouter([
         },
         children: [
           {
-            path: ":yearMonth(\\d{4}-\\d{2})",
-            element: <CalendarMonthly />,
-            handle: {
-              showBack: false,
-              showHeader: false,
-              showTabbar: true,
-            },
-          },
-          {
-            path: ":date(\\d{4}-\\d{2}-\\d{2})",
-            element: <CalendarDetail />,
-            handle: {
-              showBack: false,
-              showHeader: false,
-              showTabbar: true,
-            },
+            path: ":date",
+            element: <CalendarRouter />,
           },
         ],
       },
@@ -86,7 +71,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       // 헤더 X + 탭바 O
       {
         path: "/snap",
@@ -98,7 +82,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       // 헤더 O + 탭바 X (예: 상세/편집 페이지)
       {
         path: "/profile/edit",

@@ -15,6 +15,7 @@ import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
 import CalendarRouter from "./pages/Calendar/CalendarRouter";
 import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
 import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
+import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 
 // 라우터 정의
 const router = createBrowserRouter([
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/signup", element: <SignUpPage /> },
   { path: "/password-reset", element: <PasswordReset /> },
+  { path: "/common-codes", element: <CommonCodePage /> },
 
   // Layout 안에 들어가는 일반 페이지들
   {

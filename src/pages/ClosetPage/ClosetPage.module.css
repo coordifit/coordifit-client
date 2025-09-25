@@ -276,7 +276,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0; /* 카드 사이 간격 제거 */
-    justify-content: space-between; /* 좌우 여백 분배 */
+    justify-content: flex-start; /* 왼쪽 정렬 */
 }
 
 .card {

@@ -33,8 +33,8 @@
 }
 
 .main-content {
-  flex: 1;
-  overflow: auto;
-  padding: 12px;
-  padding-bottom: 76px;
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+    padding-bottom: 10px; /* BottomNav 높이(64px) + 여백(12px) */
 }

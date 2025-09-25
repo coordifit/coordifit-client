@@ -1,0 +1,250 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.editorRow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.canvasCard {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stage {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.colors {
+  display: flex;
+  gap: 8px;
+}
+
+.colorDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.activeDot {
+  outline: 2px solid #222;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #f1f1f1;
+}
+
+.btnPrimary {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+  word-break: keep-all;
+}
+
+.btnDanger {
+  background: #ffefef;
+  border-color: #f88;
+  word-break: keep-all;
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.empty {
+  color: #888;
+  font-size: 12px;
+}
+
+.usedPanel {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.usedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.usedItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.usedItemActive {
+  border-color: #111;
+  background: #f6f6f6;
+}
+
+.thumb {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.category {
+  font-size: 12px;
+  color: #666;
+}
+
+.fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-size: 24px;
+  line-height: 56px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.sheet {
+  z-index: 11;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -70%;
+  height: 70%;
+  background: #fff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.2);
+  transition: bottom 0.25s ease;
+  padding: 12px 12px 24px;
+}
+.sheetOpen {
+  bottom: 0;
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sheetTitle {
+  font-weight: 700;
+}
+
+.sheetClose {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #fafafa;
+}
+
+.closetGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  overflow: auto;
+  height: calc(100% - 40px);
+}
+
+.closetCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+.closetImg {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+.closetInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.closetName {
+  font-size: 12px;
+  font-weight: 600;
+}
+.closetCat {
+  font-size: 11px;
+  color: #777;
+}

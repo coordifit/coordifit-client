@@ -70,8 +70,9 @@ export const CLOTHING_ITEMS = [
         size: "XL",
         price: 49500,
         purchaseDate: "2025-09-13",
-        purchaseLink: "https://musinsa.com/products/332145",
-        description: "파란색 최애 스트라이프 셔츠",
+        purchaseLink: "musinsa.com/products/332145",
+        description:
+            "파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠파란색 최애 스트라이프 셔츠",
         category: "top",
         subCategory: "shirts",
         wearCount: 5,

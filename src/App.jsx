@@ -74,7 +74,7 @@ const router = createBrowserRouter([
                     title: "옷 상세보기",
                     showBack: true,
                     showHeader: true,
-                    showTabbar: false,
+                    showTabbar: true,
                 },
             },
             {

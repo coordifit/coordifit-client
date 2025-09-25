@@ -1,74 +1,134 @@
 .container {
+    position: relative;
     display: flex;
+    padding: 0px 0px 0px 0px;
     flex-direction: column;
-    gap: 16px;
-    padding: 0 20px 24px;
-}
-
-.toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 8px;
-}
-
-.tabList {
-    display: flex;
-    gap: 8px;
-}
-
-.tabButton {
-    flex: 0 0 auto;
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid #e0e0e0;
+    min-height: 100%;
     background: #fff;
-    color: #333;
-    font-size: 15px;
-    font-weight: 500;
 }
 
-.activeTab {
-    background: #111;
-    border-color: #111;
-    color: #fff;
-}
-
-.toolbarActions {
+.topActions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
+    min-height: 32px;
 }
 
-.selectButton,
-.registerButton {
+.selectToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border: 1px solid #ffffff;
+    border-radius: 14px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+}
+
+.selectToggle:not(.cancelSelect) .toggleIcon {
+    display: none;
+}
+
+.cancelSelect {
+    padding: 0;
     border: none;
-    border-radius: 18px;
-    padding: 8px 16px;
+    background: transparent;
+    color: #000;
+    font-weight: 600;
+}
+
+.toggleIcon {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid #131214;
+    border-radius: 50%;
+}
+
+.toggleIcon::before,
+.toggleIcon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: #131214;
+    transform: translate(-50%, -50%);
+}
+
+.toggleIcon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.cancelSelect .toggleIcon::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cancelSelect .toggleIcon::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.registerLink {
+    border: none;
+    background: transparent;
+    color: #111;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
 }
 
-.selectButton {
-    background: #f2f2f2;
+.tabBar {
+    display: flex;
+    border-bottom: 1px solid #e6eaec;
+    position: relative;
+}
+
+.tabButton {
+    flex: 1;
+    padding: 0px 0px 12px;
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #d5d5d5;
+    position: relative;
+    cursor: pointer;
+}
+
+.tabButton + .tabButton::before {
+    content: "";
+    position: absolute;
+    top: 0; /* 가로선과 밀착 */
+    bottom: 0; /* 세로선이 가득 차도록 */
+    left: 0;
+    width: 1px;
+    background: #e6eaec;
+}
+
+.tabButton::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: transparent;
+}
+
+.activeTab {
     color: #333;
-}
-
-.selecting {
-    background: #111;
-    color: #fff;
-}
-
-.registerButton {
-    background: #111;
-    color: #fff;
+    font-size: 17px;
 }
 
 .categories {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: 20px;
 }
 
 .categoryHeader {
@@ -79,56 +139,133 @@
 
 .categoryMainList {
     display: flex;
-    gap: 10px;
+    gap: 6px;
+    padding: 0 20px 0;
     overflow-x: auto;
     padding-bottom: 4px;
 }
 
 .categoryButton {
-    padding: 6px 12px;
-    border-radius: 16px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 15px;
+    height: 30px;
+    border-radius: 10px;
     border: none;
-    background: #f5f5f5;
-    color: #666;
-    font-size: 14px;
+    background: #ffffff;
+    color: #a6a6a6;
+    font-size: 15px;
+    font-weight: 700;
     white-space: nowrap;
 }
 
 .activeCategory {
-    background: #111;
+    background: #333;
     color: #fff;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 .panelToggle {
     border: none;
     background: transparent;
-    color: #666;
-    font-size: 14px;
+    color: #8e8e93;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
 }
 
 .subCategoryList {
     display: flex;
-    gap: 8px;
+    gap: 12px;
+    padding: 0 20px 0;
     overflow-x: auto;
     padding-bottom: 6px;
 }
 
 .subCategoryButton {
-    padding: 6px 14px;
-    border-radius: 16px;
-    border: 1px solid transparent;
-    background: #f8f8f8;
-    color: #777;
+    border: none;
+    background: transparent;
+    padding: 8px 10px 6px;
     font-size: 13px;
+    font-weight: 600;
+    color: #d5d5d5;
     white-space: nowrap;
 }
 
 .activeSubCategory {
-    border-color: #111;
-    background: #fff;
-    color: #111;
+    color: #333;
+    border-bottom: 1px solid #000;
+}
+
+.utilityRow {
+    display: flex;
+    justify-content: space-between; /* 좌-우 끝 배치 */
+    align-items: center;
+    margin: 0px 0 10px;
+    gap: 12px; /* 버튼 사이 간격 */
+}
+
+.selectionStatus {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.selectionBadge {
+    position: relative;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    border: 1.5px solid #131214;
+    border-radius: 4px;
+}
+
+.selectionBadge::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: 1.5px solid #131214;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+
+.selectionText {
+    font-size: 11px;
     font-weight: 600;
+    color: #000;
+}
+
+.selectionPlaceholder {
+    min-height: 20px;
+    min-width: 81px;
+}
+
+.sortButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    height: 26px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #000;
+    cursor: pointer;
+}
+
+.sortIcon {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #131214;
 }
 
 .gridSection {
@@ -136,100 +273,126 @@
 }
 
 .grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0; /* 카드 사이 간격 제거 */
+    justify-content: space-between; /* 좌우 여백 분배 */
 }
 
-.card,
-.addCard {
+.card {
     position: relative;
-    border-radius: 16px;
+    width: 112px;
+    height: 160px;
+    flex: 0 0 auto; /* 크기 고정 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 5px 10px;
+    border: 1px solid rgba(170, 178, 200, 0.2); /* #AAB2C8 20% */
     background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    min-height: 150px;
-    border: 1px solid transparent;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover,
-.addCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-.cardSelectable {
-    border-color: #111;
+    transition: border-color 0.2s ease;
 }
 
 .cardImageWrapper {
     position: relative;
     width: 100%;
-    padding-top: 120%;
-    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .cardImage {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    width: 92px;
+    height: 92px;
     object-fit: cover;
+    border-radius: 6px;
 }
 
 .checkbox {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
+    top: 6px;
+    right: 6px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    border: 2px solid #fff;
-    background: rgba(0, 0, 0, 0.3);
+    border: 1.5px solid #131214;
+    background: #fff;
+}
+
+.checkbox::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: 1.5px solid transparent;
+    transform: rotate(45deg);
 }
 
 .checkboxChecked {
-    background: #111;
-    border-color: #111;
+    background: #131214;
+}
+
+.checkboxChecked::after {
+    border-right-color: #fff;
+    border-bottom-color: #fff;
 }
 
 .cardContent {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
-    padding: 12px;
+    width: 100%;
 }
 
 .cardName {
-    font-size: 14px;
+    width: 100%;
+    font-size: 11px;
     font-weight: 600;
-    color: #222;
+    color: #a6a6a6;
+    line-height: 1.4;
 }
 
 .cardMeta {
-    font-size: 12px;
-    color: #888;
+    width: 100%;
+    font-size: 8px;
+    color: #a6a6a6;
 }
 
 .addCard {
+    width: 110px;
+    height: 160px;
+    flex: 0 0 auto; /* 크기 고정 */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #999;
-    border: 1px dashed #cfcfcf;
+    gap: 12px;
+    padding: 12px 5px;
+    border: 1px solid rgba(170, 178, 200, 0.2);
+    background: #f4f6f7;
+    color: #6b7280;
 }
 
 .addIcon {
-    font-size: 28px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #131214;
+    border-radius: 50%;
+    font-size: 16px;
     line-height: 1;
 }
 
 .addLabel {
-    font-size: 13px;
-    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .observerTarget {
@@ -239,10 +402,10 @@
 
 .categoryPanel {
     position: fixed;
-    top: 80px;
-    right: 16px;
+    top: 88px;
+    right: 12px;
     width: 220px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 140px);
     background: rgba(255, 255, 255, 0.96);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     border-radius: 20px;
@@ -322,48 +485,71 @@
     font-weight: 600;
 }
 
-.selectionBar {
+.deletePill {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #111;
-    color: #fff;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
+    left: 50%;
+    bottom: 96px;
+    transform: translateX(-50%);
+    display: inline-flex;
     align-items: center;
-    z-index: 30;
-}
-
-.selectionInfo {
-    font-size: 14px;
-}
-
-.deleteButton {
+    gap: 8px;
+    padding: 9px 20px;
     border: none;
-    background: #ff5a5a;
+    border-radius: 20px;
+    background: #8e8e93;
     color: #fff;
-    padding: 10px 16px;
-    border-radius: 18px;
+    font-size: 18px;
     font-weight: 600;
+    letter-spacing: -0.02em;
     cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
+.deleteIcon {
+    position: relative;
+    width: 17px;
+    height: 17px;
+    border: 1.5px solid #131214;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.deleteIcon::before,
+.deleteIcon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 1.5px;
+    background: #131214;
+    transform: translate(-50%, -50%);
+}
+
+.deleteIcon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+.categoryMainList::-webkit-scrollbar,
+.subCategoryList::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .deletePill {
+        bottom: 84px;
+    }
+
     .categoryPanel {
-        position: fixed;
-        inset: auto 16px 100px 16px;
+        inset: auto 16px 84px 16px;
         width: auto;
     }
 }
 
 @media (max-width: 480px) {
-    .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .container {
+        padding: 0px;
     }
 }

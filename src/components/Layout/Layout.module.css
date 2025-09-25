@@ -37,5 +37,5 @@
     flex: 1;
     overflow: auto;
     padding: 12px;
-    padding-bottom: 76px; /* BottomNav 높이(64px) + 여백(12px) */
+    padding-bottom: 10px; /* BottomNav 높이(64px) + 여백(12px) */
 }

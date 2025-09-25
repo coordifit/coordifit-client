@@ -148,43 +148,20 @@ const ClosetPage = () => {
 
     return (
         <div className={styles.container}>
-            <section className={styles.toolbar}>
-                <div className={styles.tabList}>
-                    {CLOSET_TABS.map((tab) => (
-                        <button
-                            key={tab.id}
-                            type="button"
-                            className={clsx(
-                                styles.tabButton,
-                                activeTab === tab.id && styles.activeTab
-                            )}
-                            onClick={() => setActiveTab(tab.id)}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-                <div className={styles.toolbarActions}>
-                    {!isCoordiTab && (
-                        <button
-                            type="button"
-                            className={clsx(
-                                styles.selectButton,
-                                isSelecting && styles.selecting
-                            )}
-                            onClick={handleSelectMode}
-                        >
-                            {isSelecting ? "선택완료" : "선택하기"}
-                        </button>
-                    )}
+            <section className={styles.tabBar}>
+                {CLOSET_TABS.map((tab) => (
                     <button
+                        key={tab.id}
                         type="button"
-                        className={styles.registerButton}
-                        onClick={handleAddClick}
+                        className={clsx(
+                            styles.tabButton,
+                            activeTab === tab.id && styles.activeTab
+                        )}
+                        onClick={() => setActiveTab(tab.id)}
                     >
-                        + 등록
+                        {tab.label}
                     </button>
-                </div>
+                ))}
             </section>
 
             {!isCoordiTab && (
@@ -208,15 +185,6 @@ const ClosetPage = () => {
                                 </button>
                             ))}
                         </div>
-                        <button
-                            type="button"
-                            className={styles.panelToggle}
-                            onClick={() =>
-                                setIsCategoryPanelOpen((prev) => !prev)
-                            }
-                        >
-                            카테고리
-                        </button>
                     </div>
                     {activeMainCategory && (
                         <div className={styles.subCategoryList}>
@@ -242,6 +210,34 @@ const ClosetPage = () => {
                     )}
                 </section>
             )}
+
+            <div className={styles.utilityRow}>
+                <button
+                    type="button"
+                    className={clsx(
+                        styles.selectToggle,
+                        isSelecting && styles.cancelSelect
+                    )}
+                    onClick={handleSelectMode}
+                >
+                    <span className={styles.toggleIcon} aria-hidden />
+                    {isSelecting ? "취소하기" : "선택하기"}
+                </button>
+                {isSelecting ? (
+                    <div className={styles.selectionStatus}>
+                        <span className={styles.selectionBadge} aria-hidden />
+                        <span className={styles.selectionText}>
+                            {selectedItems.length}개 선택됨
+                        </span>
+                    </div>
+                ) : (
+                    <div className={styles.selectionPlaceholder} />
+                )}
+                <button type="button" className={styles.sortButton}>
+                    구매일순
+                    <span className={styles.sortIcon} aria-hidden />
+                </button>
+            </div>
 
             <section className={styles.gridSection}>
                 <div className={styles.grid}>
@@ -362,18 +358,14 @@ const ClosetPage = () => {
             )}
 
             {isSelecting && selectedItems.length > 0 && (
-                <div className={styles.selectionBar}>
-                    <span className={styles.selectionInfo}>
-                        {selectedItems.length}개 선택됨
-                    </span>
-                    <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={handleDelete}
-                    >
-                        삭제
-                    </button>
-                </div>
+                <button
+                    type="button"
+                    className={styles.deletePill}
+                    onClick={handleDelete}
+                >
+                    <span className={styles.deleteIcon} aria-hidden />
+                    삭제
+                </button>
             )}
         </div>
     );

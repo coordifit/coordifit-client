@@ -14,3 +14,9 @@
 .active {
   color: blue;
 }
+
+.content-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

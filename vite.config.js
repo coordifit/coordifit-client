@@ -8,11 +8,12 @@ const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
-    plugins: [react()],
-    resolve: {
-        alias: {
-            "@": path.resolve(__dirname, "./src"),
-            "@page": path.resolve(__dirname, "./src/pages"),
-        },
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@page": path.resolve(__dirname, "./src/pages"),
+      "@images": path.resolve(__dirname, "./src/assets/images/clothes"),
     },
+  },
 });

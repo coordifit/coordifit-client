@@ -13,6 +13,8 @@ import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
 import CalendarRouter from "./pages/Calendar/CalendarRouter";
+import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
+import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 
 // 라우터 정의
@@ -51,6 +53,10 @@ const router = createBrowserRouter([
           {
             path: ":date",
             element: <CalendarRouter />,
+            children: [
+              { path: "", element: <CalendarDetail /> },
+              { path: "editor", element: <CalendarEditor /> },
+            ],
           },
         ],
       },

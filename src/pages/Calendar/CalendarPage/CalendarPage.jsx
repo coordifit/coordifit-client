@@ -133,7 +133,9 @@ const CalendarPage = () => {
           <button onClick={() => handleDateMove("next")}>next</button>
         </div>
       )}
-      <Outlet />
+      <div className={cx("content-box")}>
+        <Outlet />
+      </div>
     </>
   );
 };

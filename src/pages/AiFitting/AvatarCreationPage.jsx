@@ -8,7 +8,7 @@ import {
   selectAddAvatar,
   selectSetSelectedAvatarId,
   useAiFittingStore,
-} from "./store/useAiFittingStore";
+} from "@/stores/aiFittingStore.js";
 
 const AvatarCreationPage = () => {
   const navigate = useNavigate();

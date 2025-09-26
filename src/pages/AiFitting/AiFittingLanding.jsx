@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
+
 import styles from "./AiFittingLanding.module.css";
-import { clothingTypes, closetCategoryMap } from "./data";
+import { clothingTypes, closetCategoryMap } from "./data.js";
 import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
 import {
   selectAvatars,
@@ -10,7 +11,8 @@ import {
   selectSelectedAvatarId,
   selectUpdateClothingSelection,
   useAiFittingStore,
-} from "./store/useAiFittingStore";
+} from "@/stores/aiFittingStore.js";
+
 const AiFittingLanding = () => {
   const navigate = useNavigate();
   const avatars = useAiFittingStore(selectAvatars);
@@ -19,14 +21,17 @@ const AiFittingLanding = () => {
   const updateClothingSelection = useAiFittingStore(
     selectUpdateClothingSelection
   );
+
   const [activeClothingType, setActiveClothingType] = useState(
     clothingTypes[0]?.id ?? null
   );
   const [activeSubCategory, setActiveSubCategory] = useState("all");
+
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId]
   );
+
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
     const categoryId = closetCategoryMap[activeClothingType];
@@ -34,11 +39,13 @@ const AiFittingLanding = () => {
       MAIN_CATEGORIES.find((category) => category.id === categoryId) ?? null
     );
   }, [activeClothingType]);
+
   const availableClosetItems = useMemo(() => {
     if (!activeClothingType) return [];
     const categoryId = closetCategoryMap[activeClothingType];
     return CLOTHING_ITEMS.filter((item) => item.category === categoryId);
   }, [activeClothingType]);
+
   const filteredClosetItems = useMemo(() => {
     if (!activeClothingType) return [];
     if (activeSubCategory === "all") return availableClosetItems;
@@ -46,15 +53,19 @@ const AiFittingLanding = () => {
       (item) => item.subCategory === activeSubCategory
     );
   }, [activeClothingType, activeSubCategory, availableClosetItems]);
+
   const currentSelection = activeClothingType
     ? clothingSelection[activeClothingType]
     : null;
+
   const isReadyForAi =
     Boolean(selectedAvatar) && Object.values(clothingSelection).some(Boolean);
+
   const handleClosetItemClick = (item) => {
     if (!activeClothingType) return;
     updateClothingSelection(activeClothingType, item);
   };
+
   return (
     <div className={styles.page}>
       <section className={styles.section}>
@@ -73,6 +84,7 @@ const AiFittingLanding = () => {
             아바타 선택
           </button>
         </header>
+
         <div className={styles.avatarCard}>
           {selectedAvatar ? (
             <img
@@ -94,6 +106,7 @@ const AiFittingLanding = () => {
             </span>
           </div>
         </div>
+
         <button
           type="button"
           className={styles.primaryButton}
@@ -102,8 +115,10 @@ const AiFittingLanding = () => {
           AI 코디 생성하기
         </button>
       </section>
+
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>의류 선택</h2>
+
         <div className={styles.clothingTypeList}>
           {clothingTypes.map((type) => (
             <button
@@ -124,6 +139,7 @@ const AiFittingLanding = () => {
             </button>
           ))}
         </div>
+
         {currentClosetMainCategory ? (
           <>
             <div className={styles.subCategoryTabs}>
@@ -142,6 +158,7 @@ const AiFittingLanding = () => {
                 </button>
               ))}
             </div>
+
             <div className={styles.closetGrid}>
               {filteredClosetItems.map((item) => {
                 const isSelected = currentSelection?.id === item.id;
@@ -173,4 +190,5 @@ const AiFittingLanding = () => {
     </div>
   );
 };
+
 export default AiFittingLanding;

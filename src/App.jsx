@@ -139,7 +139,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/ai-fitting/avatar-selection",
+        path: "/ai-fitting/avatars",
         element: <AvatarSelectionPage />,
         handle: {
           title: "아바타 선택",
@@ -149,10 +149,10 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/ai-fitting/avatar-creation",
+        path: "/ai-fitting/avatars/new",
         element: <AvatarCreationPage />,
         handle: {
-          title: "아바타 생성",
+          title: "아바타 만들기",
           showBack: true,
           showHeader: true,
           showTabbar: false,

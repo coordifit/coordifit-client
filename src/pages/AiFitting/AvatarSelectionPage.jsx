@@ -9,7 +9,7 @@ import {
   selectSelectedAvatarId,
   selectSetSelectedAvatarId,
   useAiFittingStore,
-} from "./store/useAiFittingStore";
+} from "@/stores/aiFittingStore.js";
 
 const AvatarSelectionPage = () => {
   const navigate = useNavigate();

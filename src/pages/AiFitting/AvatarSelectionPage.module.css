@@ -1,0 +1,157 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 16px 32px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+}
+
+.avatarCard {
+  min-width: 140px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: border 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.avatarCardActive {
+  border-color: #2563eb;
+  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.2);
+  transform: translateY(-4px);
+}
+
+.avatarImage {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.avatarName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  text-align: center;
+}
+
+.createAvatarCard {
+  justify-content: center;
+  background: #f8fafc;
+  border-style: dashed;
+  border-color: #cbd5f5;
+  color: #2563eb;
+}
+
+.createIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.preview {
+  display: flex;
+  gap: 16px;
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(37, 99, 235, 0.08),
+    rgba(124, 58, 237, 0.08)
+  );
+}
+
+.previewImage {
+  width: 120px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.previewInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.previewName {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.previewHint {
+  margin: 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 40px 0;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.primaryButton,
+.secondaryButton {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  color: #ffffff;
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background: #f1f5f9;
+  color: #1e293b;
+}

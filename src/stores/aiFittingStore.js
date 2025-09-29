@@ -1,5 +1,5 @@
-import { createZustandStore } from "../stores/createZustandstore.js";
-import { initialAvatars } from "@/pages/AiFitting/data.js";
+import { createZustandStore } from '@/stores/createZustandStore.js';
+import { initialAvatars } from '@/pages/AiFitting/data.js';
 
 const createEmptySelection = () => ({
   top: null,
@@ -35,7 +35,5 @@ export const selectSelectedAvatarId = (state) => state.selectedAvatarId;
 export const selectClothingSelection = (state) => state.clothingSelection;
 export const selectAddAvatar = (state) => state.addAvatar;
 export const selectSetSelectedAvatarId = (state) => state.setSelectedAvatarId;
-export const selectUpdateClothingSelection = (state) =>
-  state.updateClothingSelection;
-export const selectClearClothingSelection = (state) =>
-  state.clearClothingSelection;
+export const selectUpdateClothingSelection = (state) => state.updateClothingSelection;
+export const selectClearClothingSelection = (state) => state.clearClothingSelection;

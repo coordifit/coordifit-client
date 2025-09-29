@@ -9,7 +9,7 @@ const createEmptySelection = () => ({
 
 export const useAiFittingStore = createZustandStore((set) => ({
   avatars: initialAvatars,
-  selectedAvatarId: initialAvatars[0]?.id ?? null,
+  selectedAvatarId: null,
   clothingSelection: createEmptySelection(),
   addAvatar: (avatar) => {
     set((state) => ({ avatars: [...state.avatars, avatar] }));

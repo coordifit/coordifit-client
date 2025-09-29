@@ -1,43 +1,40 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import clsx from "clsx";
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 
-import styles from "./AiFittingLanding.module.css";
-import { clothingTypes, closetCategoryMap } from "./data.js";
-import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
+import styles from './AiFittingLanding.module.css';
+import { clothingTypes, closetCategoryMap } from './data.js';
+import { CLOTHING_ITEMS, MAIN_CATEGORIES } from '@/pages/ClosetPage/closetData';
 import {
   selectAvatars,
   selectClothingSelection,
   selectSelectedAvatarId,
   selectUpdateClothingSelection,
   useAiFittingStore,
-} from "@/stores/aiFittingStore.js";
+} from '@/stores/aiFittingStore.js';
+import userPlaceholder from '@/assets/images/user-placeholder.svg';
+import chevronDown from '@/assets/images/chevron-down.svg';
 
 const AiFittingLanding = () => {
   const navigate = useNavigate();
   const avatars = useAiFittingStore(selectAvatars);
   const selectedAvatarId = useAiFittingStore(selectSelectedAvatarId);
   const clothingSelection = useAiFittingStore(selectClothingSelection);
-  const updateClothingSelection = useAiFittingStore(
-    selectUpdateClothingSelection
-  );
+  const updateClothingSelection = useAiFittingStore(selectUpdateClothingSelection);
 
-  const [activeClothingType, setActiveClothingType] = useState(
-    clothingTypes[0]?.id ?? null
-  );
-  const [activeSubCategory, setActiveSubCategory] = useState("all");
+  const [activeClothingType, setActiveClothingType] = useState(null);
+  const [activeSubCategory, setActiveSubCategory] = useState('all');
+  const [highlightedItem, setHighlightedItem] = useState(null);
 
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
-    [avatars, selectedAvatarId]
+    [avatars, selectedAvatarId],
   );
 
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
     const categoryId = closetCategoryMap[activeClothingType];
-    return (
-      MAIN_CATEGORIES.find((category) => category.id === categoryId) ?? null
-    );
+    return MAIN_CATEGORIES.find((category) => category.id === categoryId) ?? null;
   }, [activeClothingType]);
 
   const availableClosetItems = useMemo(() => {
@@ -48,100 +45,129 @@ const AiFittingLanding = () => {
 
   const filteredClosetItems = useMemo(() => {
     if (!activeClothingType) return [];
-    if (activeSubCategory === "all") return availableClosetItems;
-    return availableClosetItems.filter(
-      (item) => item.subCategory === activeSubCategory
-    );
+    if (activeSubCategory === 'all') return availableClosetItems;
+    return availableClosetItems.filter((item) => item.subCategory === activeSubCategory);
   }, [activeClothingType, activeSubCategory, availableClosetItems]);
 
-  const currentSelection = activeClothingType
-    ? clothingSelection[activeClothingType]
-    : null;
+  const isReadyForAi = Boolean(selectedAvatar) && Object.values(clothingSelection).some(Boolean);
 
-  const isReadyForAi =
-    Boolean(selectedAvatar) && Object.values(clothingSelection).some(Boolean);
+  const handleTypeCardClick = (typeId) => {
+    if (activeClothingType === typeId) {
+      setActiveClothingType(null);
+      setActiveSubCategory('all');
+      setHighlightedItem(null);
+      return;
+    }
+
+    setActiveClothingType(typeId);
+    setActiveSubCategory('all');
+    setHighlightedItem(clothingSelection[typeId] ?? null);
+  };
 
   const handleClosetItemClick = (item) => {
-    if (!activeClothingType) return;
-    updateClothingSelection(activeClothingType, item);
+    setHighlightedItem(item);
   };
+
+  const handleConfirmSelection = () => {
+    if (!activeClothingType || !highlightedItem) return;
+    updateClothingSelection(activeClothingType, highlightedItem);
+    setActiveClothingType(null);
+    setActiveSubCategory('all');
+    setHighlightedItem(null);
+  };
+
+  const activeTypeLabel = useMemo(() => {
+    if (!activeClothingType) return '';
+    return clothingTypes.find((type) => type.id === activeClothingType)?.label ?? '';
+  }, [activeClothingType]);
+
+  const showClosetPanel = Boolean(activeClothingType && currentClosetMainCategory);
 
   return (
     <div className={styles.page}>
-      <section className={styles.section}>
-        <header className={styles.sectionHeader}>
-          <div>
-            <h1 className={styles.title}>AI 피팅</h1>
-            <p className={styles.subtitle}>
-              아바타와 옷을 선택해 AI 코디를 만들어보세요.
+      <section className={styles.avatarSection}>
+        <div className={styles.avatarPanel}>
+          <div className={styles.avatarVisual}>
+            {selectedAvatar ? (
+              <img
+                src={selectedAvatar.image}
+                alt={selectedAvatar.name}
+                className={styles.avatarVisualImage}
+              />
+            ) : (
+              <img src={userPlaceholder} alt="" className={styles.avatarPlaceholderIcon} />
+            )}
+          </div>
+          <div className={styles.avatarTextGroup}>
+            <p className={styles.avatarTitle}>아바타를 선택하거나 만들어보세요</p>
+            <p className={styles.avatarDescription}>
+              {selectedAvatar
+                ? `선택된 아바타: ${selectedAvatar.name}`
+                : '아바타가 아직 선택되지 않았어요.'}
             </p>
           </div>
           <button
             type="button"
-            className={styles.avatarSelectButton}
-            onClick={() => navigate("/ai-fitting/avatars")}
+            className={styles.avatarButton}
+            onClick={() => navigate('/ai-fitting/avatars')}
           >
             아바타 선택
           </button>
-        </header>
-
-        <div className={styles.avatarCard}>
-          {selectedAvatar ? (
-            <img
-              src={selectedAvatar.image}
-              alt={selectedAvatar.name}
-              className={styles.avatarImage}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}>아바타를 선택하세요</div>
-          )}
-          <div className={styles.avatarInfo}>
-            <strong className={styles.avatarName}>
-              {selectedAvatar
-                ? selectedAvatar.name
-                : "선택된 아바타가 없습니다"}
-            </strong>
-            <span className={styles.avatarHint}>
-              아바타를 선택하거나 새로 만들어 나만의 코디를 구성해보세요.
-            </span>
-          </div>
         </div>
-
-        <button
-          type="button"
-          className={styles.primaryButton}
-          disabled={!isReadyForAi}
-        >
-          AI 코디 생성하기
-        </button>
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.selectionSection}>
         <h2 className={styles.sectionTitle}>의류 선택</h2>
 
-        <div className={styles.clothingTypeList}>
-          {clothingTypes.map((type) => (
-            <button
-              key={type.id}
-              type="button"
-              className={clsx(
-                styles.clothingTypeButton,
-                activeClothingType === type.id &&
-                  styles.clothingTypeButtonActive
-              )}
-              onClick={() => {
-                setActiveClothingType(type.id);
-                setActiveSubCategory("all");
-              }}
-            >
-              <img src={type.icon} alt="" className={styles.clothingTypeIcon} />
-              <span>{type.label}</span>
-            </button>
-          ))}
+        <div className={styles.selectionList}>
+          {clothingTypes.map((type) => {
+            const selection = clothingSelection[type.id];
+            const isActive = activeClothingType === type.id;
+
+            return (
+              <button
+                key={type.id}
+                type="button"
+                className={clsx(styles.selectionCard, isActive && styles.selectionCardActive)}
+                onClick={() => handleTypeCardClick(type.id)}
+              >
+                {selection ? (
+                  <div className={styles.selectionThumbnailWrapper}>
+                    <img
+                      src={selection.images?.[0]}
+                      alt={selection.name}
+                      className={styles.selectionThumbnail}
+                    />
+                  </div>
+                ) : (
+                  <div className={styles.selectionIconWrapper}>
+                    <img src={type.icon} alt="" className={styles.selectionIcon} />
+                  </div>
+                )}
+                <div className={styles.selectionInfo}>
+                  <span className={styles.selectionLabel}>{type.label}</span>
+                  <span className={styles.selectionSummary}>
+                    {selection ? selection.name : '선택된 아이템: 없음'}
+                  </span>
+                </div>
+                <img
+                  src={chevronDown}
+                  alt=""
+                  className={clsx(
+                    styles.selectionChevronIcon,
+                    isActive && styles.selectionChevronIconActive,
+                  )}
+                />
+              </button>
+            );
+          })}
         </div>
 
-        {currentClosetMainCategory ? (
-          <>
+        {showClosetPanel && (
+          <div className={styles.closetPanel}>
+            <div className={styles.closetPanelHeader}>
+              <span className={styles.closetPanelTitle}>{activeTypeLabel}</span>
+            </div>
             <div className={styles.subCategoryTabs}>
               {currentClosetMainCategory.subcategories.map((sub) => (
                 <button
@@ -149,8 +175,7 @@ const AiFittingLanding = () => {
                   type="button"
                   className={clsx(
                     styles.subCategoryButton,
-                    activeSubCategory === sub.id &&
-                      styles.subCategoryButtonActive
+                    activeSubCategory === sub.id && styles.subCategoryButtonActive,
                   )}
                   onClick={() => setActiveSubCategory(sub.id)}
                 >
@@ -159,34 +184,44 @@ const AiFittingLanding = () => {
               ))}
             </div>
 
-            <div className={styles.closetGrid}>
-              {filteredClosetItems.map((item) => {
-                const isSelected = currentSelection?.id === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={clsx(
-                      styles.closetCard,
-                      isSelected && styles.closetCardSelected
-                    )}
-                    onClick={() => handleClosetItemClick(item)}
-                  >
-                    <img
-                      src={item.images?.[0]}
-                      alt=""
-                      className={styles.closetImage}
-                    />
-                    <span className={styles.closetName}>{item.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <p className={styles.emptyState}>카테고리를 선택해주세요.</p>
+            {filteredClosetItems.length > 0 ? (
+              <div className={styles.closetGrid}>
+                {filteredClosetItems.map((item) => {
+                  const isSelected = highlightedItem?.id === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={clsx(styles.closetCard, isSelected && styles.closetCardSelected)}
+                      onClick={() => handleClosetItemClick(item)}
+                    >
+                      <img src={item.images?.[0]} alt={item.name} className={styles.closetImage} />
+                      <span className={styles.closetName}>{item.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className={styles.emptyState}>선택 가능한 아이템이 없습니다.</p>
+            )}
+
+            <button
+              type="button"
+              className={styles.confirmButton}
+              onClick={handleConfirmSelection}
+              disabled={!highlightedItem || !activeClothingType}
+            >
+              옷 고르기
+            </button>
+          </div>
         )}
       </section>
+
+      <footer className={styles.footer}>
+        <button type="button" className={styles.footerButton} disabled={!isReadyForAi}>
+          AI 옷입히기
+        </button>
+      </footer>
     </div>
   );
 };

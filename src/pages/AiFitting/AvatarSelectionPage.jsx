@@ -1,15 +1,16 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import clsx from "clsx";
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 
-import styles from "./AvatarSelectionPage.module.css";
-import addAvatarIcon from "@/assets/images/enrollicon.png";
+import styles from './AvatarSelectionPage.module.css';
+import addAvatarIcon from '@/assets/images/enrollicon.png';
+import chevronLeft from '@/assets/images/chevron-left.svg';
 import {
   selectAvatars,
   selectSelectedAvatarId,
   selectSetSelectedAvatarId,
   useAiFittingStore,
-} from "@/stores/aiFittingStore.js";
+} from '@/stores/aiFittingStore.js';
 
 const AvatarSelectionPage = () => {
   const navigate = useNavigate();
@@ -18,27 +19,32 @@ const AvatarSelectionPage = () => {
   const setSelectedAvatarId = useAiFittingStore(selectSetSelectedAvatarId);
 
   const [pendingAvatarId, setPendingAvatarId] = useState(
-    selectedAvatarId ?? avatars[0]?.id ?? null
+    selectedAvatarId ?? avatars[0]?.id ?? null,
   );
 
   const pendingAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === pendingAvatarId) ?? null,
-    [avatars, pendingAvatarId]
+    [avatars, pendingAvatarId],
   );
 
   const handleConfirm = () => {
     if (!pendingAvatarId) return;
     setSelectedAvatarId(pendingAvatarId);
-    navigate("/ai-fitting");
+    navigate('/ai-fitting');
   };
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>아바타 선택</h1>
-        <p className={styles.description}>
-          나와 닮은 아바타를 선택하거나 새로 만들어보세요.
-        </p>
+        <button
+          type="button"
+          className={styles.backButton}
+          aria-label="뒤로가기"
+          onClick={() => navigate(-1)}
+        >
+          <img src={chevronLeft} alt="" className={styles.backIcon} />
+        </button>
+        <h1 className={styles.title}>아바타를 선택하세요</h1>
       </header>
 
       <div className={styles.carousel}>
@@ -48,15 +54,13 @@ const AvatarSelectionPage = () => {
             type="button"
             className={clsx(
               styles.avatarCard,
-              pendingAvatarId === avatar.id && styles.avatarCardActive
+              pendingAvatarId === avatar.id && styles.avatarCardActive,
             )}
             onClick={() => setPendingAvatarId(avatar.id)}
           >
-            <img
-              src={avatar.image}
-              alt={avatar.name}
-              className={styles.avatarImage}
-            />
+            <div className={styles.avatarImageWrapper}>
+              <img src={avatar.image} alt={avatar.name} className={styles.avatarImage} />
+            </div>
             <span className={styles.avatarName}>{avatar.name}</span>
           </button>
         ))}
@@ -64,48 +68,35 @@ const AvatarSelectionPage = () => {
         <button
           type="button"
           className={clsx(styles.avatarCard, styles.createAvatarCard)}
-          onClick={() => navigate("/ai-fitting/avatars/new")}
+          onClick={() => navigate('/ai-fitting/avatars/new')}
         >
-          <img src={addAvatarIcon} alt="" className={styles.createIcon} />
-          <span className={styles.avatarName}>새 아바타 만들기</span>
-        </button>
-      </div>
-
-      {pendingAvatar ? (
-        <div className={styles.preview}>
-          <img
-            src={pendingAvatar.image}
-            alt={pendingAvatar.name}
-            className={styles.previewImage}
-          />
-          <div className={styles.previewInfo}>
-            <h2 className={styles.previewName}>{pendingAvatar.name}</h2>
-            <p className={styles.previewHint}>
-              선택 완료를 누르면 이 아바타로 AI 피팅이 진행됩니다.
-            </p>
+          <div className={styles.createAvatarInner}>
+            <div className={styles.createAvatarIllustration}>
+              <img src={addAvatarIcon} alt="" className={styles.createIcon} />
+            </div>
+            <p className={styles.createAvatarDescription}>나만의 아바타를 제작해보세요</p>
+            <span className={styles.createAvatarButton}>아바타 제작</span>
           </div>
-        </div>
-      ) : (
-        <p className={styles.emptyState}>선택 가능한 아바타가 없습니다.</p>
-      )}
-
-      <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          onClick={() => navigate("/ai-fitting")}
-        >
-          취소
-        </button>
-        <button
-          type="button"
-          className={styles.primaryButton}
-          onClick={handleConfirm}
-          disabled={!pendingAvatarId}
-        >
-          선택 완료
+          <span className={styles.avatarName}>아바타 추가</span>
         </button>
       </div>
+
+      <div className={styles.previewArea}>
+        {pendingAvatar ? (
+          <img src={pendingAvatar.image} alt={pendingAvatar.name} className={styles.previewImage} />
+        ) : (
+          <p className={styles.emptyState}>선택 가능한 아바타가 없습니다.</p>
+        )}
+      </div>
+
+      <button
+        type="button"
+        className={styles.confirmButton}
+        onClick={handleConfirm}
+        disabled={!pendingAvatarId}
+      >
+        선택하기
+      </button>
     </div>
   );
 };

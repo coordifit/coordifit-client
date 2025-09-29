@@ -87,19 +87,19 @@ const AiFittingLanding = () => {
     <div className={styles.page}>
       <section className={styles.avatarSection}>
         <div className={styles.avatarPanel}>
-          <div className={styles.avatarVisual}>
+          <div className={styles.avatarPreview}>
             {selectedAvatar ? (
               <img
                 src={selectedAvatar.image}
                 alt={selectedAvatar.name}
-                className={styles.avatarVisualImage}
+                className={styles.avatarPreviewImage}
               />
             ) : (
               <img src={userPlaceholder} alt="" className={styles.avatarPlaceholderIcon} />
             )}
           </div>
           <div className={styles.avatarTextGroup}>
-            <p className={styles.avatarTitle}>아바타를 선택하거나 만들어보세요</p>
+            <h2 className={styles.avatarHeading}>아바타를 선택하거나 만들어보세요</h2>
             <p className={styles.avatarDescription}>
               {selectedAvatar
                 ? `선택된 아바타: ${selectedAvatar.name}`
@@ -108,7 +108,7 @@ const AiFittingLanding = () => {
           </div>
           <button
             type="button"
-            className={styles.avatarButton}
+            className={styles.avatarAction}
             onClick={() => navigate('/ai-fitting/avatars')}
           >
             아바타 선택
@@ -195,7 +195,13 @@ const AiFittingLanding = () => {
                       className={clsx(styles.closetCard, isSelected && styles.closetCardSelected)}
                       onClick={() => handleClosetItemClick(item)}
                     >
-                      <img src={item.images?.[0]} alt={item.name} className={styles.closetImage} />
+                      <div className={styles.closetThumbnail}>
+                        <img
+                          src={item.images?.[0]}
+                          alt={item.name}
+                          className={styles.closetImage}
+                        />
+                      </div>
                       <span className={styles.closetName}>{item.name}</span>
                     </button>
                   );

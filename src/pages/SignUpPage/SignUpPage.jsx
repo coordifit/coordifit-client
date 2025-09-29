@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../services/axiosInstance";
 import styles from "./SignUpPage.module.css";
 
 const SignUp = () => {
@@ -54,8 +55,8 @@ const SignUp = () => {
         }
         
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check-email?email=${encodeURIComponent(email)}`);
-            const result = await response.json();
+            const response = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`);
+            const result = response.data;
             if (result.success && result.data) {
                 setMessages(prev => ({ ...prev, email: '사용 가능한 이메일입니다.' }));
                 setValidation(prev => ({ ...prev, email: true }));
@@ -137,12 +138,10 @@ const SignUp = () => {
         
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:8080/api/auth/send-verification', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: formData.email })
+            const response = await api.post('/auth/send-verification', {
+                email: formData.email
             });
-            const result = await response.json();
+            const result = response.data;
             if (result.success) {
                 setSentVerificationCode(result.data);
                 setVerificationTimer(600);
@@ -194,8 +193,8 @@ const SignUp = () => {
         }
         
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
-            const result = await response.json();
+            const response = await api.get(`/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+            const result = response.data;
             
             if (result.success && result.data) {
                 setMessages(prev => ({ ...prev, nickname: '사용 가능한 닉네임입니다.' }));
@@ -220,12 +219,8 @@ const SignUp = () => {
         
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:8080/api/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-            const result = await response.json();
+            const response = await api.post('/auth/signup', formData);
+            const result = response.data;
             
             if (result.success) {
                 alert('회원가입이 완료되었습니다!');

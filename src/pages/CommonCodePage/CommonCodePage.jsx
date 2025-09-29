@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../services/axiosInstance';
 import styles from './CommonCodePage.module.css';
 
 const CommonCodePage = () => {
@@ -26,14 +27,10 @@ const CommonCodePage = () => {
   const loadCommonCodes = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/api/common-codes');
-      if (!response.ok) {
-        throw new Error('공통코드 조회에 실패했습니다.');
-      }
-      const data = await response.json();
-      setCommonCodes(data);
+      const response = await api.get('/common-codes');
+      setCommonCodes(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || '공통코드 조회에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -74,25 +71,14 @@ const CommonCodePage = () => {
 
   const updateCommonCode = async (codeId, codeName, isActive) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/common-codes/${codeId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          codeName: codeName,
-          isActive: isActive,
-          updatedBy: 'U000001' // 실제로는 로그인한 사용자 ID
-        }),
+      await api.put(`/common-codes/${codeId}`, {
+        codeName: codeName,
+        isActive: isActive,
+        updatedBy: 'U000001' // 실제로는 로그인한 사용자 ID
       });
 
-      if (response.ok) {
-        loadCommonCodes();
-        return true;
-      } else {
-        console.error('코드 업데이트 실패');
-        return false;
-      }
+      loadCommonCodes();
+      return true;
     } catch (error) {
       console.error('코드 업데이트 중 오류:', error);
       return false;
@@ -130,16 +116,9 @@ const CommonCodePage = () => {
   const handleDeleteCode = async (code) => {
     if (window.confirm(`'${code.codeName}' 코드를 삭제하시겠습니까?`)) {
       try {
-        const response = await fetch(`http://localhost:8080/api/common-codes/${code.codeId}`, {
-          method: 'DELETE',
-        });
-
-        if (response.ok) {
-          alert('코드가 성공적으로 삭제되었습니다.');
-          loadCommonCodes();
-        } else {
-          console.error('코드 삭제 실패');
-        }
+        await api.delete(`/common-codes/${code.codeId}`);
+        alert('코드가 성공적으로 삭제되었습니다.');
+        loadCommonCodes();
       } catch (error) {
         console.error('코드 삭제 중 오류:', error);
       }
@@ -159,31 +138,20 @@ const CommonCodePage = () => {
 
     setIsAddingCode(true);
     try {
-      const response = await fetch('http://localhost:8080/api/common-codes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          codeName: newCodeName.trim(),
-          parentCodeId: isRootCode ? null : selectedParentCode,
-          isActive: 'Y',
-          createdBy: 'U000001' // 실제로는 로그인한 사용자 ID
-        })
+      await api.post('/common-codes', {
+        codeName: newCodeName.trim(),
+        parentCodeId: isRootCode ? null : selectedParentCode,
+        isActive: 'Y',
+        createdBy: 'U000001' // 실제로는 로그인한 사용자 ID
       });
 
-      if (response.ok) {
-        alert('코드가 성공적으로 추가되었습니다.');
-        setSelectedParentCode('');
-        setNewCodeName('');
-        setIsRootCode(false);
-        loadCommonCodes(); // 목록 새로고침
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || '코드 추가에 실패했습니다.');
-      }
+      alert('코드가 성공적으로 추가되었습니다.');
+      setSelectedParentCode('');
+      setNewCodeName('');
+      setIsRootCode(false);
+      loadCommonCodes(); // 목록 새로고침
     } catch (error) {
-      alert('코드 추가 중 오류가 발생했습니다.');
+      alert(error.response?.data?.message || '코드 추가 중 오류가 발생했습니다.');
     } finally {
       setIsAddingCode(false);
     }
@@ -209,7 +177,7 @@ const CommonCodePage = () => {
                   {isExpanded ? '▼' : '▶'}
                 </span>
               )}
-              {!hasChildren && <span className={styles.treeSpacer}></span>}
+              {!hasChildren && <span className={styles.treeSpacer}></span>}            
               <span className={styles.treeCodeId}>{code.codeId}</span>
             </div>
             <div className={styles.codeNameSection}>

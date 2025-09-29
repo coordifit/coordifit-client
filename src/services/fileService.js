@@ -1,3 +1,5 @@
+import { api } from './axiosInstance';
+
 /**
  * FileService - S3 파일 업로드/조회 서비스
  * 
@@ -56,11 +58,7 @@
  *      );
  *    };
  */
-class FileService {
-    constructor() {
-        this.baseUrl = 'http://localhost:8080/api/files';
-    }
-
+class FileService {    
     /**
      * 파일 업로드
      * @param {File} file - 업로드할 파일 객체
@@ -77,19 +75,15 @@ class FileService {
         formData.append('file', file);
 
         try {
-            const response = await fetch(this.baseUrl, {
-                method: 'POST',
-                body: formData,
+            const response = await api.post('/files', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
 
-            if (response.ok) {
-                const result = await response.json();
-                console.log('파일 업로드 성공:', result);
-                return result;
-            } else {
-                console.error('파일 업로드 실패');
-                throw new Error('파일 업로드에 실패했습니다.');
-            }
+            const result = response.data;
+            console.log('파일 업로드 성공:', result);
+            return result;
         } catch (error) {
             console.error('파일 업로드 실패:', error);
             throw new Error('파일 업로드 중 오류가 발생했습니다.');
@@ -106,15 +100,10 @@ class FileService {
      *   console.log(`파일명: ${file.originalName}, URL: ${file.s3Url}`);
      * });
      */
-    async getFiles() {
+    async getFiles() {    
         try {
-            const response = await fetch(this.baseUrl);
-            if (response.ok) {
-                return await response.json();
-            } else {
-                console.error('파일 리스트 조회 실패');
-                return [];
-            }
+            const response = await api.get('/files');
+            return response.data;
         } catch (error) {
             console.error('파일 리스트 조회 실패:', error);
             return [];
@@ -167,12 +156,8 @@ class FileService {
         if (!fileId) return null;
 
         try {
-            const response = await fetch(`${this.baseUrl}/${fileId}`);
-            if (!response.ok) {
-                console.error('파일 조회 실패:', fileId);
-                return null;
-            }
-            return await response.json();
+            const response = await api.get(`/files/${fileId}`);
+            return response.data;
         } catch (error) {
             console.error('파일 조회 오류:', error);
             return null;

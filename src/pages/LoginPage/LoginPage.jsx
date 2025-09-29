@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../services/axiosInstance";
+import { api, TokenManager } from "../../services/axiosInstance";
 
 import styles from "./LoginPage.module.css";
 
@@ -40,15 +40,17 @@ const Login = () => {
         setError("");
 
         try {
-            const response = await api.post("http://localhost:8080/api/auth/login", {
+            const response = await api.post('/auth/login', {
                 email: formData.email,
                 password: formData.password
             });
 
             if (response.data.success) {
-                // 로그인 성공 - 사용자 정보 저장
-                const userData = response.data.data.user;
-                localStorage.setItem("user", JSON.stringify(userData));
+                const { data } = response.data;
+                
+                console.log(data);
+                // JWT 토큰 저장
+                TokenManager.setTokens(data.accessToken, data.refreshToken);
                 
                 // 메인 페이지로 이동
                 navigate("/main");

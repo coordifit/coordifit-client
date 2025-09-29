@@ -1,10 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 import styles from './AvatarSelectionPage.module.css';
 import addAvatarIcon from '@/assets/images/enrollicon.png';
-import chevronLeft from '@/assets/images/chevron-left.svg';
 import {
   selectAvatars,
   selectSelectedAvatarId,
@@ -22,11 +21,6 @@ const AvatarSelectionPage = () => {
     selectedAvatarId ?? avatars[0]?.id ?? null,
   );
 
-  const pendingAvatar = useMemo(
-    () => avatars.find((avatar) => avatar.id === pendingAvatarId) ?? null,
-    [avatars, pendingAvatarId],
-  );
-
   const handleConfirm = () => {
     if (!pendingAvatarId) return;
     setSelectedAvatarId(pendingAvatarId);
@@ -36,14 +30,6 @@ const AvatarSelectionPage = () => {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button
-          type="button"
-          className={styles.backButton}
-          aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
-        >
-          <img src={chevronLeft} alt="" className={styles.backIcon} />
-        </button>
         <h1 className={styles.title}>아바타를 선택하세요</h1>
       </header>
 
@@ -79,14 +65,6 @@ const AvatarSelectionPage = () => {
           </div>
           <span className={styles.avatarName}>아바타 추가</span>
         </button>
-      </div>
-
-      <div className={styles.previewArea}>
-        {pendingAvatar ? (
-          <img src={pendingAvatar.image} alt={pendingAvatar.name} className={styles.previewImage} />
-        ) : (
-          <p className={styles.emptyState}>선택 가능한 아바타가 없습니다.</p>
-        )}
       </div>
 
       <button

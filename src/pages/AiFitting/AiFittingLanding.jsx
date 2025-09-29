@@ -12,8 +12,8 @@ import {
   selectUpdateClothingSelection,
   useAiFittingStore,
 } from '@/stores/aiFittingStore.js';
-import userPlaceholder from '@/assets/images/user-placeholder.svg';
 import chevronDown from '@/assets/images/chevron-down.svg';
+import userIcon from '@/assets/images/usericon.png'; // 교체
 
 const AiFittingLanding = () => {
   const navigate = useNavigate();
@@ -76,112 +76,113 @@ const AiFittingLanding = () => {
     setHighlightedItem(null);
   };
 
-  const activeTypeLabel = useMemo(() => {
-    if (!activeClothingType) return '';
-    return clothingTypes.find((type) => type.id === activeClothingType)?.label ?? '';
-  }, [activeClothingType]);
-
   const showClosetPanel = Boolean(activeClothingType && currentClosetMainCategory);
 
   return (
     <div className={styles.page}>
       <section className={styles.avatarSection}>
-        <div className={styles.avatarPanel}>
+        {selectedAvatar ? (
+          // ✅ 아바타 선택된 경우 → 큰 이미지
           <div className={styles.avatarPreview}>
-            {selectedAvatar ? (
+            <img
+              src={selectedAvatar.image}
+              alt={selectedAvatar.name}
+              className={styles.avatarPreviewImage}
+            />
+          </div>
+        ) : (
+          // ✅ 선택 안 된 경우 → placeholder + 텍스트 + 버튼 (피그마 스타일)
+          <div className={styles.avatarPanel}>
+            <div className={styles.avatarPlaceholderWrapper}>
               <img
-                src={selectedAvatar.image}
-                alt={selectedAvatar.name}
-                className={styles.avatarPreviewImage}
+                src={userIcon}
+                alt="avatar placeholder"
+                className={styles.avatarPlaceholderIcon}
               />
-            ) : (
-              <img src={userPlaceholder} alt="" className={styles.avatarPlaceholderIcon} />
-            )}
+            </div>
+            <h2 className={styles.avatarHeading}>
+              아바타를 선택하거나
+              <br />
+              만들어보세요
+            </h2>
+            <button
+              type="button"
+              className={styles.avatarAction}
+              onClick={() => navigate('/ai-fitting/avatars')}
+            >
+              아바타 선택
+            </button>
           </div>
-          <div className={styles.avatarTextGroup}>
-            <h2 className={styles.avatarHeading}>아바타를 선택하거나 만들어보세요</h2>
-            <p className={styles.avatarDescription}>
-              {selectedAvatar
-                ? `선택된 아바타: ${selectedAvatar.name}`
-                : '아바타가 아직 선택되지 않았어요.'}
-            </p>
-          </div>
-          <button
-            type="button"
-            className={styles.avatarAction}
-            onClick={() => navigate('/ai-fitting/avatars')}
-          >
-            아바타 선택
-          </button>
-        </div>
+        )}
       </section>
 
       <section className={styles.selectionSection}>
         <h2 className={styles.sectionTitle}>의류 선택</h2>
 
-        <div className={styles.selectionList}>
-          {clothingTypes.map((type) => {
-            const selection = clothingSelection[type.id];
-            const isActive = activeClothingType === type.id;
+        {!showClosetPanel && (
+          <div className={styles.selectionList}>
+            {clothingTypes.map((type) => {
+              const selection = clothingSelection[type.id];
+              const isActive = activeClothingType === type.id;
 
-            return (
-              <button
-                key={type.id}
-                type="button"
-                className={clsx(styles.selectionCard, isActive && styles.selectionCardActive)}
-                onClick={() => handleTypeCardClick(type.id)}
-              >
-                {selection ? (
-                  <div className={styles.selectionThumbnailWrapper}>
-                    <img
-                      src={selection.images?.[0]}
-                      alt={selection.name}
-                      className={styles.selectionThumbnail}
-                    />
-                  </div>
-                ) : (
-                  <div className={styles.selectionIconWrapper}>
-                    <img src={type.icon} alt="" className={styles.selectionIcon} />
-                  </div>
-                )}
-                <div className={styles.selectionInfo}>
-                  <span className={styles.selectionLabel}>{type.label}</span>
-                  <span className={styles.selectionSummary}>
-                    {selection ? selection.name : '선택된 아이템: 없음'}
-                  </span>
-                </div>
-                <img
-                  src={chevronDown}
-                  alt=""
-                  className={clsx(
-                    styles.selectionChevronIcon,
-                    isActive && styles.selectionChevronIconActive,
+              return (
+                <button
+                  key={type.id}
+                  type="button"
+                  className={clsx(styles.selectionCard, isActive && styles.selectionCardActive)}
+                  onClick={() => handleTypeCardClick(type.id)}
+                >
+                  {selection ? (
+                    <div className={styles.selectionThumbnailWrapper}>
+                      <img
+                        src={selection.images?.[0]}
+                        alt={selection.name}
+                        className={styles.selectionThumbnail}
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles.selectionIconWrapper}>
+                      <img src={type.icon} alt="" className={styles.selectionIcon} />
+                    </div>
                   )}
-                />
-              </button>
-            );
-          })}
-        </div>
+                  <div className={styles.selectionInfo}>
+                    <span className={styles.selectionLabel}>{type.label}</span>
+                    <span className={styles.selectionSummary}>
+                      {selection ? selection.name : '선택된 아이템: 없음'}
+                    </span>
+                  </div>
+                  <img
+                    src={chevronDown}
+                    alt=""
+                    className={clsx(
+                      styles.selectionChevronIcon,
+                      isActive && styles.selectionChevronIconActive,
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {showClosetPanel && (
           <div className={styles.closetPanel}>
-            <div className={styles.closetPanelHeader}>
-              <span className={styles.closetPanelTitle}>{activeTypeLabel}</span>
-            </div>
-            <div className={styles.subCategoryTabs}>
-              {currentClosetMainCategory.subcategories.map((sub) => (
-                <button
-                  key={sub.id}
-                  type="button"
-                  className={clsx(
-                    styles.subCategoryButton,
-                    activeSubCategory === sub.id && styles.subCategoryButtonActive,
-                  )}
-                  onClick={() => setActiveSubCategory(sub.id)}
-                >
-                  {sub.name}
-                </button>
-              ))}
+            <div className={styles.categoryTabs}>
+              <div className={styles.subCategoryTabs}>
+                {currentClosetMainCategory.subcategories.map((sub) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    className={clsx(
+                      styles.subCategoryButton,
+                      activeSubCategory === sub.id && styles.subCategoryButtonActive,
+                    )}
+                    onClick={() => setActiveSubCategory(sub.id)}
+                  >
+                    {sub.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {filteredClosetItems.length > 0 ? (
@@ -202,7 +203,6 @@ const AiFittingLanding = () => {
                           className={styles.closetImage}
                         />
                       </div>
-                      <span className={styles.closetName}>{item.name}</span>
                     </button>
                   );
                 })}
@@ -223,11 +223,11 @@ const AiFittingLanding = () => {
         )}
       </section>
 
-      <footer className={styles.footer}>
+      {!showClosetPanel && (
         <button type="button" className={styles.footerButton} disabled={!isReadyForAi}>
           AI 옷입히기
         </button>
-      </footer>
+      )}
     </div>
   );
 };

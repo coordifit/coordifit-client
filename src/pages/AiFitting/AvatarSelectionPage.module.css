@@ -1,6 +1,6 @@
 .page {
   min-height: 100%;
-  padding: 32px 18px 40px;
+  padding: 0px 5px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,6 +16,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  justify-content: flex-start; /* 중앙 → 왼쪽 정렬 */
 }
 
 .backButton {

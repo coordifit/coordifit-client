@@ -12,9 +12,10 @@ import outer1 from "@images/outer1.png";
 import shoes1 from "@images/shoes1.png";
 import shoes2 from "@images/shoes2.png";
 import acc1 from "@images/acc1.png";
+import { useClothesStore } from "@/store/clothesStore";
 
 const CANVAS_W = 300;
-const CANVAS_H = 450;
+const CANVAS_H = 420;
 
 const CLOSET = [
   {
@@ -71,11 +72,20 @@ function URLImage({ obj, isSelected, onSelect, onChange }) {
       trRef.current.nodes([shapeRef.current]);
       trRef.current.getLayer().batchDraw();
     }
-  }, [isSelected]);
+  }, [isSelected, image]);
 
   const handleSelect = () => {
-    onSelect(obj.id); // 부모에서 토글 처리
+    if (shapeRef.current) {
+      shapeRef.current.moveToTop();
+      shapeRef.current.getLayer().batchDraw();
+    }
+
+    onSelect(obj.id);
   };
+
+  if (!image) {
+    return null;
+  }
 
   return (
     <>
@@ -86,19 +96,36 @@ function URLImage({ obj, isSelected, onSelect, onChange }) {
         y={obj.y}
         scaleX={obj.scaleX}
         scaleY={obj.scaleY}
+        width={obj.width}
+        height={obj.height}
         rotation={obj.rotation}
-        draggable
+        draggable={isSelected}
         onClick={handleSelect}
         onTap={handleSelect}
         onDragEnd={(e) => {
+          if (!isSelected) return;
           onChange({ ...obj, x: e.target.x(), y: e.target.y() });
         }}
         onTransformEnd={() => {
+          if (!isSelected) return;
           const node = shapeRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
-          const rotation = node.rotation();
-          onChange({ ...obj, scaleX, scaleY, rotation });
+
+          const newWidth = node.width() * scaleX;
+          const newHeight = node.height() * scaleY;
+
+          node.scaleX(1);
+          node.scaleY(1);
+
+          onChange({
+            ...obj,
+            width: newWidth,
+            height: newHeight,
+            x: node.x(),
+            y: node.y(),
+            rotation: node.rotation(),
+          });
         }}
       />
       {isSelected && (
@@ -124,6 +151,7 @@ const CalendarEditor = () => {
   const [used, setUsed] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const { clothes, addClothes, removeClothes } = useClothesStore();
 
   const centerX = CANVAS_W / 2;
   const centerY = CANVAS_H / 2;
@@ -137,6 +165,7 @@ const CalendarEditor = () => {
       shoes: { x: centerX - 40, y: centerY + 70, scale: 0.4 },
       default: { x: centerX - 150, y: centerY + 80, scale: 0.3 },
     };
+
     return map[category] || map.default;
   };
 
@@ -144,7 +173,8 @@ const CalendarEditor = () => {
     const pos = getDefaultPlacement(item.category);
 
     const obj = {
-      id: `${item.id}-${Date.now()}`,
+      instanceId: `${item.id}-${Date.now()}`,
+      id: item.id,
       src: item.imageUrl,
       name: item.name,
       category: item.category,
@@ -154,9 +184,10 @@ const CalendarEditor = () => {
       scaleY: pos.scale,
       rotation: 0,
     };
+
+    addClothes(obj);
     setUsed((prev) => [...prev, obj]);
     setSelectedId(obj.id);
-    setSheetOpen(false);
   };
 
   const updateObject = (id, next) => {
@@ -166,6 +197,7 @@ const CalendarEditor = () => {
   const removeSelected = () => {
     if (!selectedId) return;
     setUsed((prev) => prev.filter((o) => o.id !== selectedId));
+    removeClothes(selectedId);
     setSelectedId(null);
   };
 
@@ -197,7 +229,7 @@ const CalendarEditor = () => {
   const saveImage = async () => {
     if (!stageRef.current) return;
     const prev = selectedId;
-    setSelectedId(null); // Transformer 숨김
+    setSelectedId(null);
     requestAnimationFrame(() => {
       const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
       const w = window.open();
@@ -214,12 +246,7 @@ const CalendarEditor = () => {
 
       <div className={styles.editorRow}>
         <div className={styles.canvasCard}>
-          <Stage
-            ref={stageRef}
-            width={CANVAS_W}
-            height={CANVAS_H}
-            className={styles.stage}
-          >
+          <Stage ref={stageRef} width={CANVAS_W} height={CANVAS_H} className={styles.stage}>
             <Layer>
               <Rect
                 width={CANVAS_W}
@@ -241,8 +268,6 @@ const CalendarEditor = () => {
               ))}
             </Layer>
           </Stage>
-
-          {/* 툴바 */}
           <div className={styles.toolbar}>
             <div className={styles.colors}>
               {["#ffffff", "#f2f2f2", "#e4f0ff"].map((c) => (
@@ -270,18 +295,24 @@ const CalendarEditor = () => {
             </div>
           </div>
         </div>
+        <button
+          className={styles.fab}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSheetOpen(true);
+          }}
+        >
+          +
+        </button>
       </div>
-      <aside className={styles.usedPanel}>
+      <div className={styles.usedPanel}>
         <h3 className={styles.panelTitle}>사용된 아이템</h3>
-        {used.length === 0 && <div className={styles.empty}>아직 없음</div>}
+        {clothes.length === 0 && <div className={styles.empty}>아직 없음</div>}
         <ul className={styles.usedList}>
-          {used.map((o) => (
+          {clothes.map((o) => (
             <li
               key={o.id}
-              className={cn(
-                styles.usedItem,
-                o.id === selectedId && styles.usedItemActive
-              )}
+              className={cn(styles.usedItem, o.id === selectedId && styles.usedItemActive)}
               onClick={() => setSelectedId(o.id)}
             >
               <img src={o.src} alt={o.name} className={styles.thumb} />
@@ -292,11 +323,8 @@ const CalendarEditor = () => {
             </li>
           ))}
         </ul>
-      </aside>
-      <button className={styles.fab} onClick={() => setSheetOpen(true)}>
-        +
-      </button>
-
+      </div>
+      {sheetOpen && <div className={styles.sheetOverlay} onClick={() => setSheetOpen(false)} />}
       <div className={cn(styles.sheet, sheetOpen && styles.sheetOpen)}>
         <div className={styles.sheetHeader}>
           <div className={styles.sheetTitle}>옷장</div>
@@ -304,20 +332,56 @@ const CalendarEditor = () => {
             닫기
           </button>
         </div>
-        <div className={styles.closetGrid}>
-          {CLOSET.map((item) => (
-            <button
-              key={item.id}
-              className={styles.closetCard}
-              onClick={() => addToCanvas(item)}
-            >
-              <img src={item.imageUrl} alt={item.name} className={styles.closetImg} />
-              <div className={styles.closetInfo}>
-                <div className={styles.closetName}>{item.name}</div>
-                <div className={styles.closetCat}>{item.category}</div>
-              </div>
-            </button>
-          ))}
+        <div className={styles.sheetBody}>
+          <div className={styles.closetGrid}>
+            {CLOSET.map((item) => {
+              const isAdded = clothes.some((c) => c.id === item.id);
+
+              return (
+                <button
+                  key={item.id}
+                  className={cn(styles.closetCard, isAdded && styles.disabledCard)}
+                  onClick={() => addToCanvas(item)}
+                  disabled={isAdded}
+                >
+                  <img src={item.imageUrl} alt={item.name} className={styles.closetImg} />
+                  <div className={styles.closetInfo}>
+                    <div className={styles.closetName}>{item.name}</div>
+                    <div className={styles.closetCat}>{item.category}</div>
+                  </div>
+                  {isAdded && <div className={styles.badge}>추가됨</div>}
+                </button>
+              );
+            })}
+          </div>
+          <div className={styles.selectedBar}>
+            {clothes.length === 0 ? (
+              <div className={styles.selectedEmpty}>아직 추가된 아이템이 없어요</div>
+            ) : (
+              <ul className={styles.selectedList}>
+                {clothes.map((item) => (
+                  <li key={item.id} className={styles.selectedItem}>
+                    <button
+                      className={styles.removeBtn}
+                      onClick={() => {
+                        removeClothes(item.id); // 전역에서 제거
+                        setUsed((prev) => prev.filter((o) => o.id !== item.id)); // 캔버스에서도 제거
+                      }}
+                      aria-label="아이템 제거"
+                    >
+                      ×
+                    </button>
+                    <div className={styles.selectedThumbWrap}>
+                      <img src={item.src} alt={item.name} className={styles.selectedThumb} />
+                    </div>
+                    <div className={styles.selectedMeta}>
+                      <span className={styles.selectedName}>{item.name}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

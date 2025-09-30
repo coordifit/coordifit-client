@@ -9,6 +9,7 @@ import Modal from "@/components/Modal/Modal";
 
 import "react-calendar/dist/Calendar.css";
 import styles from "./CalendarPage.module.css";
+import { useClothesStore } from "@/store/clothesStore";
 
 const cx = classNames.bind(styles);
 
@@ -17,7 +18,7 @@ const CalendarPage = () => {
   const [targetDate, setTargetDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("monthly");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const { clearClothes } = useClothesStore();
   const toDateString = (dateObject) => dateObject.toISOString().split("T")[0];
   const toYearMonthString = (dateObject) => dateObject.toISOString().slice(0, 7);
 
@@ -40,6 +41,7 @@ const CalendarPage = () => {
       moveTargetDate.setDate(targetDate.getDate() + 1);
     }
 
+    clearClothes();
     setTargetDate(moveTargetDate);
     navigate(`/calendar/${toDateString(moveTargetDate)}`);
   };
@@ -90,10 +92,7 @@ const CalendarPage = () => {
   return (
     <>
       <div className={cx("viewmode-box")}>
-        <div
-          onClick={handleViewMode}
-          className={cx("viewmode", { active: viewMode === "daily" })}
-        >
+        <div onClick={handleViewMode} className={cx("viewmode", { active: viewMode === "daily" })}>
           daily
         </div>
         <div
@@ -110,17 +109,9 @@ const CalendarPage = () => {
           </span>
           <button onClick={() => handleModal("open")}>날짜 선택 ▼</button>
 
-          <Calendar
-            onChange={setTargetDate}
-            value={targetDate}
-            onClickDay={clickHandler}
-          />
+          <Calendar onChange={setTargetDate} value={targetDate} onClickDay={clickHandler} />
           {isModalOpen && (
-            <Modal
-              title="날짜선택"
-              onClose={() => handleModal("close")}
-              children={ModalContent}
-            >
+            <Modal title="날짜선택" onClose={() => handleModal("close")} children={ModalContent}>
               <DatePicker onConfirm={handleDatePicker} />
             </Modal>
           )}

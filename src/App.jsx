@@ -1,5 +1,5 @@
 // App.jsx
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 import Layout from "@/components/Layout/Layout";
 import CalendarPage from "@/pages/Calendar/CalendarPage/CalendarPage";

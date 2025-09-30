@@ -1,14 +1,12 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
-
 import Calendar from "react-calendar";
 import classNames from "classnames/bind";
 import DatePicker from "../DatePicker/DatePicker";
-
 import Modal from "@/components/Modal/Modal";
-
 import "react-calendar/dist/Calendar.css";
 import styles from "./CalendarPage.module.css";
+import { formatDate, formatYearMonth } from "@/utils/calenderUtils";
 import { useClothesStore } from "@/store/clothesStore";
 
 const cx = classNames.bind(styles);
@@ -17,23 +15,75 @@ const CalendarPage = () => {
   const navigate = useNavigate();
   const [targetDate, setTargetDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("monthly");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { clearClothes } = useClothesStore();
-  const toDateString = (dateObject) => dateObject.toISOString().split("T")[0];
-  const toYearMonthString = (dateObject) => dateObject.toISOString().slice(0, 7);
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [pendingViewMode, setPendingViewMode] = useState(null);
+  const [pendingPath, setPendingPath] = useState(null);
+  const [pendingDate, setPendingDate] = useState(null);
+  const { clearClothes, clothes } = useClothesStore();
 
   const clickHandler = (date) => {
-    const dateString = toDateString(date);
+    const dateString = formatDate(date);
 
     setTargetDate(date);
     setViewMode("daily");
     navigate(`/calendar/${dateString}`);
   };
 
+  const verifyClothes = () => {
+    if (clothes.length === 0) {
+      return true;
+    }
+
+    setIsCancelModalOpen(true);
+
+    return false;
+  };
+
+  const clearPending = () => {
+    setPendingDate(null);
+    setPendingPath(null);
+    setPendingViewMode(null);
+  };
+
+  const handlerCancelModal = () => {
+    clearClothes();
+    setIsCancelModalOpen(false);
+
+    if (pendingDate) setTargetDate(pendingDate);
+    if (pendingViewMode) setViewMode(pendingViewMode);
+    if (pendingPath) navigate(pendingPath);
+
+    clearPending();
+  };
+
+  const closeCancelModal = () => {
+    setIsCancelModalOpen(false);
+  };
+
+  const handleViewMode = (e) => {
+    const viewMode = e.currentTarget.innerText;
+    let nextPath = null;
+
+    if (viewMode === "monthly") {
+      nextPath = formatYearMonth(targetDate);
+    } else if (viewMode === "daily") {
+      nextPath = formatDate(targetDate);
+      setPendingDate(targetDate);
+    }
+
+    setPendingViewMode(viewMode);
+    setPendingPath(nextPath);
+
+    if (verifyClothes(`/calendar/${nextPath}`)) {
+      setViewMode(viewMode);
+      navigate(`/calendar/${nextPath}`);
+      clearPending();
+    }
+  };
+
   const handleDateMove = (type) => {
-    console.log("targetDate", targetDate);
     const moveTargetDate = new Date(targetDate);
-    console.log("moveTargetDate", moveTargetDate);
 
     if (type === "prev") {
       moveTargetDate.setDate(targetDate.getDate() - 1);
@@ -41,32 +91,22 @@ const CalendarPage = () => {
       moveTargetDate.setDate(targetDate.getDate() + 1);
     }
 
-    clearClothes();
-    setTargetDate(moveTargetDate);
-    navigate(`/calendar/${toDateString(moveTargetDate)}`);
-  };
+    const nextPath = `/calendar/${formatDate(moveTargetDate)}`;
 
-  const handleViewMode = (e) => {
-    const viewMode = e.currentTarget.innerText;
+    setPendingPath(nextPath);
+    setPendingDate(moveTargetDate);
 
-    if (viewMode === "monthly") {
-      const yearMonth = toYearMonthString(targetDate);
-
-      navigate(`/calendar/${yearMonth}`);
-    } else if (viewMode === "daily") {
-      const dateString = toDateString(targetDate);
-
-      navigate(`/calendar/${dateString}`);
+    if (verifyClothes(nextPath)) {
+      setTargetDate(moveTargetDate);
+      navigate(nextPath);
     }
-
-    setViewMode(viewMode);
   };
 
   const handleModal = (type) => {
     if (type === "open") {
-      setIsModalOpen(true);
+      setIsDateModalOpen(true);
     } else if (type === "close") {
-      setIsModalOpen(false);
+      setIsDateModalOpen(false);
     }
   };
 
@@ -75,9 +115,10 @@ const CalendarPage = () => {
     const pickedDate = `${date.year}-${date.month}-${date.day}`;
     const pickedDateObject = new Date(pickedDate);
 
-    setIsModalOpen(false);
+    setIsDateModalOpen(false);
     setTargetDate(pickedDateObject);
     setViewMode("daily");
+
     navigate(`/calendar/${pickedDate}`);
   };
 
@@ -109,8 +150,17 @@ const CalendarPage = () => {
           </span>
           <button onClick={() => handleModal("open")}>날짜 선택 ▼</button>
 
-          <Calendar onChange={setTargetDate} value={targetDate} onClickDay={clickHandler} />
-          {isModalOpen && (
+          <Calendar
+            onChange={setTargetDate}
+            value={targetDate}
+            onClickDay={clickHandler}
+            onActiveStartDateChange={({ activeStartDate }) => {
+              console.log("activeStartDate", activeStartDate);
+              setTargetDate(activeStartDate);
+              navigate(`/calendar/${formatYearMonth(activeStartDate)}`);
+            }}
+          />
+          {isDateModalOpen && (
             <Modal title="날짜선택" onClose={() => handleModal("close")} children={ModalContent}>
               <DatePicker onConfirm={handleDatePicker} />
             </Modal>
@@ -120,13 +170,29 @@ const CalendarPage = () => {
       {viewMode === "daily" && (
         <div>
           <button onClick={() => handleDateMove("prev")}>prev</button>
-          {targetDate.toISOString()}
+          {formatDate(targetDate)}
           <button onClick={() => handleDateMove("next")}>next</button>
         </div>
       )}
       <div className={cx("content-box")}>
         <Outlet />
       </div>
+      {isCancelModalOpen && (
+        <Modal
+          onClose={closeCancelModal}
+          footer={
+            <>
+              <button type="button" onClick={closeCancelModal}>
+                아니요
+              </button>
+              <button type="button" onClick={handlerCancelModal}>
+                예
+              </button>
+            </>
+          }
+          children={"작성중인 데일리룩은 삭제됩니다. \n 계속 하시겠습니까?"}
+        />
+      )}
     </>
   );
 };

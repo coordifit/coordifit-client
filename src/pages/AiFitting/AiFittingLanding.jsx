@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
@@ -19,6 +19,8 @@ const AiFittingLanding = () => {
   const [activeClothingType, setActiveClothingType] = useState(null);
   const [activeSubCategory, setActiveSubCategory] = useState("all");
   const [highlightedItem, setHighlightedItem] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const generationTimerRef = useRef(null);
 
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
@@ -44,6 +46,19 @@ const AiFittingLanding = () => {
   }, [activeClothingType, activeSubCategory, availableClosetItems]);
 
   const isReadyForAi = Boolean(selectedAvatar) && Object.values(clothingSelection).some(Boolean);
+
+  useEffect(
+    () => () => {
+      if (generationTimerRef.current) {
+        clearTimeout(generationTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const handleAvatarClick = () => {
+    navigate("/ai-fitting/avatars");
+  };
 
   const handleTypeCardClick = (typeId) => {
     if (activeClothingType === typeId) {
@@ -72,18 +87,34 @@ const AiFittingLanding = () => {
 
   const showClosetPanel = Boolean(activeClothingType && currentClosetMainCategory);
 
+  const handleStartAi = () => {
+    if (!isReadyForAi || isGenerating) return;
+
+    setIsGenerating(true);
+
+    generationTimerRef.current = setTimeout(() => {
+      setIsGenerating(false);
+      navigate("/ai-fitting/result");
+    }, 1600);
+  };
+
   return (
     <div className={styles.page}>
       <section className={styles.avatarSection}>
         {selectedAvatar ? (
           // ✅ 아바타 선택된 경우 → 큰 이미지
-          <div className={styles.avatarPreview}>
+          <button
+            type="button"
+            className={styles.avatarPreviewButton}
+            onClick={handleAvatarClick}
+            aria-label="아바타 변경"
+          >
             <img
               src={selectedAvatar.image}
               alt={selectedAvatar.name}
               className={styles.avatarPreviewImage}
             />
-          </div>
+          </button>
         ) : (
           // ✅ 선택 안 된 경우 → placeholder + 텍스트 + 버튼 (피그마 스타일)
           <div className={styles.avatarPanel}>
@@ -218,9 +249,23 @@ const AiFittingLanding = () => {
       </section>
 
       {!showClosetPanel && (
-        <button type="button" className={styles.footerButton} disabled={!isReadyForAi}>
-          AI 옷입히기
+        <button
+          type="button"
+          className={styles.footerButton}
+          onClick={handleStartAi}
+          disabled={!isReadyForAi || isGenerating}
+        >
+          {isGenerating ? "AI 분석 중…" : "AI 옷입히기"}
         </button>
+      )}
+
+      {isGenerating && (
+        <div className={styles.loadingOverlay} role="status" aria-live="polite">
+          <div className={styles.loadingContent}>
+            <span className={styles.loadingSpinner} aria-hidden="true" />
+            <p className={styles.loadingMessage}>AI가 코디를 준비하고 있어요…</p>
+          </div>
+        </div>
       )}
     </div>
   );

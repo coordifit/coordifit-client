@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Layout from "@/components/Layout/Layout";
 import AiFittingLanding from "@/pages/AiFitting/AiFittingLanding";
+import AiFittingResultPage from "@/pages/AiFitting/AiFittingResultPage";
 import AvatarCreationPage from "@/pages/AiFitting/AvatarCreationPage";
 import AvatarSelectionPage from "@/pages/AiFitting/AvatarSelectionPage";
 import CalendarPage from "@/pages/Calendar/CalendarPage/CalendarPage";
@@ -136,6 +137,16 @@ const router = createBrowserRouter([
           showBack: true,
           showHeader: true,
           showTabbar: true,
+        },
+      },
+      {
+        path: "/ai-fitting/result",
+        element: <AiFittingResultPage />,
+        handle: {
+          title: "AI 피팅 결과",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
         },
       },
       {

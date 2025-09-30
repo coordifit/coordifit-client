@@ -27,6 +27,6 @@ export const useAiFittingStore = create(
         })),
       clearClothingSelection: () => set({ clothingSelection: createEmptySelection() }),
     }),
-    { name: "AiFittingStore" }, // devtools에서 구분하기 쉽게 이름 붙임
+    { name: "AiFittingStore" }, // devtools 디버깅용 이름
   ),
 );

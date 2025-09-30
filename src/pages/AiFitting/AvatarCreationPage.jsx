@@ -1,24 +1,19 @@
-import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import clsx from 'clsx';
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
-import styles from './AvatarCreationPage.module.css';
-import imagePlusIcon from '@/assets/images/imageplusicon.png'; // ✅ 새 아이콘
-import galleryIcon from '@/assets/images/galaryicon.png';
-import cameraIcon from '@/assets/images/cameraicon.png';
-import {
-  selectAddAvatar,
-  selectSetSelectedAvatarId,
-  useAiFittingStore,
-} from '@/stores/aiFittingStore.js';
+import styles from "./AvatarCreationPage.module.css";
+import imagePlusIcon from "@/assets/images/imageplusicon.png"; // ✅ 새 아이콘
+import galleryIcon from "@/assets/images/galaryicon.png";
+import cameraIcon from "@/assets/images/cameraicon.png";
+import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 
 const AvatarCreationPage = () => {
   const navigate = useNavigate();
-  const addAvatar = useAiFittingStore(selectAddAvatar);
-  const setSelectedAvatarId = useAiFittingStore(selectSetSelectedAvatarId);
-
-  const [name, setName] = useState('');
-  const [imageDataUrl, setImageDataUrl] = useState('');
+  const addAvatar = useAiFittingStore((state) => state.addAvatar);
+  const setSelectedAvatarId = useAiFittingStore((state) => state.setSelectedAvatarId);
+  const [name, setName] = useState("");
+  const [imageDataUrl, setImageDataUrl] = useState("");
 
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -29,7 +24,7 @@ const AvatarCreationPage = () => {
 
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
+      if (typeof reader.result === "string") {
         setImageDataUrl(reader.result);
       }
     };
@@ -47,7 +42,7 @@ const AvatarCreationPage = () => {
 
     addAvatar(newAvatar);
     setSelectedAvatarId(newAvatar.id);
-    navigate('/ai-fitting/avatars');
+    navigate("/ai-fitting/avatars");
   };
 
   const isSubmittable = Boolean(name.trim() && imageDataUrl);
@@ -122,7 +117,7 @@ const AvatarCreationPage = () => {
         <button
           type="button"
           className={styles.secondaryButton}
-          onClick={() => navigate('/ai-fitting/avatars')}
+          onClick={() => navigate("/ai-fitting/avatars")}
         >
           돌아가기
         </button>

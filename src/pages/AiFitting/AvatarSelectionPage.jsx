@@ -1,22 +1,16 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import clsx from 'clsx';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
-import styles from './AvatarSelectionPage.module.css';
-import addAvatarIcon from '@/assets/images/enrollicon.png';
-import {
-  selectAvatars,
-  selectSelectedAvatarId,
-  selectSetSelectedAvatarId,
-  useAiFittingStore,
-} from '@/stores/aiFittingStore.js';
+import styles from "./AvatarSelectionPage.module.css";
+import addAvatarIcon from "@/assets/images/enrollicon.png";
+import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 
 const AvatarSelectionPage = () => {
   const navigate = useNavigate();
-  const avatars = useAiFittingStore(selectAvatars);
-  const selectedAvatarId = useAiFittingStore(selectSelectedAvatarId);
-  const setSelectedAvatarId = useAiFittingStore(selectSetSelectedAvatarId);
-
+  const avatars = useAiFittingStore((state) => state.avatars);
+  const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
+  const setSelectedAvatarId = useAiFittingStore((state) => state.setSelectedAvatarId);
   const [pendingAvatarId, setPendingAvatarId] = useState(
     selectedAvatarId ?? avatars[0]?.id ?? null,
   );
@@ -24,7 +18,7 @@ const AvatarSelectionPage = () => {
   const handleConfirm = () => {
     if (!pendingAvatarId) return;
     setSelectedAvatarId(pendingAvatarId);
-    navigate('/ai-fitting');
+    navigate("/ai-fitting");
   };
 
   return (
@@ -54,7 +48,7 @@ const AvatarSelectionPage = () => {
         <button
           type="button"
           className={clsx(styles.avatarCard, styles.createAvatarCard)}
-          onClick={() => navigate('/ai-fitting/avatars/new')}
+          onClick={() => navigate("/ai-fitting/avatars/new")}
         >
           <div className={styles.createAvatarInner}>
             <div className={styles.createAvatarIllustration}>

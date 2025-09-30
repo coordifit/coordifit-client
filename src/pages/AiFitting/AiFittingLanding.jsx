@@ -1,29 +1,23 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import clsx from 'clsx';
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
-import styles from './AiFittingLanding.module.css';
-import { clothingTypes, closetCategoryMap } from './data.js';
-import { CLOTHING_ITEMS, MAIN_CATEGORIES } from '@/pages/ClosetPage/closetData';
-import {
-  selectAvatars,
-  selectClothingSelection,
-  selectSelectedAvatarId,
-  selectUpdateClothingSelection,
-  useAiFittingStore,
-} from '@/stores/aiFittingStore.js';
-import chevronDown from '@/assets/images/chevron-down.svg';
-import userIcon from '@/assets/images/usericon.png'; // 교체
+import styles from "./AiFittingLanding.module.css";
+import { clothingTypes, closetCategoryMap } from "./data.js";
+import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
+import { useAiFittingStore } from "@/stores/aiFittingStore.js";
+import chevronDown from "@/assets/images/chevron-down.svg";
+import userIcon from "@/assets/images/usericon.png"; // 교체
 
 const AiFittingLanding = () => {
   const navigate = useNavigate();
-  const avatars = useAiFittingStore(selectAvatars);
-  const selectedAvatarId = useAiFittingStore(selectSelectedAvatarId);
-  const clothingSelection = useAiFittingStore(selectClothingSelection);
-  const updateClothingSelection = useAiFittingStore(selectUpdateClothingSelection);
+  const avatars = useAiFittingStore((state) => state.avatars);
+  const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
+  const clothingSelection = useAiFittingStore((state) => state.clothingSelection);
+  const updateClothingSelection = useAiFittingStore((state) => state.updateClothingSelection);
 
   const [activeClothingType, setActiveClothingType] = useState(null);
-  const [activeSubCategory, setActiveSubCategory] = useState('all');
+  const [activeSubCategory, setActiveSubCategory] = useState("all");
   const [highlightedItem, setHighlightedItem] = useState(null);
 
   const selectedAvatar = useMemo(
@@ -45,7 +39,7 @@ const AiFittingLanding = () => {
 
   const filteredClosetItems = useMemo(() => {
     if (!activeClothingType) return [];
-    if (activeSubCategory === 'all') return availableClosetItems;
+    if (activeSubCategory === "all") return availableClosetItems;
     return availableClosetItems.filter((item) => item.subCategory === activeSubCategory);
   }, [activeClothingType, activeSubCategory, availableClosetItems]);
 
@@ -54,13 +48,13 @@ const AiFittingLanding = () => {
   const handleTypeCardClick = (typeId) => {
     if (activeClothingType === typeId) {
       setActiveClothingType(null);
-      setActiveSubCategory('all');
+      setActiveSubCategory("all");
       setHighlightedItem(null);
       return;
     }
 
     setActiveClothingType(typeId);
-    setActiveSubCategory('all');
+    setActiveSubCategory("all");
     setHighlightedItem(clothingSelection[typeId] ?? null);
   };
 
@@ -72,7 +66,7 @@ const AiFittingLanding = () => {
     if (!activeClothingType || !highlightedItem) return;
     updateClothingSelection(activeClothingType, highlightedItem);
     setActiveClothingType(null);
-    setActiveSubCategory('all');
+    setActiveSubCategory("all");
     setHighlightedItem(null);
   };
 
@@ -108,7 +102,7 @@ const AiFittingLanding = () => {
             <button
               type="button"
               className={styles.avatarAction}
-              onClick={() => navigate('/ai-fitting/avatars')}
+              onClick={() => navigate("/ai-fitting/avatars")}
             >
               아바타 선택
             </button>
@@ -148,7 +142,7 @@ const AiFittingLanding = () => {
                   <div className={styles.selectionInfo}>
                     <span className={styles.selectionLabel}>{type.label}</span>
                     <span className={styles.selectionSummary}>
-                      {selection ? selection.name : '선택된 아이템: 없음'}
+                      {selection ? selection.name : "선택된 아이템: 없음"}
                     </span>
                   </div>
                   <img

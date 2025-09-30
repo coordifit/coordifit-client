@@ -1,0 +1,427 @@
+.page {
+  min-height: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 0px 10px 0px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.avatarSection {
+  display: flex;
+  justify-content: center;
+}
+
+.avatarPanel {
+  width: 300px;
+  height: 240px;
+  padding: 32px 24px;
+  background: #f3f4f6;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatarPreviewButton {
+  width: 220px;
+  height: 240px;
+  border-radius: 16px;
+  background: #f3f4f6;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.avatarPreviewButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 12px 24px rgba(15, 23, 42, 0.12);
+}
+
+.avatarPreviewButton:active {
+  transform: scale(0.99);
+}
+
+.avatarPreviewImage {
+  width: 220px;
+  height: 240px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.avatarPlaceholderIcon {
+  width: 74px; /* 피그마 user icon 크기 */
+  height: 79px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.avatarTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.avatarHeading {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  color: #4b5563;
+}
+
+.avatarDescription {
+  margin: 0;
+  font-family: "Pretendard", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 18px;
+  color: #6b7280;
+}
+
+.avatarAction {
+  border: none;
+  border-radius: 9999px;
+  background: #333333;
+  color: #ffffff;
+  font-family: "Pretendard", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 10px 32px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.avatarAction:active {
+  transform: scale(0.98);
+}
+
+.selectionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.sectionTitle {
+  margin-top: 10px;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 28px;
+  color: #333333;
+}
+
+.selectionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selectionCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 76px;
+  padding: 0 20px 0 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f3f4f6;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.selectionCardActive {
+  box-shadow:
+    0px 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.selectionIconWrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.selectionIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.selectionThumbnailWrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.selectionThumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.selectionInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selectionLabel {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #333333;
+}
+
+.selectionSummary {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selectionChevronIcon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.selectionChevronIconActive {
+  transform: rotate(0deg);
+}
+
+.closetPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+.categoryTabs {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+.categoryMainLabel {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subCategoryTabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.subCategoryButton {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 9999px;
+  flex: 0 0 auto;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.subCategoryButtonActive {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.closetGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 12px;
+}
+
+.closetCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.closetThumbnail {
+  width: 102px;
+  height: 102px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s ease,
+    border 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.closetCardSelected .closetThumbnail {
+  border-color: #333333;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.closetImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+.emptyState {
+  margin: 0;
+  font-size: 14px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.confirmButton {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: #333333;
+  color: #ffffff;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.confirmButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.footerButton {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  background: #333333;
+  color: #ffffff;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.footerButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.selectionCard:focus-visible,
+.subCategoryButton:focus-visible,
+.closetCard:focus-visible,
+.avatarAction:focus-visible,
+.avatarPreviewButton:focus-visible,
+.confirmButton:focus-visible,
+.footerButton:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}
+
+.loadingOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loadingContent {
+  padding: 32px 28px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0px 24px 48px rgba(15, 23, 42, 0.25);
+}
+
+.loadingSpinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid #d1d5db;
+  border-top-color: #333333;
+  animation: loading-spin 1s linear infinite;
+}
+
+.loadingMessage {
+  margin: 0;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

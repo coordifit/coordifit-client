@@ -18,6 +18,7 @@ import CalendarRouter from "./pages/Calendar/CalendarRouter";
 import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
 import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
+import { formatYearMonth } from "./utils/calenderUtils";
 
 // 라우터 정의
 const router = createBrowserRouter([
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
         children: [
+          {
+            index: true,
+            element: <Navigate to={`/calendar/${formatYearMonth(new Date())}`} replace />,
+          },
           {
             path: ":date",
             element: <CalendarRouter />,

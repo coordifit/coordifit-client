@@ -10,10 +10,10 @@ import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 
 const AvatarCreationPage = () => {
   const navigate = useNavigate();
-  const addAvatar = useAiFittingStore((state) => state.addAvatar);
-  const setSelectedAvatarId = useAiFittingStore((state) => state.setSelectedAvatarId);
+  const createAvatar = useAiFittingStore((state) => state.createAvatar);
   const [name, setName] = useState("");
   const [imageDataUrl, setImageDataUrl] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -31,21 +31,28 @@ const AvatarCreationPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = () => {
-    if (!name.trim() || !imageDataUrl) return;
+  const handleSubmit = async () => {
+    if (!name.trim() || !imageDataUrl || isSubmitting) return;
 
-    const newAvatar = {
-      id: `avatar-${Date.now()}`,
-      name: name.trim(),
-      image: imageDataUrl,
-    };
+    setIsSubmitting(true);
 
-    addAvatar(newAvatar);
-    setSelectedAvatarId(newAvatar.id);
-    navigate("/ai-fitting/avatars");
+    try {
+      const created = await createAvatar({
+        name: name.trim(),
+        imageUrl: imageDataUrl,
+      });
+
+      if (created?.id) {
+        navigate("/ai-fitting/avatars");
+      }
+    } catch (error) {
+      console.error("Failed to create avatar", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const isSubmittable = Boolean(name.trim() && imageDataUrl);
+  const isSubmittable = Boolean(name.trim() && imageDataUrl && !isSubmitting);
 
   return (
     <div className={styles.page}>
@@ -127,7 +134,7 @@ const AvatarCreationPage = () => {
           disabled={!isSubmittable}
           onClick={handleSubmit}
         >
-          아바타 등록
+          {isSubmitting ? "등록 중..." : "아바타 등록"}
         </button>
       </div>
     </div>

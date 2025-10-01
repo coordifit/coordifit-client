@@ -15,6 +15,8 @@ const AiFittingLanding = () => {
   const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
   const clothingSelection = useAiFittingStore((state) => state.clothingSelection);
   const updateClothingSelection = useAiFittingStore((state) => state.updateClothingSelection);
+  const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
+  const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
 
   const [activeClothingType, setActiveClothingType] = useState(null);
   const [activeSubCategory, setActiveSubCategory] = useState("all");
@@ -26,6 +28,14 @@ const AiFittingLanding = () => {
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
+
+  useEffect(() => {
+    if (!hasLoadedAvatars) {
+      loadAvatars().catch(() => {
+        // 에러는 AvatarSelectionPage에서 안내
+      });
+    }
+  }, [hasLoadedAvatars, loadAvatars]);
 
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
@@ -110,7 +120,7 @@ const AiFittingLanding = () => {
             aria-label="아바타 변경"
           >
             <img
-              src={selectedAvatar.image}
+              src={selectedAvatar.imageUrl}
               alt={selectedAvatar.name}
               className={styles.avatarPreviewImage}
             />

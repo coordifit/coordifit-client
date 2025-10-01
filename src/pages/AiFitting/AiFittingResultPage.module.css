@@ -1,0 +1,270 @@
+.page {
+  min-height: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 10px 16px 40px;
+  background: linear-gradient(0deg, #f9fafb, #f9fafb), #ffffff;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.resultImageButton {
+  width: 100%;
+  border: none;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #e5e7eb;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.resultImageButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 18px 30px rgba(15, 23, 42, 0.18);
+}
+
+.resultImageButton:active {
+  transform: scale(0.99);
+}
+
+.resultImageWrapper {
+  display: flex;
+  justify-content: center; /* 가로 중앙 */
+  align-items: center; /* 세로 중앙 */
+  width: 100%;
+  height: 240px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.resultImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* 이미지가 잘리지 않고 들어옴 */
+  border-radius: 20px;
+}
+
+.avatarInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.avatarName {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.outfitSummary {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #a6a6a6;
+}
+
+.actionRow {
+  display: flex;
+  gap: 12px;
+}
+
+.saveButton,
+.retryButton {
+  flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.saveButton {
+  background: #e5e5ea;
+  color: #1f2937;
+}
+
+.retryButton {
+  background: #333333;
+  color: #ffffff;
+}
+
+.saveButton:disabled,
+.retryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 기본 회색 */
+.analysisToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  background: #78a4d1;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* 활성화 상태 → 파란색 */
+.analysisToggle.active {
+  background: #aeaeb2;
+}
+
+.analysisIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.analysisPanel {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.analysisTitle {
+  margin: 0;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.analysisDescription {
+  margin: 0;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  color: #999999;
+}
+
+.hashtagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.hashtag {
+  padding: 2px 12px;
+  border-radius: 20px;
+  background: #cecece;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.productHeading {
+  margin: 4px 0 0;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.productCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.productThumbnail {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productMeta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.productMetaHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.productType {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #f3f4f6;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.productBrand {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.productName {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.productPrice {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.resultImageButton:focus-visible,
+.saveButton:focus-visible,
+.retryButton:focus-visible,
+.analysisToggle:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}

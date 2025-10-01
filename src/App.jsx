@@ -2,6 +2,10 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 import Layout from "@/components/Layout/Layout";
+import AiFittingLanding from "@/pages/AiFitting/AiFittingLanding";
+import AiFittingResultPage from "@/pages/AiFitting/AiFittingResultPage";
+import AvatarCreationPage from "@/pages/AiFitting/AvatarCreationPage";
+import AvatarSelectionPage from "@/pages/AiFitting/AvatarSelectionPage";
 import CalendarPage from "@/pages/Calendar/CalendarPage/CalendarPage";
 import ClosetPage from "@/pages/ClosetPage/ClosetPage";
 import ClosetDetailPage from "@/pages/ClosetDetailPage/ClosetDetailPage";
@@ -130,12 +134,52 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+      {
+        path: "/ai-fitting",
+        element: <AiFittingLanding />,
+        handle: {
+          title: "AI 피팅",
+          showBack: true,
+          showHeader: true,
+          showTabbar: true,
+        },
+      },
+      {
+        path: "/ai-fitting/result",
+        element: <AiFittingResultPage />,
+        handle: {
+          title: "AI 피팅 결과",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/ai-fitting/avatars",
+        element: <AvatarSelectionPage />,
+        handle: {
+          title: "아바타 선택",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/ai-fitting/avatars/new",
+        element: <AvatarCreationPage />,
+        handle: {
+          title: "아바타 만들기",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
     ],
   },
 ]);
-
 const App = () => {
   return <RouterProvider router={router} />;
 };
 
 export default App;
+// --- IGNORE ---

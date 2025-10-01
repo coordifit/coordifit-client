@@ -9,12 +9,10 @@ on:
 
 jobs:
   deploy:
-    # PR 이벤트면 merge 되었을 때만 실행
     if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     env:
-      # 👇 여기만 바꾸면 대상 디렉토리 선택 가능 (patient 또는 caregiver 등)
       S3_BUCKET: ${{ secrets.S3_BUCKET }}
       CF_DISTRIBUTION_ID: ${{ secrets.CF_DISTRIBUTION_ID }}
 
@@ -24,7 +22,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22.12.0'
+          node-version: "22.12.0"
           cache: npm
 
       - name: Install
@@ -44,10 +42,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # s3 업로드
       - name: Sync to S3
         run: aws s3 sync dist "s3://$S3_BUCKET/" --delete
 
-      # cloude front 캐시 무효화
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id "$CF_DISTRIBUTION_ID" --paths "/*"

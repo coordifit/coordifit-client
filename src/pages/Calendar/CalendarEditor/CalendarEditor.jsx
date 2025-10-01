@@ -230,10 +230,30 @@ const CalendarEditor = () => {
     if (!stageRef.current) return;
     const prev = selectedId;
     setSelectedId(null);
-    requestAnimationFrame(() => {
+    requestAnimationFrame(async () => {
       const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
-      const w = window.open();
-      w.document.write(`<img src="${uri}" style="max-width:100%"/>`);
+
+      const blob = await (await fetch(uri)).blob();
+      const formData = new FormData();
+      formData.append("image", blob, "look.png");
+
+      formData.append("description", "Look image generated from Calendar Editor");
+      formData.append("items", JSON.stringify(clothes));
+
+      await fetch("/api/daily-look", {
+        method: "POST",
+        body: formData,
+      });
+
+      // 다운로드
+      const link = document.createElement("a");
+      link.download = "look.png";
+      link.href = uri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // 원래 선택 상태 복원
       setSelectedId(prev);
     });
   };

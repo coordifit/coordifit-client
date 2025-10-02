@@ -23,6 +23,7 @@ import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
 import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 import { formatYearMonth } from "./utils/calenderUtils";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 // 라우터 정의
 const router = createBrowserRouter([
@@ -40,7 +41,11 @@ const router = createBrowserRouter([
       // 루트 탭들: 헤더+탭 / 뒤로가기 없음
       {
         path: "/main",
-        element: <MainPage />,
+        element: (
+          <ProtectedRoute>
+            <MainPage />
+          </ProtectedRoute>
+        ),
         handle: {
           showBack: false,
           showHeader: false,
@@ -49,7 +54,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/calendar",
-        element: <CalendarPage />,
+        element: (
+          <ProtectedRoute>
+            <CalendarPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "코디 캘린더",
           showBack: false,
@@ -73,7 +82,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/closet",
-        element: <ClosetPage />,
+        element: (
+          <ProtectedRoute>
+            <ClosetPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "내 옷장",
           showBack: true,
@@ -83,7 +96,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/closet/register",
-        element: <ClosetRegisterPage />,
+        element: (
+          <ProtectedRoute>
+            <ClosetRegisterPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "옷 등록",
           showBack: true,
@@ -93,7 +110,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/closet/item/:itemId",
-        element: <ClosetDetailPage />,
+        element: (
+          <ProtectedRoute>
+            <ClosetDetailPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "옷 상세보기",
           showBack: true,
@@ -103,7 +124,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/mypage",
-        element: <MyPage />,
+        element: (
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        ),
         handle: {
           showBack: true,
           showHeader: true,
@@ -114,7 +139,11 @@ const router = createBrowserRouter([
       // 헤더 X + 탭바 O
       {
         path: "/snap",
-        element: <SnapPage />,
+        element: (
+          <ProtectedRoute>
+            <SnapPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "스냅",
           showBack: true,
@@ -126,7 +155,11 @@ const router = createBrowserRouter([
       // 헤더 O + 탭바 X (예: 상세/편집 페이지)
       {
         path: "/profile/edit",
-        element: <ProfileEditPage />,
+        element: (
+          <ProtectedRoute>
+            <ProfileEditPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "프로필 수정",
           showBack: true,
@@ -136,7 +169,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/ai-fitting",
-        element: <AiFittingLanding />,
+        element: (
+          <ProtectedRoute>
+            <AiFittingLanding />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "AI 피팅",
           showBack: true,
@@ -146,7 +183,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/ai-fitting/result",
-        element: <AiFittingResultPage />,
+        element: (
+          <ProtectedRoute>
+            <AiFittingResultPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "AI 피팅 결과",
           showBack: true,
@@ -156,7 +197,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/ai-fitting/avatars",
-        element: <AvatarSelectionPage />,
+        element: (
+          <ProtectedRoute>
+            <AvatarSelectionPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "아바타 선택",
           showBack: true,
@@ -166,7 +211,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/ai-fitting/avatars/new",
-        element: <AvatarCreationPage />,
+        element: (
+          <ProtectedRoute>
+            <AvatarCreationPage />
+          </ProtectedRoute>
+        ),
         handle: {
           title: "아바타 만들기",
           showBack: true,

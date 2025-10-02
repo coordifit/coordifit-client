@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, TokenManager } from "../../services/axiosInstance";
 import { useUserStore } from "../../stores/userStore";
+import userService from "../../services/userService";
+import Modal from "../../components/Modal/Modal";
 
 import styles from "./LoginPage.module.css";
 
@@ -14,6 +16,8 @@ const Login = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isActivateModalOpen, setActivateModalOpen] = useState(false);
+  const [deactivatedUserId, setDeactivatedUserId] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -64,7 +68,13 @@ const Login = () => {
       }
     } catch (error) {
       console.error("로그인 오류:", error);
-      if (error.response?.data?.message) {
+
+      // 비활성화된 계정인 경우
+      if (error.response?.status === 403 && !error.response?.data?.data?.isActive) {
+        setDeactivatedUserId(error.response.data.data.userId);
+        setActivateModalOpen(true);
+        setError("");
+      } else if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
         setError("로그인 처리 중 오류가 발생했습니다.");
@@ -72,6 +82,37 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleActivateAccount = async () => {
+    try {
+      setIsLoading(true);
+      const response = await userService.activateAccount(deactivatedUserId);
+      if (response.success) {
+        const { accessToken, refreshToken } = response.data;
+        // JWT 토큰 저장
+        TokenManager.setTokens(accessToken, refreshToken);
+
+        // 토큰에서 사용자 정보 로드하여 store에 저장
+        loadUserFromToken();
+
+        // 모달 닫기
+        setActivateModalOpen(false);
+
+        // 메인 페이지로 이동
+        navigate("/main");
+      }
+    } catch (error) {
+      console.error("계정 활성화 오류:", error);
+      setError("계정 활성화 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCloseActivateModal = () => {
+    setActivateModalOpen(false);
+    setDeactivatedUserId("");
   };
 
   return (
@@ -127,6 +168,25 @@ const Login = () => {
           <span className={styles.kakaoIcon}>💬</span> 카카오로 시작하기
         </button>
       </form>
+
+      {isActivateModalOpen && (
+        <Modal
+          title="계정 활성화"
+          onClose={handleCloseActivateModal}
+          footer={
+            <>
+              <button type="button" onClick={handleCloseActivateModal}>
+                취소
+              </button>
+              <button type="button" onClick={handleActivateAccount} disabled={isLoading}>
+                {isLoading ? "활성화 중..." : "활성화하기"}
+              </button>
+            </>
+          }
+        >
+          <p>비활성화된 계정입니다. 계정을 다시 활성화하시겠습니까?</p>
+        </Modal>
+      )}
     </div>
   );
 };

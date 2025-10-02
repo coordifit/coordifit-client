@@ -22,7 +22,6 @@ const ProfileEditPage = () => {
     gender: "",
     birth: "",
   });
-  const [isPublic, setIsPublic] = useState(true);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [genderOptions, setGenderOptions] = useState([]);
   const [file, setFile] = useState(null);
@@ -103,11 +102,16 @@ const ProfileEditPage = () => {
   const closeDeleteModal = () => {
     setDeleteModalOpen(false);
   };
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     setDeleteModalOpen(false);
-    userService.logout();
-    logout();
-    navigate("/login");
+    try {
+      await userService.deactivateAccount(user.userId);
+      logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("계정 비활성화 실패:", error);
+      alert("계정 비활성화 중 오류가 발생했습니다.");
+    }
   };
 
   useEffect(() => {
@@ -202,22 +206,11 @@ const ProfileEditPage = () => {
           />
         </label>
       </div>
-      <div className={styles["toggle-row"]}>
-        <span>프로필 공개</span>
-        <label className={styles.toggle}>
-          <input
-            type="checkbox"
-            checked={isPublic}
-            onChange={(event) => setIsPublic(event.target.checked)}
-          />
-          <span className={styles.slider} />
-        </label>
-      </div>
       <div className={styles.actions}>
         <button type="button" onClick={handleLogout}>
           로그아웃
         </button>
-        <button type="button" className={styles["danger-button"]} onClick={openDeleteModal}>
+        <button type="button" className={styles["text-button"]} onClick={openDeleteModal}>
           계정을 탈퇴하시겠습니까?
         </button>
       </div>

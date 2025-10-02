@@ -2,13 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-bottom: 24px;
+  height: 100%;
+  justify-content: space-between;
 }
 .avatarContainer {
   position: relative;
   display: flex;
   justify-content: center;
-  margin-bottom: 32px;
 }
 
 .avatar {
@@ -68,53 +68,8 @@
   padding: 12px;
   font-size: 15px;
 }
-.toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-radius: 16px;
-  background: #f8f8f8;
-  font-size: 15px;
-  font-weight: 500;
-}
-.toggle {
-  position: relative;
-  width: 44px;
-  height: 24px;
-}
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  inset: 0;
-  background: #c8c8c8;
-  border-radius: 999px;
-  transition: background 0.2s ease;
-}
-.slider::after {
-  content: "";
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffffff;
-  transition: transform 0.2s ease;
-}
-.toggle input:checked + .slider {
-  background: #222;
-}
-.toggle input:checked + .slider::after {
-  transform: translateX(20px);
-}
 .actions {
   display: grid;
-  gap: 12px;
 }
 .actions button {
   border: none;
@@ -127,9 +82,20 @@
   background: #f1f1f1;
   color: #444;
 }
-.danger-button {
-  background: #ffecec;
-  color: #c11;
+.text-button {
+  background: transparent;
+  color: #a6a6a6;
+  text-decoration: underline;
+  font-size: 14px;
+  padding: 8px 0;
+  border: none;
+  cursor: pointer;
+  text-align: right;
+}
+
+.text-button:hover {
+  color: #a00;
+  text-decoration: none;
 }
 .modal-message {
   font-size: 14px;

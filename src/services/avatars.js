@@ -1,7 +1,26 @@
 import { api } from "./axiosInstance";
 
-// ✅ 임시 유저 ID (로그인 연동 전까지 사용)
-const TEMP_USER_ID = "U000002";
+import { useUserStore } from "@/stores/userStore.js";
+
+const resolveUserId = () => {
+  const store = useUserStore.getState();
+  if (!store.user) {
+    const didLoad = store.loadUserFromToken?.();
+    if (!didLoad) return null;
+  }
+
+  return useUserStore.getState().user?.userId ?? null;
+};
+
+const buildUserHeaders = () => {
+  const userId = resolveUserId();
+
+  if (!userId) {
+    throw new Error("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+  }
+
+  return { "X-User-Id": userId };
+};
 
 /**
  * 아바타 목록 조회
@@ -9,7 +28,7 @@ const TEMP_USER_ID = "U000002";
 export const fetchAvatars = async () => {
   try {
     const { data } = await api.get("/avatars", {
-      headers: { "X-User-Id": TEMP_USER_ID },
+      headers: buildUserHeaders(),
     });
     return data;
   } catch (error) {
@@ -30,10 +49,7 @@ export const createAvatar = async ({ avatarFile, avatarName }) => {
     }
 
     const { data } = await api.post("/avatars", formData, {
-      headers: {
-        "X-User-Id": "U000002", // 임시 유저 ID
-        // ⚠️ Content-Type은 axios가 자동으로 넣게 둔다
-      },
+      headers: buildUserHeaders(),
     });
 
     console.log("✅ createAvatar 성공:", data);
@@ -50,7 +66,7 @@ export const createAvatar = async ({ avatarFile, avatarName }) => {
 export const deleteAvatar = async (avatarId) => {
   try {
     const { data } = await api.delete(`/avatars/${avatarId}`, {
-      headers: { "X-User-Id": TEMP_USER_ID },
+      headers: buildUserHeaders(),
     });
     console.log("✅ deleteAvatar 성공:", avatarId);
     return data;

@@ -1,5 +1,5 @@
 // src/pages/AiFitting/AvatarCreationPage.jsx
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
@@ -21,19 +21,31 @@ const AvatarCreationPage = () => {
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files?.[0];
-    if (!selectedFile) return;
-
-    setFile(selectedFile);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setPreviewUrl(reader.result);
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
       }
     };
-    reader.readAsDataURL(selectedFile);
+  }, [previewUrl]);
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    if (!selectedFile) {
+      setFile(null);
+      setPreviewUrl("");
+      event.target.value = "";
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+
+    setFile(selectedFile);
+    setPreviewUrl(objectUrl);
+    event.target.value = "";
   };
 
   const handleSubmit = async () => {

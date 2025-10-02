@@ -6,6 +6,7 @@ import styles from "./AiFittingLanding.module.css";
 import { clothingTypes, closetCategoryMap } from "./data.js";
 import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
+import { useUserStore } from "@/stores/userStore.js";
 import chevronDown from "@/assets/images/chevron-down.svg";
 import userIcon from "@/assets/images/usericon.png"; // 교체
 
@@ -17,26 +18,61 @@ const AiFittingLanding = () => {
   const updateClothingSelection = useAiFittingStore((state) => state.updateClothingSelection);
   const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
   const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
-
+  const user = useUserStore((state) => state.user);
+  const loadUserFromToken = useUserStore((state) => state.loadUserFromToken);
+  const userId = user?.userId;
   const [activeClothingType, setActiveClothingType] = useState(null);
   const [activeSubCategory, setActiveSubCategory] = useState("all");
   const [highlightedItem, setHighlightedItem] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const generationTimerRef = useRef(null);
-
+  const prefetchedAvatarIdsRef = useRef(new Set());
+  const lastFetchedUserIdRef = useRef(null);
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
 
   useEffect(() => {
-    if (!hasLoadedAvatars) {
+    if (!user) {
+      loadUserFromToken();
+    }
+  }, [loadUserFromToken, user]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    if (!hasLoadedAvatars || lastFetchedUserIdRef.current !== userId) {
+      lastFetchedUserIdRef.current = userId;
+
       loadAvatars().catch(() => {
+        lastFetchedUserIdRef.current = null;
         // 에러는 AvatarSelectionPage에서 안내
       });
     }
-  }, [hasLoadedAvatars, loadAvatars]);
+  }, [hasLoadedAvatars, loadAvatars, userId]);
+  useEffect(() => {
+    if (!avatars.length) return;
 
+    const newImages = [];
+
+    avatars.forEach((avatar) => {
+      if (!avatar.imageUrl || prefetchedAvatarIdsRef.current.has(avatar.id)) return;
+
+      const image = new Image();
+      image.decoding = "async";
+      image.src = avatar.imageUrl;
+      prefetchedAvatarIdsRef.current.add(avatar.id);
+      newImages.push(image);
+    });
+
+    return () => {
+      newImages.forEach((image) => {
+        image.onload = null;
+        image.onerror = null;
+      });
+    };
+  }, [avatars]);
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
     const categoryId = closetCategoryMap[activeClothingType];

@@ -41,8 +41,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers["X-User-Id"] = "U000002";
-
     return config;
   },
   (error) => {

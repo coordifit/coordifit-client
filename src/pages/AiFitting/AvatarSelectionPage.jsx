@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 import styles from "./AvatarSelectionPage.module.css";
 import addAvatarIcon from "@/assets/images/enrollicon.png";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
+import { useUserStore } from "@/stores/userStore.js";
 
 const AvatarSelectionPage = () => {
   const navigate = useNavigate();
@@ -16,29 +17,33 @@ const AvatarSelectionPage = () => {
   const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
   const removeAvatar = useAiFittingStore((state) => state.removeAvatar);
   const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
+  const user = useUserStore((state) => state.user);
+  const loadUserFromToken = useUserStore((state) => state.loadUserFromToken);
+  const lastFetchedUserIdRef = useRef(null);
+  const userId = user?.userId;
   const [pendingAvatarId, setPendingAvatarId] = useState(
     selectedAvatarId ?? avatars[0]?.id ?? null,
   );
   const [deletingAvatarId, setDeletingAvatarId] = useState(null);
 
   useEffect(() => {
-    if (!hasLoadedAvatars) {
+    if (!user) {
+      loadUserFromToken();
+    }
+  }, [loadUserFromToken, user]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    if (!hasLoadedAvatars || lastFetchedUserIdRef.current !== userId) {
+      lastFetchedUserIdRef.current = userId;
+
       loadAvatars().catch(() => {
+        lastFetchedUserIdRef.current = null;
         // 에러 상태는 avatarError로 관리
       });
     }
-  }, [hasLoadedAvatars, loadAvatars]);
-
-  useEffect(() => {
-    if (!pendingAvatarId && avatars[0]) {
-      setPendingAvatarId(avatars[0].id);
-      return;
-    }
-
-    if (pendingAvatarId && !avatars.some((avatar) => avatar.id === pendingAvatarId)) {
-      setPendingAvatarId(avatars[0]?.id ?? null);
-    }
-  }, [avatars, pendingAvatarId]);
+  }, [hasLoadedAvatars, loadAvatars, userId]);
 
   const handleConfirm = () => {
     if (!pendingAvatarId) return;

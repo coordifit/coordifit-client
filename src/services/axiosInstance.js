@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { API_URL } from "../config/config";
 
 const api = axios.create({ baseURL: API_URL });
@@ -7,30 +8,30 @@ const api = axios.create({ baseURL: API_URL });
 const TokenManager = {
   // 토큰 저장
   setTokens(accessToken, refreshToken) {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
   },
 
   // 액세스 토큰 가져오기
   getAccessToken() {
-    return localStorage.getItem('accessToken');
+    return localStorage.getItem("accessToken");
   },
 
   // 리프레시 토큰 가져오기
   getRefreshToken() {
-    return localStorage.getItem('refreshToken');
+    return localStorage.getItem("refreshToken");
   },
 
   // 토큰 제거
   clearTokens() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
   },
 
   // 로그인 상태 확인
   isLoggedIn() {
     return !!this.getAccessToken();
-  }
+  },
 };
 
 // 요청 인터셉터 - 자동으로 Authorization 헤더 추가
@@ -40,11 +41,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.headers["X-User-Id"] = "U000002";
+
     return config;
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 응답 인터셉터 - 토큰 만료 시 자동 갱신
@@ -64,36 +67,35 @@ api.interceptors.response.use(
         if (!refreshToken) {
           // 리프레시 토큰이 없으면 로그아웃 처리
           TokenManager.clearTokens();
-          window.location.href = '/login';
+          window.location.href = "/login";
           return Promise.reject(error);
         }
 
         // 토큰 갱신 요청
         const response = await axios.post(`${API_URL}/auth/refresh`, {
-          refreshToken: refreshToken
+          refreshToken: refreshToken,
         });
 
         const { accessToken } = response.data.data;
-        
+
         // 새 토큰 저장
         TokenManager.setTokens(accessToken, refreshToken);
-        
+
         // 원래 요청에 새 토큰 적용
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        
+
         // 원래 요청 재시도
         return api(originalRequest);
-        
       } catch (refreshError) {
         // 토큰 갱신 실패 시 로그아웃 처리
         TokenManager.clearTokens();
-        window.location.href = '/login';
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // 토큰 관리 함수들도 export

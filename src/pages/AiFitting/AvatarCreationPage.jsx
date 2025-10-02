@@ -1,9 +1,10 @@
+// src/pages/AiFitting/AvatarCreationPage.jsx
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 import styles from "./AvatarCreationPage.module.css";
-import imagePlusIcon from "@/assets/images/imageplusicon.png"; // ✅ 새 아이콘
+import imagePlusIcon from "@/assets/images/imageplusicon.png";
 import galleryIcon from "@/assets/images/galaryicon.png";
 import cameraIcon from "@/assets/images/cameraicon.png";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
@@ -11,48 +12,51 @@ import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 const AvatarCreationPage = () => {
   const navigate = useNavigate();
   const createAvatar = useAiFittingStore((state) => state.createAvatar);
+
   const [name, setName] = useState("");
-  const [imageDataUrl, setImageDataUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
   const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
 
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === "string") {
-        setImageDataUrl(reader.result);
+        setPreviewUrl(reader.result);
       }
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(selectedFile);
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !imageDataUrl || isSubmitting) return;
+    if (!name.trim() || !file || isSubmitting) return;
 
     setIsSubmitting(true);
-
     try {
       const created = await createAvatar({
-        name: name.trim(),
-        imageUrl: imageDataUrl,
+        avatarFile: file,
+        avatarName: name.trim(),
       });
 
       if (created?.id) {
         navigate("/ai-fitting/avatars");
       }
     } catch (error) {
-      console.error("Failed to create avatar", error);
+      console.error("❌ Failed to create avatar", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const isSubmittable = Boolean(name.trim() && imageDataUrl && !isSubmitting);
+  const isSubmittable = Boolean(name.trim() && file && !isSubmitting);
 
   return (
     <div className={styles.page}>
@@ -62,15 +66,15 @@ const AvatarCreationPage = () => {
           className={styles.nameInput}
           placeholder="아바타 이름"
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(e) => setName(e.target.value)}
         />
         <p className={styles.subtitle}>사진을 업로드하여 나만의 아바타를 만들어보세요.</p>
       </header>
 
       <div className={styles.uploadCard}>
         <div className={styles.uploadVisual}>
-          {imageDataUrl ? (
-            <img src={imageDataUrl} alt="새 아바타 미리보기" className={styles.previewImage} />
+          {previewUrl ? (
+            <img src={previewUrl} alt="새 아바타 미리보기" className={styles.previewImage} />
           ) : (
             <div className={styles.iconCircle}>
               <img src={imagePlusIcon} alt="upload icon" className={styles.uploadIconOnly} />

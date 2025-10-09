@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TokenManager } from '../../services/axiosInstance';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { TokenManager } from "../../services/axiosInstance";
+import { useUserStore } from "../../stores/userStore";
 
 /**
  * 보호된 라우트 컴포넌트
@@ -8,14 +9,18 @@ import { TokenManager } from '../../services/axiosInstance';
  */
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
+  const { loadUserFromToken } = useUserStore();
 
   useEffect(() => {
-    // 로그인 상태 확인
+    // 토큰 존재 여부 확인
     if (!TokenManager.isLoggedIn()) {
       navigate("/login");
       return;
     }
-  }, [navigate]);
+
+    // 토큰이 있으면 사용자 정보 로드
+    loadUserFromToken();
+  }, [loadUserFromToken, navigate]);
 
   // 로그인하지 않은 경우 null 반환 (리다이렉트 중)
   if (!TokenManager.isLoggedIn()) {

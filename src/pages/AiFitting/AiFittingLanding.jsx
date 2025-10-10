@@ -6,8 +6,10 @@ import styles from "./AiFittingLanding.module.css";
 import { clothingTypes, closetCategoryMap } from "./data.js";
 import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
+import { useUserStore } from "@/stores/userStore.js";
 import chevronDown from "@/assets/images/chevron-down.svg";
 import userIcon from "@/assets/images/usericon.png"; // 교체
+import { requestAiFitting } from "@/services/avatars.js";
 
 const AiFittingLanding = () => {
   const navigate = useNavigate();
@@ -15,18 +17,64 @@ const AiFittingLanding = () => {
   const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
   const clothingSelection = useAiFittingStore((state) => state.clothingSelection);
   const updateClothingSelection = useAiFittingStore((state) => state.updateClothingSelection);
-
+  const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
+  const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
+  const user = useUserStore((state) => state.user);
+  const loadUserFromToken = useUserStore((state) => state.loadUserFromToken);
+  const userId = user?.userId;
   const [activeClothingType, setActiveClothingType] = useState(null);
   const [activeSubCategory, setActiveSubCategory] = useState("all");
   const [highlightedItem, setHighlightedItem] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const generationTimerRef = useRef(null);
-
+  const requestAbortControllerRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const prefetchedAvatarIdsRef = useRef(new Set());
+  const lastFetchedUserIdRef = useRef(null);
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
 
+  useEffect(() => {
+    if (!user) {
+      loadUserFromToken();
+    }
+  }, [loadUserFromToken, user]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    if (!hasLoadedAvatars || lastFetchedUserIdRef.current !== userId) {
+      lastFetchedUserIdRef.current = userId;
+
+      loadAvatars().catch(() => {
+        lastFetchedUserIdRef.current = null;
+        // 에러는 AvatarSelectionPage에서 안내
+      });
+    }
+  }, [hasLoadedAvatars, loadAvatars, userId]);
+  useEffect(() => {
+    if (!avatars.length) return;
+
+    const newImages = [];
+
+    avatars.forEach((avatar) => {
+      if (!avatar.imageUrl || prefetchedAvatarIdsRef.current.has(avatar.id)) return;
+
+      const image = new Image();
+      image.decoding = "async";
+      image.src = avatar.imageUrl;
+      prefetchedAvatarIdsRef.current.add(avatar.id);
+      newImages.push(image);
+    });
+
+    return () => {
+      newImages.forEach((image) => {
+        image.onload = null;
+        image.onerror = null;
+      });
+    };
+  }, [avatars]);
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
     const categoryId = closetCategoryMap[activeClothingType];
@@ -49,8 +97,10 @@ const AiFittingLanding = () => {
 
   useEffect(
     () => () => {
-      if (generationTimerRef.current) {
-        clearTimeout(generationTimerRef.current);
+      isMountedRef.current = false;
+
+      if (requestAbortControllerRef.current) {
+        requestAbortControllerRef.current.abort();
       }
     },
     [],
@@ -87,15 +137,57 @@ const AiFittingLanding = () => {
 
   const showClosetPanel = Boolean(activeClothingType && currentClosetMainCategory);
 
-  const handleStartAi = () => {
+  const handleStartAi = async () => {
     if (!isReadyForAi || isGenerating) return;
+
+    const payload = {
+      avatarImage: selectedAvatar?.imageUrl ?? null,
+      topImage: clothingSelection.top?.images?.[0] ?? null,
+      bottomImage: clothingSelection.bottom?.images?.[0] ?? null,
+      shoesImage: clothingSelection.shoes?.images?.[0] ?? null,
+    };
 
     setIsGenerating(true);
 
-    generationTimerRef.current = setTimeout(() => {
-      setIsGenerating(false);
-      navigate("/ai-fitting/result");
-    }, 1600);
+    if (requestAbortControllerRef.current) {
+      requestAbortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    requestAbortControllerRef.current = controller;
+
+    try {
+      const response = await requestAiFitting(payload, {
+        signal: controller.signal,
+      });
+
+      const imageBase64 = response?.data?.imageBase64 ?? null;
+      const durationMs = response?.data?.durationMs ?? null;
+
+      navigate("/ai-fitting/result", {
+        state: {
+          imageBase64,
+          durationMs,
+        },
+      });
+    } catch (error) {
+      if (error?.code === "ERR_CANCELED") {
+        return;
+      }
+
+      console.error("AI fitting 요청 중 오류가 발생했습니다:", error);
+      if (typeof window !== "undefined" && typeof window.alert === "function") {
+        window.alert("AI 옷입히기 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
+    } finally {
+      if (requestAbortControllerRef.current === controller) {
+        requestAbortControllerRef.current = null;
+      }
+
+      if (isMountedRef.current) {
+        setIsGenerating(false);
+      }
+    }
   };
 
   return (
@@ -110,7 +202,7 @@ const AiFittingLanding = () => {
             aria-label="아바타 변경"
           >
             <img
-              src={selectedAvatar.image}
+              src={selectedAvatar.imageUrl}
               alt={selectedAvatar.name}
               className={styles.avatarPreviewImage}
             />

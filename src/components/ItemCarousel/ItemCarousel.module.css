@@ -1,0 +1,67 @@
+.usedPanel {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.usedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.empty {
+  color: #888;
+  font-size: 12px;
+}
+
+.usedItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.usedItemActive {
+  border-color: #111;
+  background: #f6f6f6;
+}
+
+.thumb {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.category {
+  font-size: 12px;
+  color: #666;
+}

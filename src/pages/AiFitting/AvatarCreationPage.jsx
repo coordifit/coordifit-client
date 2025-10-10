@@ -1,51 +1,74 @@
-import { useRef, useState } from "react";
+// src/pages/AiFitting/AvatarCreationPage.jsx
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 import styles from "./AvatarCreationPage.module.css";
-import imagePlusIcon from "@/assets/images/imageplusicon.png"; // ✅ 새 아이콘
+import imagePlusIcon from "@/assets/images/imageplusicon.png";
 import galleryIcon from "@/assets/images/galaryicon.png";
 import cameraIcon from "@/assets/images/cameraicon.png";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 
 const AvatarCreationPage = () => {
   const navigate = useNavigate();
-  const addAvatar = useAiFittingStore((state) => state.addAvatar);
-  const setSelectedAvatarId = useAiFittingStore((state) => state.setSelectedAvatarId);
+  const createAvatar = useAiFittingStore((state) => state.createAvatar);
+
   const [name, setName] = useState("");
-  const [imageDataUrl, setImageDataUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [file, setFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setImageDataUrl(reader.result);
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
       }
     };
-    reader.readAsDataURL(file);
+  }, [previewUrl]);
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    if (!selectedFile) {
+      setFile(null);
+      setPreviewUrl("");
+      event.target.value = "";
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+
+    setFile(selectedFile);
+    setPreviewUrl(objectUrl);
+    event.target.value = "";
   };
 
-  const handleSubmit = () => {
-    if (!name.trim() || !imageDataUrl) return;
+  const handleSubmit = async () => {
+    if (!name.trim() || !file || isSubmitting) return;
 
-    const newAvatar = {
-      id: `avatar-${Date.now()}`,
-      name: name.trim(),
-      image: imageDataUrl,
-    };
+    setIsSubmitting(true);
+    try {
+      const created = await createAvatar({
+        avatarFile: file,
+        avatarName: name.trim(),
+      });
 
-    addAvatar(newAvatar);
-    setSelectedAvatarId(newAvatar.id);
-    navigate("/ai-fitting/avatars");
+      if (created?.id) {
+        navigate("/ai-fitting/avatars");
+      }
+    } catch (error) {
+      console.error("❌ Failed to create avatar", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const isSubmittable = Boolean(name.trim() && imageDataUrl);
+  const isSubmittable = Boolean(name.trim() && file && !isSubmitting);
 
   return (
     <div className={styles.page}>
@@ -55,15 +78,15 @@ const AvatarCreationPage = () => {
           className={styles.nameInput}
           placeholder="아바타 이름"
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(e) => setName(e.target.value)}
         />
         <p className={styles.subtitle}>사진을 업로드하여 나만의 아바타를 만들어보세요.</p>
       </header>
 
       <div className={styles.uploadCard}>
         <div className={styles.uploadVisual}>
-          {imageDataUrl ? (
-            <img src={imageDataUrl} alt="새 아바타 미리보기" className={styles.previewImage} />
+          {previewUrl ? (
+            <img src={previewUrl} alt="새 아바타 미리보기" className={styles.previewImage} />
           ) : (
             <div className={styles.iconCircle}>
               <img src={imagePlusIcon} alt="upload icon" className={styles.uploadIconOnly} />
@@ -127,7 +150,7 @@ const AvatarCreationPage = () => {
           disabled={!isSubmittable}
           onClick={handleSubmit}
         >
-          아바타 등록
+          {isSubmitting ? "등록 중..." : "아바타 등록"}
         </button>
       </div>
     </div>

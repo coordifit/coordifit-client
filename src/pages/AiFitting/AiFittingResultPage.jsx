@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import styles from "./AiFittingResultPage.module.css";
 import { useAiFittingStore } from "@/stores/aiFittingStore";
@@ -26,6 +26,9 @@ const AiFittingResultPage = () => {
   const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
   const clothingSelection = useAiFittingStore((state) => state.clothingSelection);
   const clearClothingSelection = useAiFittingStore((state) => state.clearClothingSelection);
+
+  const location = useLocation();
+  const imageBase64 = location.state?.imageBase64 ?? null;
 
   const [showAnalysis, setShowAnalysis] = useState(false);
 
@@ -58,15 +61,13 @@ const AiFittingResultPage = () => {
 
   const outfitSummary = selectedItems.map((item) => item.name).join(" / ");
 
+  const resultImageSrc = imageBase64 ? `data:image/png;base64,${imageBase64}` : fallbackResultImage;
+
   return (
     <div className={styles.page}>
       <section className={styles.main}>
         <div className={styles.resultImageWrapper}>
-          <img
-            src={fallbackResultImage}
-            alt="AI로 생성된 코디 결과"
-            className={styles.resultImage}
-          />
+          <img src={resultImageSrc} alt="AI로 생성된 코디 결과" className={styles.resultImage} />
         </div>
         <div className={styles.avatarInfo}>
           <span className={styles.avatarName}>{selectedAvatar?.name ?? "선택된 아바타 없음"}</span>

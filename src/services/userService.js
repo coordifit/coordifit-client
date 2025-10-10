@@ -20,6 +20,26 @@ class UserService {
       throw error;
     }
   }
+
+  async deactivateAccount(userId) {
+    try {
+      const response = await api.delete(`/user/${userId}?isActive=N`);
+      return response.data;
+    } catch (error) {
+      console.error("계정 비활성화 오류:", error);
+      throw error;
+    }
+  }
+
+  async activateAccount(userId) {
+    try {
+      const response = await api.delete(`/user/${userId}?isActive=Y`);
+      return response.data;
+    } catch (error) {
+      console.error("계정 활성화 오류:", error);
+      throw error;
+    }
+  }
 }
 
 export default new UserService();

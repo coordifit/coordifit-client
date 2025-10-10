@@ -1,5 +1,6 @@
 // App.jsx
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import Layout from "@/components/Layout/Layout";
 import AiFittingLanding from "@/pages/AiFitting/AiFittingLanding";
@@ -24,11 +25,27 @@ import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 import { formatYearMonth } from "./utils/calenderUtils";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { TokenManager } from "./services/axiosInstance";
+
+const AutoLogin = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (TokenManager.isLoggedIn()) {
+      navigate("/main");
+    } else {
+      navigate("/start");
+    }
+  }, [navigate]);
+
+  return null;
+};
 
 // 라우터 정의
 const router = createBrowserRouter([
   // 풀스크린 계열 → Layout 안 쓰니까 handle 필요 없음
-  { path: "/", element: <Start /> },
+  { path: "/", element: <AutoLogin /> },
+  { path: "/start", element: <Start /> },
   { path: "/login", element: <LoginPage /> },
   { path: "/signup", element: <SignUpPage /> },
   { path: "/password-reset", element: <PasswordReset /> },

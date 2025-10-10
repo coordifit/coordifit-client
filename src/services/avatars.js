@@ -75,3 +75,23 @@ export const deleteAvatar = async (avatarId) => {
     throw error;
   }
 };
+/**
+ * AI 피팅 요청
+ */
+export const requestAiFitting = async (payload, { signal } = {}) => {
+  try {
+    const { data } = await api.post("/nanobanana/fitting", payload, {
+      signal,
+      headers: buildUserHeaders(),
+    });
+
+    return data;
+  } catch (error) {
+    if (error?.code === "ERR_CANCELED") {
+      throw error;
+    }
+
+    console.error("❌ requestAiFitting Error:", error.response?.data || error.message || error);
+    throw error;
+  }
+};

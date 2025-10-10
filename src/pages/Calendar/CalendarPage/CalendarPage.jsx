@@ -1,14 +1,16 @@
-import { Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 import Calendar from "react-calendar";
 import classNames from "classnames/bind";
+import "react-calendar/dist/Calendar.css";
+
 import DatePicker from "../DatePicker/DatePicker";
 import Modal from "@/components/Modal/Modal";
-import "react-calendar/dist/Calendar.css";
-import styles from "./CalendarPage.module.css";
-import { formatDate, formatYearMonth } from "@/utils/calenderUtils";
 import { useClothesStore } from "@/store/clothesStore";
+import { useDailyLooksByMonthQuery } from "@/hooks/useDailyLookQuery";
+import { formatDate, formatYearMonth } from "@/utils/calenderUtils";
+import styles from "./CalendarPage.module.css";
 
 const cx = classNames.bind(styles);
 
@@ -23,8 +25,14 @@ const CalendarPage = () => {
   const [pendingDate, setPendingDate] = useState(null);
   const { clearClothes, clothes } = useClothesStore();
 
+  const { date } = useParams();
+
+  const { data: dailyLooks = { data: [] }, isLoading, error } = useDailyLooksByMonthQuery(date);
+  const trimDate = (datetime) => datetime.split(" ")[0];
+  const isYearMonth = (value) => /^\d{4}-\d{2}$/.test(value);
+
   const clickHandler = (date) => {
-    const dateString = formatDate(date);
+    const dateString = formatDate(new Date(date));
 
     setTargetDate(date);
     setViewMode("daily");
@@ -130,6 +138,14 @@ const CalendarPage = () => {
       ))}
     </ul>
   );
+  if (isLoading) return <h1>로딩 중...</h1>;
+  if (error)
+    return (
+      <>
+        <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
+        <span>error</span>
+      </>
+    );
 
   return (
     <>
@@ -144,7 +160,7 @@ const CalendarPage = () => {
           monthly
         </div>
       </div>
-      {viewMode === "monthly" && (
+      {viewMode === "monthly" && isYearMonth(date) && (
         <>
           <span>
             {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
@@ -159,6 +175,29 @@ const CalendarPage = () => {
               console.log("activeStartDate", activeStartDate);
               setTargetDate(activeStartDate);
               navigate(`/calendar/${formatYearMonth(activeStartDate)}`);
+            }}
+            tileContent={({ date, view }) => {
+              if (view !== "month") return null;
+              const target = dailyLooks.data.find(
+                (item) => trimDate(item.wearDate) === formatDate(date),
+              );
+              if (!target) return null;
+
+              return (
+                <div className={cx("calendar-thumb-wrapper")}>
+                  <img
+                    src={target.thumbImageUrl}
+                    alt=""
+                    className={cx("calendar-thumb")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewMode("daily");
+                      clearClothes();
+                      navigate(`/calendar/${formatDate(new Date(target.wearDate))}`);
+                    }}
+                  />
+                </div>
+              );
             }}
           />
           {isDateModalOpen && (

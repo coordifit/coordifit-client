@@ -16,6 +16,8 @@ import MainPage from "@/pages/MainPage/MainPage";
 import PasswordReset from "@/pages/PasswordResetPage/PasswordResetPage";
 import SignUpPage from "@/pages/SignUpPage/SignUpPage";
 import SnapPage from "@/pages/SnapPage/SnapPage";
+import SnapAddPage from "@/pages/SnapPage/SnapAddPage";
+import SnapUploadCompletePage from "@/pages/SnapPage/SnapUploadCompletePage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
@@ -235,6 +237,34 @@ const router = createBrowserRouter([
         ),
         handle: {
           title: "아바타 만들기",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/snap/add",
+        element: (
+          <ProtectedRoute>
+            <SnapAddPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "스냅 업로드",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/snap/upload-complete",
+        element: (
+          <ProtectedRoute>
+            <SnapUploadCompletePage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "스냅 업로드",
           showBack: true,
           showHeader: true,
           showTabbar: false,

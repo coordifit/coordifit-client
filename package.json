@@ -22,6 +22,8 @@
     ]
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "axios": "^1.11.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",

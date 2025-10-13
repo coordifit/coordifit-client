@@ -1,16 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import styles from "./AiFittingResultPage.module.css";
 import { useAiFittingStore } from "@/stores/aiFittingStore";
 import autoAwesomeIcon from "@/assets/images/auto_awesome.png";
-
-const defaultAnalysis = {
-  title: "화이트 상의로 밝아진 얼굴 톤",
-  description:
-    "화이트 색상의 상의로 얼굴 톤이 밝아 보이는 효과를 줍니다. 어깨선이 살짝 내려간 루즈핏 디자인으로 상체에 부피감을 더해 어깨가 더 넓어 보이도록 연출했어요. 탄탄한 소재의 팬츠는 하체 라인을 자연스럽게 커버해 안정감 있는 실루엣을 완성합니다.",
-  hashtags: ["편안", "출근"],
-};
+import { requestFittingAnalysis } from "@/services/avatars.js";
 
 const fallbackResultImage =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80";
@@ -28,9 +22,16 @@ const AiFittingResultPage = () => {
   const clearClothingSelection = useAiFittingStore((state) => state.clearClothingSelection);
 
   const location = useLocation();
-  const imageBase64 = location.state?.imageBase64 ?? null;
+
+  // ✅ data 혹은 imageBase64 둘 다 대응
+  const imageBase64 = location.state?.imageBase64 || location.state?.data?.imageBase64 || null;
 
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [analysisData, setAnalysisData] = useState(null);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [analysisError, setAnalysisError] = useState(null);
+  const analysisAbortControllerRef = useRef(null);
+  const isMountedRef = useRef(true);
 
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
@@ -50,9 +51,20 @@ const AiFittingResultPage = () => {
 
   useEffect(() => {
     if (!selectedAvatar || selectedItems.length === 0) {
+      console.warn("⚠️ 아바타 또는 의류 선택이 없습니다. /ai-fitting 으로 리다이렉트");
       navigate("/ai-fitting");
     }
   }, [navigate, selectedAvatar, selectedItems]);
+
+  useEffect(
+    () => () => {
+      isMountedRef.current = false;
+      if (analysisAbortControllerRef.current) {
+        analysisAbortControllerRef.current.abort();
+      }
+    },
+    [],
+  );
 
   const handleRetry = () => {
     clearClothingSelection();
@@ -61,7 +73,114 @@ const AiFittingResultPage = () => {
 
   const outfitSummary = selectedItems.map((item) => item.name).join(" / ");
 
-  const resultImageSrc = imageBase64 ? `data:image/png;base64,${imageBase64}` : fallbackResultImage;
+  const resultImageSrc = useMemo(() => {
+    if (!imageBase64) return fallbackResultImage;
+    return imageBase64.startsWith("data:") ? imageBase64 : `data:image/png;base64,${imageBase64}`;
+  }, [imageBase64]);
+  console.log("🧠 imageBase64 전달 상태", {
+    hasImage: !!imageBase64,
+    length: imageBase64?.length,
+    preview: imageBase64?.slice(0, 60),
+  });
+  useEffect(() => {
+    // ⛔ 분석 토글이 꺼져있으면 요청 중단
+    if (!showAnalysis) return;
+    // ⛔ 이미지가 없으면 요청 불가
+    if (!imageBase64) return;
+
+    console.log("🚀 AI 분석 요청 시작", {
+      showAnalysis,
+      hasImageBase64: !!imageBase64,
+      preview: imageBase64?.slice(0, 40),
+    });
+
+    const controller = new AbortController();
+    analysisAbortControllerRef.current = controller;
+
+    // ✅ 요청 직전 초기화
+    setIsLoadingAnalysis(true);
+    setAnalysisError(null);
+    setAnalysisData(null);
+
+    const fetchAnalysis = async () => {
+      try {
+        const response = await requestFittingAnalysis(
+          {
+            imageBase64: imageBase64.startsWith("data:")
+              ? imageBase64
+              : `data:image/png;base64,${imageBase64}`,
+            hint: outfitSummary || "",
+          },
+          { signal: controller.signal },
+        );
+
+        console.log("✅ AI 분석 응답 수신:", response);
+        const result = response ?? {};
+
+        const normalizedTitle =
+          typeof result?.title === "string" && result.title.trim().length > 0
+            ? result.title.trim()
+            : null;
+
+        const normalizedAnalysis = Array.isArray(result?.contents)
+          ? result.contents.join("\n")
+          : typeof result?.analysis === "string"
+            ? result.analysis.trim()
+            : null;
+
+        const normalizedHashtags = Array.isArray(result?.hashtags)
+          ? result.hashtags
+              .map((tag) => (typeof tag === "string" ? tag.trim() : ""))
+              .filter(Boolean)
+              .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+          : [];
+
+        // ✅ 정상 수신 → 상태 반영
+        setAnalysisData({
+          title: normalizedTitle,
+          analysis: normalizedAnalysis,
+          hashtags: normalizedHashtags,
+        });
+      } catch (error) {
+        if (error?.code === "ERR_CANCELED") {
+          console.log("⚠️ 요청 취소됨");
+          return;
+        }
+        console.error("❌ AI 분석 요청 중 오류 발생:", error);
+        setAnalysisError(error);
+      } finally {
+        // ✅ 무조건 로딩 해제
+        setIsLoadingAnalysis(false);
+        analysisAbortControllerRef.current = null;
+      }
+    };
+
+    fetchAnalysis();
+
+    // cleanup 시점에서는 실행 중인 요청만 취소
+    return () => {
+      if (analysisAbortControllerRef.current) {
+        console.log("🧹 분석 요청 중단 (cleanup)");
+        analysisAbortControllerRef.current.abort();
+        analysisAbortControllerRef.current = null;
+      }
+    };
+  }, [showAnalysis, imageBase64, outfitSummary]);
+
+  const handleToggleAnalysis = () => {
+    setShowAnalysis((prev) => {
+      const next = !prev;
+      if (!next) {
+        if (analysisAbortControllerRef.current) {
+          analysisAbortControllerRef.current.abort();
+          analysisAbortControllerRef.current = null;
+        }
+        setAnalysisData(null);
+        setAnalysisError(null);
+      }
+      return next;
+    });
+  };
 
   return (
     <div className={styles.page}>
@@ -69,10 +188,12 @@ const AiFittingResultPage = () => {
         <div className={styles.resultImageWrapper}>
           <img src={resultImageSrc} alt="AI로 생성된 코디 결과" className={styles.resultImage} />
         </div>
+
         <div className={styles.avatarInfo}>
           <span className={styles.avatarName}>{selectedAvatar?.name ?? "선택된 아바타 없음"}</span>
           {outfitSummary && <span className={styles.outfitSummary}>{outfitSummary}</span>}
         </div>
+
         <div className={styles.actionRow}>
           <button type="button" className={styles.saveButton}>
             코디에 저장하기
@@ -81,10 +202,11 @@ const AiFittingResultPage = () => {
             다른 옷 입히기
           </button>
         </div>
+
         <button
           type="button"
           className={`${styles.analysisToggle} ${showAnalysis ? styles.active : ""}`}
-          onClick={() => setShowAnalysis((prev) => !prev)}
+          onClick={handleToggleAnalysis}
           aria-expanded={showAnalysis}
         >
           <img src={autoAwesomeIcon} alt="" className={styles.analysisIcon} aria-hidden="true" />
@@ -92,19 +214,49 @@ const AiFittingResultPage = () => {
             {showAnalysis ? "AI 분석 결과" : "AI 분석"}
           </span>
         </button>
+
         {showAnalysis && (
           <article className={styles.analysisPanel}>
-            <h3 className={styles.analysisTitle}>{defaultAnalysis.title}</h3>
-            <p className={styles.analysisDescription}>{defaultAnalysis.description}</p>
-            <ul className={styles.hashtagList}>
-              {defaultAnalysis.hashtags.map((tag) => (
-                <li key={tag} className={styles.hashtag}>
-                  #{tag}
-                </li>
-              ))}
-            </ul>
+            {isLoadingAnalysis && (
+              <>
+                <h3 className={styles.analysisTitle}>AI 분석 중...</h3>
+                <p className={styles.analysisDescription}>AI가 코디를 분석하고 있습니다...</p>
+              </>
+            )}
+
+            {!isLoadingAnalysis && analysisError && (
+              <p className={styles.analysisError}>AI 분석 결과를 불러오지 못했어요.</p>
+            )}
+
+            {!isLoadingAnalysis && analysisData && (
+              <div className={styles.analysisContent}>
+                <h3 className={styles.analysisTitle}>{analysisData.title}</h3>
+
+                <ul className={styles.analysisList}>
+                  {analysisData.analysis
+                    ?.split("\n")
+                    .filter((line) => line.trim().length > 0)
+                    .map((line, index) => (
+                      <li key={index} className={styles.analysisBullet}>
+                        {line}
+                      </li>
+                    ))}
+                </ul>
+
+                {analysisData.hashtags?.length > 0 && (
+                  <div className={styles.hashtagGroup}>
+                    {analysisData.hashtags.map((tag) => (
+                      <span key={tag} className={styles.hashtagBadge}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </article>
         )}
+
         <h3 className={styles.productHeading}>착용 상품 정보</h3>
         <div className={styles.productList}>
           {selectedItems.map((item) => {

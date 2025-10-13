@@ -11,6 +11,9 @@ import { useClothesStore } from "@/store/clothesStore";
 import { useDailyLooksByMonthQuery } from "@/hooks/useDailyLookQuery";
 import { formatDate, formatYearMonth } from "@/utils/calenderUtils";
 import styles from "./CalendarPage.module.css";
+import CalendarHeader from "../CalendarHeader/CalendarHeader";
+import dailyIcon from "@/assets/icons/daily_view_icon.svg";
+import monthlyIcon from "@/assets/icons/monthly_view_icon.svg";
 
 const cx = classNames.bind(styles);
 
@@ -147,8 +150,25 @@ const CalendarPage = () => {
       </>
     );
 
+  const dailyIcon = () => <img src={dailyIcon} alt="daily icon" className={cx("viewmode-icon")} />;
+  const monthlyIcon = () => (
+    <img src={monthlyIcon} alt="monthly icon" className={cx("viewmode-icon")} />
+  );
+
   return (
     <>
+      {viewMode === "monthly" && isYearMonth(date) && (
+        <>
+          {" "}
+          <CalendarHeader
+            targetDate={targetDate}
+            setTargetDate={setTargetDate}
+            navigate={navigate}
+            onOpenDateModal={handleModal}
+          />
+        </>
+      )}
+
       <div className={cx("viewmode-box")}>
         <div onClick={handleViewMode} className={cx("viewmode", { active: viewMode === "daily" })}>
           daily
@@ -162,15 +182,15 @@ const CalendarPage = () => {
       </div>
       {viewMode === "monthly" && isYearMonth(date) && (
         <>
-          <span>
-            {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
-          </span>
-          <button onClick={() => handleModal("open")}>날짜 선택 ▼</button>
-
           <Calendar
+            locale="en-US" // 일요일부터 시작
+            formatShortWeekday={(locale, date) =>
+              ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
+            }
             onChange={setTargetDate}
             value={targetDate}
             onClickDay={clickHandler}
+            showNavigation={false}
             onActiveStartDateChange={({ activeStartDate }) => {
               console.log("activeStartDate", activeStartDate);
               setTargetDate(activeStartDate);

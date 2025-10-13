@@ -2,14 +2,13 @@
   min-height: 100%;
   max-width: 360px;
   margin: 0 auto;
-  padding: 10px 16px 40px;
-  background: linear-gradient(0deg, #f9fafb, #f9fafb), #ffffff;
+  padding: 0px 10px 40px;
 }
 
 .main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .resultImageButton {
@@ -62,6 +61,7 @@
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
   font-size: 18px;
   font-weight: 600;
+  margin-top: 20px;
   color: #333333;
 }
 
@@ -135,21 +135,28 @@
 }
 
 .analysisPanel {
-  padding: 20px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+.analysisContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* 제목: 스타일 + 편안함, 롱슬리브 코디 */
 .analysisTitle {
-  margin: 0;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 16px;
+  font-style: normal;
   font-weight: 600;
-  color: #111827;
+  font-size: 16px;
+  line-height: 24px;
+  color: #333333;
+  margin: 0;
 }
 
 .analysisDescription {
@@ -158,6 +165,30 @@
   font-size: 12px;
   line-height: 18px;
   color: #999999;
+  white-space: pre-line;
+}
+/* 불릿 리스트 */
+.analysisList {
+  list-style: disc;
+  padding-left: 16px;
+  margin: 0;
+}
+
+.analysisBullet {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  color: #999999;
+}
+
+.analysisError {
+  margin: 0;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  color: #ef4444;
 }
 
 .hashtagList {
@@ -178,7 +209,24 @@
   font-weight: 600;
   color: #333333;
 }
+/* 해시태그 그룹 (#편안 #출근) */
+.hashtagGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
 
+.hashtagBadge {
+  background: #cecece;
+  border-radius: 20px;
+  padding: 2px 12px;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 20px;
+  color: #333333;
+}
 .productHeading {
   margin: 4px 0 0;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;

@@ -95,3 +95,25 @@ export const requestAiFitting = async (payload, { signal } = {}) => {
     throw error;
   }
 };
+
+// AI 피팅 분석 요청
+export const requestFittingAnalysis = async (payload, { signal } = {}) => {
+  try {
+    const imageBase64 = payload.imageBase64?.startsWith("data:")
+      ? payload.imageBase64
+      : `data:image/png;base64,${payload.imageBase64}`;
+
+    const finalPayload = {
+      imageBase64,
+      hint: payload.hint || "",
+    };
+    const { data } = await api.post("/fitting/analysis", finalPayload, {
+      signal,
+      headers: { "Content-Type": "application/json" },
+    });
+    return data;
+  } catch (error) {
+    console.error("❌ requestFittingAnalysis Error:", error);
+    throw error;
+  }
+};

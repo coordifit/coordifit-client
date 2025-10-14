@@ -115,7 +115,16 @@ const AiFittingResultPage = () => {
         );
 
         console.log("✅ AI 분석 응답 수신:", response);
-        const result = response ?? {};
+
+        // ✅ 구조분해 (ApiResponseDto 대응)
+        const { success, message, data } = response ?? {};
+        if (!success || !data) {
+          console.error("❌ AI 분석 응답 구조가 예상과 다름:", response);
+          setAnalysisError(new Error("AI 분석 응답이 올바르지 않습니다."));
+          return;
+        }
+
+        const result = data; // 실제 분석 결과 DTO
 
         const normalizedTitle =
           typeof result?.title === "string" && result.title.trim().length > 0
@@ -149,7 +158,6 @@ const AiFittingResultPage = () => {
         console.error("❌ AI 분석 요청 중 오류 발생:", error);
         setAnalysisError(error);
       } finally {
-        // ✅ 무조건 로딩 해제
         setIsLoadingAnalysis(false);
         analysisAbortControllerRef.current = null;
       }

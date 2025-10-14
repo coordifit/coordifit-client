@@ -26,6 +26,7 @@ import SignUpPage from "@/pages/SignUpPage/SignUpPage";
 import SnapPage from "@/pages/SnapPage/SnapPage";
 import SnapAddPage from "@/pages/SnapPage/SnapAddPage";
 import SnapUploadCompletePage from "@/pages/SnapPage/SnapUploadCompletePage";
+import SnapDetailPage from "@/pages/SnapPage/SnapDetailPage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
@@ -54,14 +55,36 @@ const router = createBrowserRouter([
   { path: "/", element: <AutoLogin /> },
   { path: "/start", element: <Start /> },
   { path: "/login", element: <LoginPage /> },
-  { path: "/signup", element: <SignUpPage /> },
-  { path: "/password-reset", element: <PasswordReset /> },
   { path: "/common-codes", element: <CommonCodePage /> },
 
-  // Layout 안에 들어가는 일반 페이지들
+  // Layout 내부 페이지들
   {
     element: <Layout />,
     children: [
+      // ✅ 회원가입 페이지 (헤더 + 뒤로가기만 표시)
+      {
+        path: "/signup",
+        element: <SignUpPage />,
+        handle: {
+          title: "회원가입",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+
+      // ✅ 비밀번호 재설정 페이지 (헤더 + 뒤로가기만 표시)
+      {
+        path: "/password-reset",
+        element: <PasswordReset />,
+        handle: {
+          title: "비밀번호 재설정",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+
       // 루트 탭들: 헤더+탭 / 뒤로가기 없음
       {
         path: "/main",
@@ -76,6 +99,7 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+
       {
         path: "/calendar",
         element: (
@@ -100,6 +124,7 @@ const router = createBrowserRouter([
           },
         ],
       },
+
       {
         path: "/calendar/:date/editor",
         element: (
@@ -123,6 +148,7 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+
       {
         path: "/closet/register",
         element: (
@@ -137,6 +163,7 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+
       {
         path: "/closet/item/:itemId",
         element: (
@@ -151,6 +178,7 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+
       {
         path: "/mypage",
         element: (
@@ -165,7 +193,20 @@ const router = createBrowserRouter([
         },
       },
 
-      // 헤더 X + 탭바 O
+      {
+        path: "/mypage/:userId",
+        element: (
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          showBack: true,
+          showHeader: true,
+          showTabbar: true,
+        },
+      },
+
       {
         path: "/snap",
         element: (
@@ -181,7 +222,6 @@ const router = createBrowserRouter([
         },
       },
 
-      // 헤더 O + 탭바 X (예: 상세/편집 페이지)
       {
         path: "/profile/edit",
         element: (
@@ -196,6 +236,7 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+
       {
         path: "/ai-fitting",
         element: (
@@ -210,6 +251,7 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+
       {
         path: "/ai-fitting/result",
         element: (
@@ -224,6 +266,7 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+
       {
         path: "/ai-fitting/avatars",
         element: (
@@ -238,6 +281,7 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+
       {
         path: "/ai-fitting/avatars/new",
         element: (
@@ -252,6 +296,7 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+
       {
         path: "/snap/add",
         element: (
@@ -266,6 +311,7 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+
       {
         path: "/snap/upload-complete",
         element: (
@@ -280,12 +326,27 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+
+      {
+        path: "/snap/:postId",
+        element: (
+          <ProtectedRoute>
+            <SnapDetailPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "스냅",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
     ],
   },
 ]);
+
 const App = () => {
   return <RouterProvider router={router} />;
 };
 
 export default App;
-// --- IGNORE ---

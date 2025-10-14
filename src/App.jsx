@@ -10,7 +10,7 @@ import AiFittingResultPage from "@/pages/AiFitting/AiFittingResultPage";
 import AvatarCreationPage from "@/pages/AiFitting/AvatarCreationPage";
 import AvatarSelectionPage from "@/pages/AiFitting/AvatarSelectionPage";
 
-import CalendarPage from "@calendar/CalendarPage/CalendarPage";
+import CalendarLayout from "@calendar/CalendarLayout/CalendarLayout";
 import CalendarBody from "@calendar/CalendarBody/CalendarBody";
 import CalendarEditor from "@calendar/CalendarEditor/CalendarEditor";
 
@@ -104,7 +104,7 @@ const router = createBrowserRouter([
         path: "/calendar",
         element: (
           <ProtectedRoute>
-            <CalendarPage />
+            <CalendarLayout />
           </ProtectedRoute>
         ),
         handle: {

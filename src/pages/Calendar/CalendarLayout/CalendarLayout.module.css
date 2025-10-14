@@ -26,15 +26,28 @@
   background: none;
   border-radius: 8px;
   font-size: 0.9rem;
-  padding: 4px 8px;
+  padding: 4px;
   cursor: pointer;
-}
-
-.dateButton:hover {
-  background: #ffeaea;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
 }
 
 /* 빨간색으로 보이게 */
 .red-icon path {
   fill: red;
+}
+
+/* 모달 열릴 때 (isOpen=true) */
+.dateButton.open .arrowIcon {
+  transform: rotate(180deg); /* ▼ → ▲ */
+  color: #000; /* 살짝 진하게 */
+}
+
+.arrowIcon {
+  font-size: 20px;
+  color: #333;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
 }

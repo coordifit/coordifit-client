@@ -1,25 +1,32 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import "react-calendar/dist/Calendar.css";
 
 import classNames from "classnames/bind";
 
-import DatePicker from "../DatePicker/DatePicker";
 import Modal from "@/components/Modal/Modal";
-import { useClothesStore } from "@/store/clothesStore";
-import styles from "./CalendarPage.module.css";
 import CalendarHeader from "@calendar/CalendarHeader/CalendarHeader";
-import ViewMode from "../ViewMode/ViewMode";
+import DatePicker from "@calendar/DatePicker/DatePicker";
+import ViewMode from "@calendar/ViewMode/ViewMode";
+
+import { useClothesStore } from "@/store/clothesStore";
+
 import { formatDate, formatYearMonth } from "@/utils/calendarUtils";
+import styles from "./CalendarLayout.module.css";
+import "react-calendar/dist/Calendar.css";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 const cx = classNames.bind(styles);
 
-const CalendarPage = () => {
+const CalendarLayout = () => {
   const [targetDate, setTargetDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("monthly");
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const navigate = useNavigate();
   const { clothes } = useClothesStore();
+
+  // useEffect(() => {
+  //   navigate(`/calendar/${formatYearMonth(targetDate)}`);
+  // }, [targetDate]);
 
   const clickHandler = (date) => {
     const dateString = formatDate(new Date(date));
@@ -28,6 +35,16 @@ const CalendarPage = () => {
     setViewMode("daily");
     navigate(`/calendar/${dateString}`);
   };
+
+  const outletContext = useMemo(
+    () => ({
+      targetDate,
+      setTargetDate,
+      clickHandler,
+      setViewMode,
+    }),
+    [viewMode, targetDate, isDateModalOpen],
+  );
 
   const handleViewMode = (viewMode) => {
     let nextPath = "/calendar/";
@@ -59,6 +76,15 @@ const CalendarPage = () => {
     }
   };
 
+  const handleMonthMove = (e) => {
+    let offset = e.currentTarget.id === "prev" ? -1 : 1;
+
+    const nextMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + offset, 1);
+
+    setTargetDate(nextMonth);
+    navigate(`/calendar/${formatYearMonth(nextMonth)}`);
+  };
+
   const handleModal = (type) => {
     if (type === "open") {
       setIsDateModalOpen(true);
@@ -68,6 +94,8 @@ const CalendarPage = () => {
   };
 
   const handleDatePicker = (date) => {
+    console.log("date", date);
+    console.log("dateObject", new Date());
     const pickedDate = `${date.year}-${date.month}-${date.day}`;
     const pickedDateObject = new Date(pickedDate);
 
@@ -76,26 +104,6 @@ const CalendarPage = () => {
     setViewMode("daily");
 
     navigate(`/calendar/${pickedDate}`);
-  };
-
-  const outletContext = useMemo(
-    () => ({
-      targetDate,
-      setTargetDate,
-      clickHandler,
-      setViewMode,
-    }),
-    [viewMode, isDateModalOpen],
-  );
-
-  const handleMonthMove = (e) => {
-    let offset = e.currentTarget.id === "prev" ? -1 : 1;
-
-    const next = new Date(targetDate.getFullYear(), targetDate.getMonth() + offset, 1);
-
-    setTargetDate(next);
-
-    navigate(`/calendar/${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
   };
 
   const ModalContent = (
@@ -111,18 +119,22 @@ const CalendarPage = () => {
       {viewMode === "monthly" && (
         <>
           <CalendarHeader onButtonClick={handleMonthMove}>
-            <span className={cx("monthLabel")}>
-              {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
-            </span>
-            <button className={cx("dateButton")} onClick={() => handleModal("open")}>
-              ▼
-            </button>
+            <div>
+              <span className={cx("monthLabel")}>
+                {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
+              </span>
+              <button className={cx("dateButton")} onClick={() => handleModal("open")}>
+                <IoMdArrowDropdown className={cx("arrowIcon")} />
+              </button>
+            </div>
           </CalendarHeader>
         </>
       )}
       {viewMode === "daily" && (
         <>
-          <CalendarHeader onButtonClick={handleDayMove}>{formatDate(targetDate)}</CalendarHeader>
+          <CalendarHeader onButtonClick={handleDayMove}>
+            <span className={cx("monthLabel")}>{formatDate(targetDate)}</span>
+          </CalendarHeader>
         </>
       )}
       <ViewMode viewMode={viewMode} onClick={handleViewMode} />
@@ -136,4 +148,4 @@ const CalendarPage = () => {
   );
 };
 
-export default CalendarPage;
+export default CalendarLayout;

@@ -3,31 +3,36 @@ import { createBrowserRouter, Navigate, RouterProvider, useNavigate } from "reac
 import { useEffect } from "react";
 
 import Layout from "@/components/Layout/Layout";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
 import AiFittingLanding from "@/pages/AiFitting/AiFittingLanding";
 import AiFittingResultPage from "@/pages/AiFitting/AiFittingResultPage";
 import AvatarCreationPage from "@/pages/AiFitting/AvatarCreationPage";
 import AvatarSelectionPage from "@/pages/AiFitting/AvatarSelectionPage";
-import CalendarPage from "@/pages/Calendar/CalendarPage/CalendarPage";
+
+import CalendarPage from "@calendar/CalendarPage/CalendarPage";
+import CalendarBody from "@calendar/CalendarBody/CalendarBody";
+import CalendarEditor from "@calendar/CalendarEditor/CalendarEditor";
+
 import ClosetPage from "@/pages/ClosetPage/ClosetPage";
 import ClosetDetailPage from "@/pages/ClosetDetailPage/ClosetDetailPage";
 import ClosetRegisterPage from "@/pages/ClosetRegisterPage/ClosetRegisterPage";
+
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import MainPage from "@/pages/MainPage/MainPage";
 import PasswordReset from "@/pages/PasswordResetPage/PasswordResetPage";
 import SignUpPage from "@/pages/SignUpPage/SignUpPage";
+
 import SnapPage from "@/pages/SnapPage/SnapPage";
 import SnapAddPage from "@/pages/SnapPage/SnapAddPage";
 import SnapUploadCompletePage from "@/pages/SnapPage/SnapUploadCompletePage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
-import CalendarRouter from "./pages/Calendar/CalendarRouter";
-import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
-import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
-import { formatYearMonth } from "./utils/calenderUtils";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
 import { TokenManager } from "./services/axiosInstance";
+import { formatYearMonth } from "./utils/calendarUtils";
 
 const AutoLogin = () => {
   const navigate = useNavigate();
@@ -91,13 +96,18 @@ const router = createBrowserRouter([
           },
           {
             path: ":date",
-            element: <CalendarRouter />,
-            children: [
-              { path: "", element: <CalendarDetail /> },
-              { path: "editor", element: <CalendarEditor /> },
-            ],
+            element: <CalendarBody />,
           },
         ],
+      },
+      {
+        path: "/calendar/:date/editor",
+        element: (
+          <ProtectedRoute>
+            <CalendarEditor />
+          </ProtectedRoute>
+        ),
+        handle: { title: "데일리룩 편집", showBack: true, showHeader: true, showTabbar: true },
       },
       {
         path: "/closet",

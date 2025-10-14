@@ -1,38 +1,25 @@
-import { useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
-
-import Calendar from "react-calendar";
-import classNames from "classnames/bind";
+import { useMemo, useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import "react-calendar/dist/Calendar.css";
+
+import classNames from "classnames/bind";
 
 import DatePicker from "../DatePicker/DatePicker";
 import Modal from "@/components/Modal/Modal";
 import { useClothesStore } from "@/store/clothesStore";
-import { useDailyLooksByMonthQuery } from "@/hooks/useDailyLookQuery";
-import { formatDate, formatYearMonth } from "@/utils/calenderUtils";
 import styles from "./CalendarPage.module.css";
-import CalendarHeader from "../CalendarHeader/CalendarHeader";
-import dailyIcon from "@/assets/icons/daily_view_icon.svg";
-import monthlyIcon from "@/assets/icons/monthly_view_icon.svg";
+import CalendarHeader from "@calendar/CalendarHeader/CalendarHeader";
+import ViewMode from "../ViewMode/ViewMode";
+import { formatDate, formatYearMonth } from "@/utils/calendarUtils";
 
 const cx = classNames.bind(styles);
 
 const CalendarPage = () => {
-  const navigate = useNavigate();
   const [targetDate, setTargetDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("monthly");
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [pendingViewMode, setPendingViewMode] = useState(null);
-  const [pendingPath, setPendingPath] = useState(null);
-  const [pendingDate, setPendingDate] = useState(null);
-  const { clearClothes, clothes } = useClothesStore();
-
-  const { date } = useParams();
-
-  const { data: dailyLooks = { data: [] }, isLoading, error } = useDailyLooksByMonthQuery(date);
-  const trimDate = (datetime) => datetime.split(" ")[0];
-  const isYearMonth = (value) => /^\d{4}-\d{2}$/.test(value);
+  const navigate = useNavigate();
+  const { clothes } = useClothesStore();
 
   const clickHandler = (date) => {
     const dateString = formatDate(new Date(date));
@@ -42,73 +29,31 @@ const CalendarPage = () => {
     navigate(`/calendar/${dateString}`);
   };
 
-  const verifyClothes = () => {
-    if (clothes.length === 0) {
-      return true;
-    }
-
-    setIsCancelModalOpen(true);
-
-    return false;
-  };
-
-  const clearPending = () => {
-    setPendingDate(null);
-    setPendingPath(null);
-    setPendingViewMode(null);
-  };
-
-  const handlerCancelModal = () => {
-    clearClothes();
-    setIsCancelModalOpen(false);
-
-    if (pendingDate) setTargetDate(pendingDate);
-    if (pendingViewMode) setViewMode(pendingViewMode);
-    if (pendingPath) navigate(pendingPath);
-
-    clearPending();
-  };
-
-  const closeCancelModal = () => {
-    setIsCancelModalOpen(false);
-  };
-
-  const handleViewMode = (e) => {
-    const viewMode = e.currentTarget.innerText;
-    let nextPath = null;
+  const handleViewMode = (viewMode) => {
+    let nextPath = "/calendar/";
 
     if (viewMode === "monthly") {
-      nextPath = formatYearMonth(targetDate);
+      nextPath += formatYearMonth(targetDate);
     } else if (viewMode === "daily") {
-      nextPath = formatDate(targetDate);
-      setPendingDate(targetDate);
+      nextPath += formatDate(targetDate);
     }
 
-    setPendingViewMode(viewMode);
-    setPendingPath(nextPath);
-
-    if (verifyClothes(`/calendar/${nextPath}`)) {
+    if (clothes.length === 0) {
       setViewMode(viewMode);
-      navigate(`/calendar/${nextPath}`);
-      clearPending();
+      navigate(nextPath);
     }
   };
 
-  const handleDateMove = (type) => {
+  const handleDayMove = (e) => {
+    let offset = e.currentTarget.id === "prev" ? -1 : 1;
+
     const moveTargetDate = new Date(targetDate);
 
-    if (type === "prev") {
-      moveTargetDate.setDate(targetDate.getDate() - 1);
-    } else if (type === "next") {
-      moveTargetDate.setDate(targetDate.getDate() + 1);
-    }
+    moveTargetDate.setDate(targetDate.getDate() + offset);
 
     const nextPath = `/calendar/${formatDate(moveTargetDate)}`;
 
-    setPendingPath(nextPath);
-    setPendingDate(moveTargetDate);
-
-    if (verifyClothes(nextPath)) {
+    if (clothes.length === 0) {
       setTargetDate(moveTargetDate);
       navigate(nextPath);
     }
@@ -123,7 +68,6 @@ const CalendarPage = () => {
   };
 
   const handleDatePicker = (date) => {
-    console.log("date.month", date.month);
     const pickedDate = `${date.year}-${date.month}-${date.day}`;
     const pickedDateObject = new Date(pickedDate);
 
@@ -134,6 +78,26 @@ const CalendarPage = () => {
     navigate(`/calendar/${pickedDate}`);
   };
 
+  const outletContext = useMemo(
+    () => ({
+      targetDate,
+      setTargetDate,
+      clickHandler,
+      setViewMode,
+    }),
+    [viewMode, isDateModalOpen],
+  );
+
+  const handleMonthMove = (e) => {
+    let offset = e.currentTarget.id === "prev" ? -1 : 1;
+
+    const next = new Date(targetDate.getFullYear(), targetDate.getMonth() + offset, 1);
+
+    setTargetDate(next);
+
+    navigate(`/calendar/${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
+  };
+
   const ModalContent = (
     <ul>
       {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
@@ -141,117 +105,32 @@ const CalendarPage = () => {
       ))}
     </ul>
   );
-  if (isLoading) return <h1>로딩 중...</h1>;
-  if (error)
-    return (
-      <>
-        <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
-        <span>error</span>
-      </>
-    );
-
-  const dailyIcon = () => <img src={dailyIcon} alt="daily icon" className={cx("viewmode-icon")} />;
-  const monthlyIcon = () => (
-    <img src={monthlyIcon} alt="monthly icon" className={cx("viewmode-icon")} />
-  );
 
   return (
     <>
-      {viewMode === "monthly" && isYearMonth(date) && (
+      {viewMode === "monthly" && (
         <>
-          {" "}
-          <CalendarHeader
-            targetDate={targetDate}
-            setTargetDate={setTargetDate}
-            navigate={navigate}
-            onOpenDateModal={handleModal}
-          />
-        </>
-      )}
-
-      <div className={cx("viewmode-box")}>
-        <div onClick={handleViewMode} className={cx("viewmode", { active: viewMode === "daily" })}>
-          daily
-        </div>
-        <div
-          onClick={handleViewMode}
-          className={cx("viewmode", { active: viewMode === "monthly" })}
-        >
-          monthly
-        </div>
-      </div>
-      {viewMode === "monthly" && isYearMonth(date) && (
-        <>
-          <Calendar
-            locale="en-US" // 일요일부터 시작
-            formatShortWeekday={(locale, date) =>
-              ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
-            }
-            onChange={setTargetDate}
-            value={targetDate}
-            onClickDay={clickHandler}
-            showNavigation={false}
-            onActiveStartDateChange={({ activeStartDate }) => {
-              console.log("activeStartDate", activeStartDate);
-              setTargetDate(activeStartDate);
-              navigate(`/calendar/${formatYearMonth(activeStartDate)}`);
-            }}
-            tileContent={({ date, view }) => {
-              if (view !== "month") return null;
-              const target = dailyLooks.data.find(
-                (item) => trimDate(item.wearDate) === formatDate(date),
-              );
-              if (!target) return null;
-
-              return (
-                <div className={cx("calendar-thumb-wrapper")}>
-                  <img
-                    src={target.thumbImageUrl}
-                    alt=""
-                    className={cx("calendar-thumb")}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setViewMode("daily");
-                      clearClothes();
-                      navigate(`/calendar/${formatDate(new Date(target.wearDate))}`);
-                    }}
-                  />
-                </div>
-              );
-            }}
-          />
-          {isDateModalOpen && (
-            <Modal title="날짜선택" onClose={() => handleModal("close")} children={ModalContent}>
-              <DatePicker onConfirm={handleDatePicker} />
-            </Modal>
-          )}
+          <CalendarHeader onButtonClick={handleMonthMove}>
+            <span className={cx("monthLabel")}>
+              {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
+            </span>
+            <button className={cx("dateButton")} onClick={() => handleModal("open")}>
+              ▼
+            </button>
+          </CalendarHeader>
         </>
       )}
       {viewMode === "daily" && (
-        <div>
-          <button onClick={() => handleDateMove("prev")}>prev</button>
-          {formatDate(targetDate)}
-          <button onClick={() => handleDateMove("next")}>next</button>
-        </div>
+        <>
+          <CalendarHeader onButtonClick={handleDayMove}>{formatDate(targetDate)}</CalendarHeader>
+        </>
       )}
-      <div className={cx("content-box")}>
-        <Outlet />
-      </div>
-      {isCancelModalOpen && (
-        <Modal
-          onClose={closeCancelModal}
-          footer={
-            <>
-              <button type="button" onClick={closeCancelModal}>
-                아니요
-              </button>
-              <button type="button" onClick={handlerCancelModal}>
-                예
-              </button>
-            </>
-          }
-          children={"작성중인 데일리룩은 삭제됩니다. \n 계속 하시겠습니까?"}
-        />
+      <ViewMode viewMode={viewMode} onClick={handleViewMode} />
+      <Outlet context={outletContext} />
+      {isDateModalOpen && (
+        <Modal title="날짜선택" onClose={() => handleModal("close")} children={ModalContent}>
+          <DatePicker onConfirm={handleDatePicker} />
+        </Modal>
       )}
     </>
   );

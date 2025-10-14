@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, TokenManager } from "../../services/axiosInstance";
 import { useUserStore } from "../../stores/userStore";
-import userService from "../../services/userService";
 import Modal from "../../components/Modal/Modal";
+import { requestLogin, requestActivateAccount } from "../../services/authService";
 
+import kakaobutton from "@/assets/images/kakaobutton.png";
 import styles from "./LoginPage.module.css";
 
 const Login = () => {
@@ -46,25 +46,16 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await api.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+      // ✅ 서비스 모듈 호출로 교체
+      const response = await requestLogin(formData);
 
-      if (response.data.success) {
-        const { data } = response.data;
-
-        console.log(data);
-        // JWT 토큰 저장
-        TokenManager.setTokens(data.accessToken, data.refreshToken);
-
-        // 토큰에서 사용자 정보 로드하여 store에 저장
-        loadUserFromToken();
+      if (response.success) {
+        console.log(response.data);
 
         // 메인 페이지로 이동
         navigate("/main");
       } else {
-        setError(response.data.message || "로그인에 실패했습니다.");
+        setError(response.message || "로그인에 실패했습니다.");
       }
     } catch (error) {
       console.error("로그인 오류:", error);
@@ -87,15 +78,9 @@ const Login = () => {
   const handleActivateAccount = async () => {
     try {
       setIsLoading(true);
-      const response = await userService.activateAccount(deactivatedUserId);
+      // ✅ 서비스 모듈 호출로 교체
+      const response = await requestActivateAccount(deactivatedUserId);
       if (response.success) {
-        const { accessToken, refreshToken } = response.data;
-        // JWT 토큰 저장
-        TokenManager.setTokens(accessToken, refreshToken);
-
-        // 토큰에서 사용자 정보 로드하여 store에 저장
-        loadUserFromToken();
-
         // 모달 닫기
         setActivateModalOpen(false);
 
@@ -116,7 +101,7 @@ const Login = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.page}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <h1 className={styles.logo}>CoordiFit</h1>
 
@@ -151,11 +136,12 @@ const Login = () => {
         <button type="submit" className={styles.loginButton} disabled={isLoading}>
           {isLoading ? "로그인 중..." : "로그인"}
         </button>
+
         <div className={styles.links}>
           <button type="button" className={styles.linkButton} onClick={() => navigate("/signup")}>
             이메일 회원가입
           </button>
-          <span className={styles.separator}>|</span>
+          <div className={styles.line}></div>
           <button
             type="button"
             className={styles.linkButton}
@@ -164,8 +150,9 @@ const Login = () => {
             비밀번호 찾기
           </button>
         </div>
+
         <button type="button" className={styles.kakaoButton} onClick={() => navigate("/main")}>
-          <span className={styles.kakaoIcon}>💬</span> 카카오로 시작하기
+          <img src={kakaobutton} alt="카카오로 시작하기" />
         </button>
       </form>
 

@@ -1,117 +1,137 @@
 .container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  align-items: flex-start;
   background-color: #ffffff;
-  padding: 24px;
 }
 
 .form {
+  position: relative;
   width: 100%;
   max-width: 360px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 40px;
+  margin-top: 40px;
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1d1d1f;
-  margin-bottom: 12px;
-  text-align: center;
+/* ----------------------------
+   공통 필드 스타일 (라벨 + 인풋)
+---------------------------- */
+.fieldGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .label {
+  font-family: "Pretendard", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #1d1d1f;
-  margin-bottom: 4px;
+  color: #333333;
 }
 
 .input {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid #d7d7db;
-  background-color: #f8f8fa;
+  padding: 8px 5px;
+  border: none;
+  border-bottom: 1px solid #333333;
+  font-family: "Pretendard", sans-serif;
   font-size: 14px;
+  color: #333333;
+  background: transparent;
 }
 
-.input:focus {
-  outline: 2px solid #1d1d1f;
+.input::placeholder {
+  color: #808080;
 }
 
+/* ----------------------------
+   버튼 관련
+---------------------------- */
 .row {
   display: flex;
-  gap: 8px;
   align-items: center;
-}
-
-.fieldGroup {
-  display: flex;
-  flex-direction: column;
-}
-
-.field {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  gap: 19px;
+  width: 100%;
 }
 
 .smallButton {
-  padding: 12px 16px;
-  border-radius: 12px;
+  width: 77px;
+  height: 32px;
   border: none;
-  background-color: #1d1d1f;
+  border-radius: 10px;
+  background-color: #333333;
   color: #ffffff;
-  font-size: 14px;
+  font-family: "Pretendard", sans-serif;
   font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.submitButton {
-  margin-top: 12px;
-  padding: 16px;
-  border-radius: 12px;
-  border: none;
-  background-color: #1d1d1f;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 13px;
+  line-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
 }
 
-.backButton {
-  margin-top: 4px;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  background-color: #f4f4f6;
-  color: #1d1d1f;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+.smallButton:disabled {
+  background-color: #b0b0b0;
+  cursor: not-allowed;
 }
 
+/* ----------------------------
+   검증 메시지
+---------------------------- */
 .validationMessage {
-  margin-top: 8px;
   font-size: 12px;
+  margin-top: 4px;
 }
 
 .validationMessage.success {
-  color: #28a745;
+  color: #009879;
 }
 
 .validationMessage.error {
   color: #dc3545;
 }
 
+/* ----------------------------
+   타이머
+---------------------------- */
 .timer {
-  margin-top: 5px;
   font-size: 12px;
   color: #ff6b35;
   font-weight: 600;
+}
+
+/* ----------------------------
+   회원가입 버튼 (하단 고정)
+---------------------------- */
+.submitButton {
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 349px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background-color: #333333;
+  color: #ffffff;
+  font-family: "Pretendard", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.submitButton:disabled {
+  background-color: #b0b0b0;
+  cursor: not-allowed;
 }

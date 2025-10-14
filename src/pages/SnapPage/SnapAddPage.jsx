@@ -58,7 +58,7 @@ const SnapAddPage = () => {
         const clothes = await clothesService.getClothes();
 
         // API 응답을 기존 형식에 맞게 변환
-        const transformedClothes = clothes.map((item) => ({
+        const transformedClothes = clothes.data.content.map((item) => ({
           id: item.clothesId,
           name: item.name,
           brand: "브랜드",

@@ -81,11 +81,6 @@ const CalendarEditor = () => {
     setSelectedId(obj.id);
   };
 
-  const updateObject = (id, next) => {
-    console.log("updateObject", id, next);
-    updateClothes(id, next);
-  };
-
   const removeSelected = () => {
     if (!selectedId) return;
     removeClothes(selectedId);
@@ -158,7 +153,7 @@ const CalendarEditor = () => {
                   obj={item}
                   isSelected={item.id === selectedId}
                   onSelect={() => setSelectedId(item.id)}
-                  onChange={(next) => updateObject(item.id, next)}
+                  onChange={(next) => updateClothes(item.id, next)}
                 />
               ))}
             </Layer>

@@ -41,9 +41,16 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, clickHa
           value={targetDate}
           onClickDay={clickHandler}
           showNavigation={false}
+          activeStartDate={targetDate}
           onActiveStartDateChange={({ activeStartDate }) => {
             setTargetDate(activeStartDate);
             navigate(`/calendar/${formatYearMonth(activeStartDate)}`);
+          }}
+          tileClassName={({ date, view }) => {
+            if (view !== "month") return null;
+            const day = date.getDay();
+            if (day === 0) return "sunday";
+            if (day === 6) return "saturday";
           }}
           tileContent={({ date, view }) => {
             if (view !== "month") return null;

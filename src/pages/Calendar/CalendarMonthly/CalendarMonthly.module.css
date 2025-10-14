@@ -36,13 +36,11 @@
 
 /* 오늘 날짜 강조 */
 :global(.react-calendar__tile--now) {
-  background: #ffeaea;
-  border-radius: 8px;
+  background: greenyellow;
 }
 
 /* 선택된 날짜 */
 :global(.react-calendar__tile--active) {
-  background: #ff6b6b;
   color: white;
   border-radius: 8px;
 }

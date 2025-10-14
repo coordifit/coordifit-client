@@ -1,10 +1,11 @@
 import React from "react";
 import styles from "./CalendarHeader.module.css";
+import classNames from "classnames/bind";
 
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
-import cn from "classnames";
+const cn = classNames.bind(styles);
 
 const CalendarHeader = ({ onButtonClick, children }) => {
   return (

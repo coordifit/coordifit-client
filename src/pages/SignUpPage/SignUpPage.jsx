@@ -337,10 +337,6 @@ const SignUpPage = () => {
         >
           {isLoading ? "회원가입 중..." : "회원가입"}
         </button>
-
-        <button type="button" className={styles.backButton} onClick={() => navigate("/login")}>
-          로그인으로 돌아가기
-        </button>
       </form>
     </div>
   );

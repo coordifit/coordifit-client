@@ -36,7 +36,6 @@
 .main-content {
   flex: 1;
   overflow: auto;
-  padding: 12px;
   padding-bottom: 10px; /* BottomNav 높이(64px) + 여백(12px) */
   /* 스크롤바 숨기기 (WebKit 브라우저용) */
   -ms-overflow-style: none; /* IE and Edge */

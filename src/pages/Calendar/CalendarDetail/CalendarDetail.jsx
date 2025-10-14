@@ -26,7 +26,6 @@ const CalendarDetail = () => {
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.color}>This is Calendar Detail page</h3>
       <h2>{date}</h2>
       {dailyLook?.data?.canvasJson ? (
         <>

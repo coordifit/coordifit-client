@@ -14,7 +14,7 @@ import CanvasItem from "../CanvasItem/CanvasItem";
 import ClosetModal from "../ClosetModal/ClosetModal";
 
 import styles from "./CalendarEditor.module.css";
-import { CANVAS_CONFIG } from "@/constants/calender";
+import { CANVAS_CONFIG } from "@/constants/calendar";
 
 const CalendarEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");

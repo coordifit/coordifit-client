@@ -4,6 +4,7 @@ import Tabs from "@/components/Tabs/Tabs";
 import Modal from "@/components/Modal/Modal";
 import userService from "@/services/userService";
 import { useUserStore } from "@/stores/userStore";
+import profileImage from "@/assets/images/profile.png";
 import styles from "./MyPage.module.css";
 
 const TAB_ITEMS = [
@@ -74,6 +75,11 @@ const MyPage = () => {
     }
   };
 
+  // 포스트 클릭 처리
+  const handlePostClick = (postId) => {
+    navigate(`/snap/${postId}`);
+  };
+
   // 게시물 데이터 처리
   const posts = useMemo(() => {
     if (!myPageData?.posts) return [];
@@ -130,10 +136,7 @@ const MyPage = () => {
         <div className={styles["profile-section-container"]}>
           <div className={styles["profile-section"]}>
             <div className={styles["profile-image"]}>
-              <img
-                src={myPageData.profileImageUrl || "https://i.pravatar.cc/160?img=12"}
-                alt="프로필"
-              />
+              <img src={myPageData.profileImageUrl || profileImage} alt="프로필" />
             </div>
             <div className={styles.summary}>
               <h2 className={styles.nickname}>{myPageData.nickname}</h2>
@@ -171,7 +174,12 @@ const MyPage = () => {
         <Tabs tabs={TAB_ITEMS} activeTab={activeTab} onChange={setActiveTab} />
         <div className={styles["image-grid"]}>
           {renderItems.map((item) => (
-            <div key={item.id} className={styles["image-card"]}>
+            <div
+              key={item.id}
+              className={styles["image-card"]}
+              onClick={() => handlePostClick(item.id)}
+              style={{ cursor: "pointer" }}
+            >
               <img src={item.imageUrl} alt="코디" />
             </div>
           ))}

@@ -18,6 +18,7 @@ import SignUpPage from "@/pages/SignUpPage/SignUpPage";
 import SnapPage from "@/pages/SnapPage/SnapPage";
 import SnapAddPage from "@/pages/SnapPage/SnapAddPage";
 import SnapUploadCompletePage from "@/pages/SnapPage/SnapUploadCompletePage";
+import SnapDetailPage from "@/pages/SnapPage/SnapDetailPage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
@@ -183,6 +184,20 @@ const router = createBrowserRouter([
       },
 
       {
+        path: "/mypage/:userId",
+        element: (
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          showBack: true,
+          showHeader: true,
+          showTabbar: true,
+        },
+      },
+
+      {
         path: "/snap",
         element: (
           <ProtectedRoute>
@@ -296,6 +311,21 @@ const router = createBrowserRouter([
         ),
         handle: {
           title: "스냅 업로드",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+
+      {
+        path: "/snap/:postId",
+        element: (
+          <ProtectedRoute>
+            <SnapDetailPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "스냅",
           showBack: true,
           showHeader: true,
           showTabbar: false,

@@ -34,7 +34,7 @@ const SnapPage = () => {
 
   // 게시물 클릭 처리
   const handlePostClick = (postId) => {
-    //TODO: 게시물 상세 페이지 이동
+    navigate(`/snap/${postId}`);
   };
 
   // 로딩 상태 처리

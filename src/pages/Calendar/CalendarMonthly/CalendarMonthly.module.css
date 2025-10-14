@@ -1,0 +1,74 @@
+/* 이미지 크기 및 정렬 */
+.calendar-thumb-wrapper {
+  bottom: 6px;
+  left: 50%;
+}
+
+.calendar-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease-in-out;
+}
+
+.calendar-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* react-calendar style override */
+:global(.react-calendar__month-view__weekdays__weekday abbr[title="일요일"]) {
+  color: red;
+}
+:global(.react-calendar__month-view__weekdays__weekday abbr[title="토요일"]) {
+  color: blue;
+}
+
+/* 날짜 타일 색상 */
+:global(.react-calendar__tile.sunday) {
+  color: red;
+}
+:global(.react-calendar__tile.saturday) {
+  color: blue;
+}
+
+/* 오늘 날짜 강조 */
+:global(.react-calendar__tile--now) {
+  background: #ffeaea;
+  border-radius: 8px;
+}
+
+/* 선택된 날짜 */
+:global(.react-calendar__tile--active) {
+  background: #ff6b6b;
+  color: white;
+  border-radius: 8px;
+}
+
+/* hover 효과 */
+:global(.react-calendar__tile:hover) {
+  background: #f2f2f2;
+  border-radius: 8px;
+}
+
+:global(.react-calendar__month-view__week) {
+  border-bottom: 1px solid black; /* 경계선 색상 */
+  margin-bottom: 2px; /* 주 간 간격 살짝 */
+  padding-bottom: 2px; /* 타일과 경계선 사이 여백 */
+}
+
+/* 마지막 주는 경계선 제거 */
+:global(.react-calendar__month-view__weeks > .react-calendar__month-view__week:last-child) {
+  border-bottom: none;
+}
+
+/* 날짜 칸 안에 이미지 위치 조정 */
+:global(.react-calendar__tile) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: none;
+  height: 80px;
+}

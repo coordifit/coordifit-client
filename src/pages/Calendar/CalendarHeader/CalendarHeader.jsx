@@ -1,37 +1,22 @@
 import React from "react";
 import styles from "./CalendarHeader.module.css";
 
-const CalendarHeader = ({ targetDate, setTargetDate, navigate, onOpenDateModal }) => {
-  const year = targetDate.getFullYear();
-  const month = targetDate.getMonth() + 1;
+import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
-  const handlePrev = () => {
-    const prev = new Date(year, month - 1, 1);
-    setTargetDate(prev);
-    navigate(`/calendar/${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`);
-  };
+import cn from "classnames";
 
-  const handleNext = () => {
-    const next = new Date(year, month + 1, 1);
-    setTargetDate(next);
-    navigate(`/calendar/${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
-  };
-
+const CalendarHeader = ({ onButtonClick, children }) => {
   return (
-    <div className="calendar-header">
-      <button className={styles.navButton} onClick={handlePrev}>
-        ◀
+    <header className={cn("calendar-header")}>
+      <button id="prev" className={cn("action-button")} onClick={onButtonClick}>
+        <MdOutlineKeyboardArrowLeft />
       </button>
-      <span className={styles.monthLabel}>
-        {year}년 {month}월
-      </span>
-      <button className={styles.dateButton} onClick={() => onOpenDateModal("open")}>
-        ▼
+      {children}
+      <button id="next" className={cn("action-button")} onClick={onButtonClick}>
+        <MdOutlineKeyboardArrowRight />
       </button>
-      <button className={styles.navButton} onClick={handleNext}>
-        ▶
-      </button>
-    </div>
+    </header>
   );
 };
 

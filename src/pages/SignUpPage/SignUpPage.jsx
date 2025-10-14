@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SignUpPage.module.css";
 
-// ✅ 분리된 service import
+// ✅ 서비스 함수만 import
 import {
   checkEmailDuplicate,
   checkNicknameDuplicate,
@@ -39,43 +39,92 @@ const SignUpPage = () => {
   const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pw);
   const validateNickname = (nick) => nick.length >= 2 && nick.length <= 50;
 
+  /* ✅ 입력 실시간 검증 */
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    if (field === "email") {
+      const isValid = validateEmail(value);
+      setValidation((p) => ({ ...p, email: isValid }));
+      setMessages((p) => ({
+        ...p,
+        email: isValid ? "이메일 중복 확인이 필요합니다." : "올바른 이메일 형식을 입력해주세요.",
+      }));
+    } else if (field === "password") {
+      const isValid = validatePassword(value);
+      setValidation((p) => ({ ...p, password: isValid }));
+      setMessages((p) => ({
+        ...p,
+        password: isValid
+          ? "사용 가능한 비밀번호입니다."
+          : "영문, 숫자, 특수문자를 포함하여 8자 이상 입력해주세요.",
+      }));
+
+      if (formData.passwordConfirm) {
+        const match = value === formData.passwordConfirm;
+        setValidation((p) => ({ ...p, passwordConfirm: match }));
+        setMessages((p) => ({
+          ...p,
+          passwordConfirm: match ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.",
+        }));
+      }
+    } else if (field === "passwordConfirm") {
+      const match = value === formData.password;
+      setValidation((p) => ({ ...p, passwordConfirm: match }));
+      setMessages((p) => ({
+        ...p,
+        passwordConfirm: match ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.",
+      }));
+    } else if (field === "nickname") {
+      const isValid = validateNickname(value);
+      setValidation((p) => ({ ...p, nickname: isValid }));
+      setMessages((p) => ({
+        ...p,
+        nickname: isValid ? "닉네임 중복 확인이 필요합니다." : "2자 이상 50자 이하로 입력해주세요.",
+      }));
+    } else if (field === "verificationCode") {
+      const isValid = value.length === 6;
+      setValidation((p) => ({ ...p, emailVerified: isValid }));
+      setMessages((p) => ({
+        ...p,
+        verification: isValid ? "인증 코드가 입력되었습니다." : "6자리 인증 코드를 입력해주세요.",
+      }));
+    }
+  };
+
   /* ✅ 이메일 중복 확인 */
   const handleEmailCheck = async () => {
-    if (!validateEmail(formData.email)) {
-      setMessages((p) => ({ ...p, email: "올바른 이메일 형식을 입력해주세요." }));
-      return;
-    }
+    if (!validation.email) return;
     try {
       const result = await checkEmailDuplicate(formData.email);
       if (result.success && result.data) {
-        setValidation((p) => ({ ...p, email: true }));
         setMessages((p) => ({ ...p, email: "사용 가능한 이메일입니다." }));
+        setValidation((p) => ({ ...p, email: true }));
       } else {
-        setValidation((p) => ({ ...p, email: false }));
         setMessages((p) => ({ ...p, email: "이미 사용 중인 이메일입니다." }));
+        setValidation((p) => ({ ...p, email: false }));
       }
     } catch {
       setMessages((p) => ({ ...p, email: "이메일 중복 확인 중 오류가 발생했습니다." }));
+      setValidation((p) => ({ ...p, email: false }));
     }
   };
 
   /* ✅ 닉네임 중복 확인 */
   const handleNicknameCheck = async () => {
-    if (!validateNickname(formData.nickname)) {
-      setMessages((p) => ({ ...p, nickname: "2자 이상 50자 이하로 입력해주세요." }));
-      return;
-    }
+    if (!validation.nickname) return;
     try {
       const result = await checkNicknameDuplicate(formData.nickname);
       if (result.success && result.data) {
-        setValidation((p) => ({ ...p, nickname: true }));
         setMessages((p) => ({ ...p, nickname: "사용 가능한 닉네임입니다." }));
+        setValidation((p) => ({ ...p, nickname: true }));
       } else {
-        setValidation((p) => ({ ...p, nickname: false }));
         setMessages((p) => ({ ...p, nickname: "이미 사용 중인 닉네임입니다." }));
+        setValidation((p) => ({ ...p, nickname: false }));
       }
     } catch {
       setMessages((p) => ({ ...p, nickname: "닉네임 중복 확인 중 오류가 발생했습니다." }));
+      setValidation((p) => ({ ...p, nickname: false }));
     }
   };
 
@@ -114,29 +163,6 @@ const SignUpPage = () => {
     }
   };
 
-  /* ✅ 비밀번호 / 확인 입력 시 실시간 검증 */
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-
-    if (field === "password") {
-      const valid = validatePassword(value);
-      setValidation((p) => ({ ...p, password: valid }));
-      setMessages((p) => ({
-        ...p,
-        password: valid
-          ? "사용 가능한 비밀번호입니다."
-          : "영문, 숫자, 특수문자를 포함하여 8자 이상 입력해주세요.",
-      }));
-    } else if (field === "passwordConfirm") {
-      const match = value === formData.password;
-      setValidation((p) => ({ ...p, passwordConfirm: match }));
-      setMessages((p) => ({
-        ...p,
-        passwordConfirm: match ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.",
-      }));
-    }
-  };
-
   /* ✅ 인증 타이머 */
   useEffect(() => {
     let timer = null;
@@ -153,7 +179,6 @@ const SignUpPage = () => {
       alert("모든 필수 항목을 확인해주세요.");
       return;
     }
-
     setIsLoading(true);
     try {
       const result = await signUp(formData);
@@ -182,7 +207,7 @@ const SignUpPage = () => {
               type="email"
               placeholder="예) coordifit@codifit.com"
               value={formData.email}
-              onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
+              onChange={(e) => handleInputChange("email", e.target.value)}
               onBlur={handleEmailCheck}
             />
             <button
@@ -215,7 +240,7 @@ const SignUpPage = () => {
               placeholder="6자리 인증 코드"
               maxLength={6}
               value={formData.verificationCode}
-              onChange={(e) => setFormData((p) => ({ ...p, verificationCode: e.target.value }))}
+              onChange={(e) => handleInputChange("verificationCode", e.target.value)}
             />
             <button
               type="button"
@@ -226,7 +251,6 @@ const SignUpPage = () => {
               인증하기
             </button>
           </div>
-
           {messages.verification && (
             <div
               className={`${styles.validationMessage} ${
@@ -236,7 +260,6 @@ const SignUpPage = () => {
               {messages.verification}
             </div>
           )}
-
           {verificationTimer > 0 && (
             <div className={styles.timer}>
               {Math.floor(verificationTimer / 60)}:
@@ -253,7 +276,7 @@ const SignUpPage = () => {
             type="text"
             placeholder="2자 이상 50자 이하"
             value={formData.nickname}
-            onChange={(e) => setFormData((p) => ({ ...p, nickname: e.target.value }))}
+            onChange={(e) => handleInputChange("nickname", e.target.value)}
             onBlur={handleNicknameCheck}
           />
           {messages.nickname && (
@@ -313,6 +336,10 @@ const SignUpPage = () => {
           disabled={!Object.values(validation).every(Boolean) || isLoading}
         >
           {isLoading ? "회원가입 중..." : "회원가입"}
+        </button>
+
+        <button type="button" className={styles.backButton} onClick={() => navigate("/login")}>
+          로그인으로 돌아가기
         </button>
       </form>
     </div>

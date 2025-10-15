@@ -4,34 +4,34 @@ import { useNavigate } from "react-router-dom";
 import styles from "./MainPage.module.css";
 
 import userIcon from "@/assets/images/usericon.png";
-import closetIcon from "@/assets/images/closet.svg";
-import calendarIcon from "@/assets/images/calendaricon.png";
-import aiIcon from "@/assets/images/auto_awesome.png";
-import lastWornIcon from "@/assets/images/lastwornicon.svg";
-import snapIcon from "@/assets/images/snap.svg";
+import closetIcon from "@/assets/images/mainpage/closeticon.png";
+import calendarIcon from "@/assets/images/mainpage/calendaricon.png";
+import aiIcon from "@/assets/images/mainpage/aiicon.png";
+import lastWornIcon from "@/assets/images/mainpage/lastwornicon.png";
+import snapIcon from "@/assets/images/mainpage/snapicon.png";
 
-import heroCloset from "@/assets/images/mainpage/hero-closet.svg";
-import heroCalendar from "@/assets/images/mainpage/hero-calendar.svg";
-import heroSnap from "@/assets/images/mainpage/hero-snap.svg";
-import heroAi from "@/assets/images/mainpage/hero-ai.svg";
-import aiBanner from "@/assets/images/mainpage/ai-banner.svg";
-import calendarPlus from "@/assets/images/mainpage/calendar-plus.svg";
-import shirtIcon from "@/assets/images/mainpage/shirt.svg";
-import poloIcon from "@/assets/images/mainpage/polo.svg";
-import shortSleeveIcon from "@/assets/images/mainpage/short-sleeve.svg";
-import longSleeveIcon from "@/assets/images/mainpage/long-sleeve.svg";
-import hoodieIcon from "@/assets/images/mainpage/hoodie.svg";
-import shortsIcon from "@/assets/images/mainpage/shorts.svg";
-import jeansIcon from "@/assets/images/mainpage/jeans.svg";
-import skirtIcon from "@/assets/images/mainpage/skirt.svg";
-import coatIcon from "@/assets/images/mainpage/coat.svg";
-import paddingIcon from "@/assets/images/mainpage/padding.svg";
-import sneakersIcon from "@/assets/images/mainpage/sneakers.svg";
-import dressShoesIcon from "@/assets/images/mainpage/dress-shoes.svg";
-import snap1 from "@/assets/images/mainpage/snap1.svg";
-import snap2 from "@/assets/images/mainpage/snap2.svg";
-import snap3 from "@/assets/images/mainpage/snap3.svg";
-import snap4 from "@/assets/images/mainpage/snap4.svg";
+import heroCloset from "@/assets/images/mainpage/closetcarousel.png";
+import heroCalendar from "@/assets/images/mainpage/calendarcarousel.png";
+import heroSnap from "@/assets/images/mainpage/snapcarousel.png";
+import heroAi from "@/assets/images/mainpage/fittingcarousel.png";
+import aiBanner from "@/assets/images/mainpage/ai-banner.png";
+import calendarPlus from "@/assets/images/mainpage/calendar-plus.png";
+import shirtIcon from "@/assets/images/mainpage/shirt.png";
+import poloIcon from "@/assets/images/mainpage/kara.png";
+import shortSleeveIcon from "@/assets/images/mainpage/short.png";
+import longSleeveIcon from "@/assets/images/mainpage/long.png";
+import hoodieIcon from "@/assets/images/mainpage/hood.png";
+import shortsIcon from "@/assets/images/mainpage/shortpants.png";
+import jeansIcon from "@/assets/images/mainpage/jeans.png";
+import skirtIcon from "@/assets/images/mainpage/skirt.png";
+import coatIcon from "@/assets/images/mainpage/coat.png";
+import paddingIcon from "@/assets/images/mainpage/jumper.png";
+import sneakersIcon from "@/assets/images/mainpage/sneakers.png";
+import dressShoesIcon from "@/assets/images/mainpage/shoes.png";
+import snapFallback1 from "@/assets/images/mainpage/snap1.png";
+import snapFallback2 from "@/assets/images/mainpage/snap2.png";
+import snapFallback3 from "@/assets/images/mainpage/snap3.png";
+import snapFallback4 from "@/assets/images/mainpage/snap4.png";
 
 import topImage1 from "@/assets/images/clothes/top1.png";
 import topImage2 from "@/assets/images/clothes/top2.png";
@@ -40,6 +40,7 @@ import pantsImage from "@/assets/images/clothes/pants1.png";
 import shoesImage from "@/assets/images/clothes/shoes1.png";
 
 import clothesService from "@/services/clothesService";
+import postService from "@/services/postService";
 
 const HERO_CARDS = [
   {
@@ -80,6 +81,7 @@ const CATEGORY_ROWS = [
       image: shirtIcon,
       categoryId: "top",
       subCategoryId: "shirts",
+      keywords: ["셔츠"],
     },
     {
       id: "polo",
@@ -87,6 +89,7 @@ const CATEGORY_ROWS = [
       image: poloIcon,
       categoryId: "top",
       subCategoryId: "polo",
+      keywords: ["카라티", "폴로"],
     },
     {
       id: "short-sleeve",
@@ -94,6 +97,7 @@ const CATEGORY_ROWS = [
       image: shortSleeveIcon,
       categoryId: "top",
       subCategoryId: "short-sleeve",
+      keywords: ["반팔", "반팔티"],
     },
     {
       id: "long-sleeve",
@@ -101,6 +105,7 @@ const CATEGORY_ROWS = [
       image: longSleeveIcon,
       categoryId: "top",
       subCategoryId: "long-sleeve",
+      keywords: ["긴팔", "긴팔티"],
     },
     {
       id: "hoodie",
@@ -108,6 +113,7 @@ const CATEGORY_ROWS = [
       image: hoodieIcon,
       categoryId: "top",
       subCategoryId: "hoodie",
+      keywords: ["후드", "후드티"],
     },
     {
       id: "shorts",
@@ -115,6 +121,7 @@ const CATEGORY_ROWS = [
       image: shortsIcon,
       categoryId: "bottom",
       subCategoryId: "shorts",
+      keywords: ["반바지", "숏팬츠"],
     },
   ],
   [
@@ -124,6 +131,7 @@ const CATEGORY_ROWS = [
       image: jeansIcon,
       categoryId: "bottom",
       subCategoryId: "jeans",
+      keywords: ["청바지", "데님"],
     },
     {
       id: "skirt",
@@ -131,6 +139,7 @@ const CATEGORY_ROWS = [
       image: skirtIcon,
       categoryId: "bottom",
       subCategoryId: "skirt",
+      keywords: ["치마", "스커트"],
     },
     {
       id: "coat",
@@ -138,6 +147,7 @@ const CATEGORY_ROWS = [
       image: coatIcon,
       categoryId: "outer",
       subCategoryId: "coat",
+      keywords: ["코트"],
     },
     {
       id: "padding",
@@ -145,6 +155,7 @@ const CATEGORY_ROWS = [
       image: paddingIcon,
       categoryId: "outer",
       subCategoryId: "padding",
+      keywords: ["패딩", "점퍼"],
     },
     {
       id: "sneakers",
@@ -152,6 +163,7 @@ const CATEGORY_ROWS = [
       image: sneakersIcon,
       categoryId: "shoes",
       subCategoryId: "sneakers",
+      keywords: ["스니커즈", "운동화"],
     },
     {
       id: "dress-shoes",
@@ -159,6 +171,7 @@ const CATEGORY_ROWS = [
       image: dressShoesIcon,
       categoryId: "shoes",
       subCategoryId: "dress-shoes",
+      keywords: ["구두", "로퍼"],
     },
   ],
 ];
@@ -193,37 +206,37 @@ const FALLBACK_CLOTHES = [
     image: pantsImage,
   },
 ];
+const SNAP_FALLBACKS = [snapFallback1, snapFallback2, snapFallback3, snapFallback4];
+const PLACEHOLDER_LIKES = [428, 356, 512, 289, 643, 398];
+const SNAP_FALLBACK_DATA = SNAP_FALLBACKS.map((image, index) => ({
+  id: `snap-fallback-${index}`,
+  image,
+  author: "CoordiFit",
+  title: "오늘의 데일리룩",
+  likes: PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
+}));
 
-const SNAP_DUMMIES = [
-  {
-    id: "snap-1",
-    image: snap1,
-    author: "Inbum.hwang",
-    title: "올 가을 난리난 재킷",
-    likes: 435,
-  },
-  {
-    id: "snap-2",
-    image: snap2,
-    author: "jibgago.sipda",
-    title: "길 한복판에서 최고의 선택!",
-    likes: 1557,
-  },
-  {
-    id: "snap-3",
-    image: snap3,
-    author: "Inbum.hwang",
-    title: "겨울 준비 필수템",
-    likes: 982,
-  },
-  {
-    id: "snap-4",
-    image: snap4,
-    author: "jibgago.sipda",
-    title: "캐주얼 데일리룩",
-    likes: 612,
-  },
-];
+const getSearchableValue = (item) =>
+  [item.categoryName, item.subCategoryName, item.categoryCode, item.categoryId, item.description]
+    .filter(Boolean)
+    .join("|")
+    .toLowerCase();
+
+const filterClothesByKeywords = (items, keywords = []) => {
+  if (!keywords.length) {
+    return items;
+  }
+
+  const normalizedKeywords = keywords.map((keyword) => keyword.toLowerCase());
+  return items.filter((item) => {
+    const haystack = getSearchableValue(item);
+    if (!haystack) {
+      return false;
+    }
+
+    return normalizedKeywords.some((keyword) => haystack.includes(keyword));
+  });
+};
 
 const CALENDAR_DAYS = [
   {
@@ -277,9 +290,13 @@ const weatherLabel = {
 const MainPage = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState(CATEGORY_ROWS[0][0]);
-  const [isLoadingClothes, setIsLoadingClothes] = useState(false);
-  const [clothes, setClothes] = useState(FALLBACK_CLOTHES);
+  const [isLoadingClothes, setIsLoadingClothes] = useState(true);
+  const [rawClothes, setRawClothes] = useState([]);
+  const [clothes, setClothes] = useState([]);
   const [clothesError, setClothesError] = useState(null);
+  const [isLoadingSnaps, setIsLoadingSnaps] = useState(false);
+  const [snapError, setSnapError] = useState(null);
+  const [snaps, setSnaps] = useState([]);
 
   const handleHeroClick = useCallback(
     (destination) => {
@@ -303,43 +320,40 @@ const MainPage = () => {
       setClothesError(null);
 
       try {
-        const response = await clothesService.getClothes(
-          activeFilter.categoryId,
-          activeFilter.subCategoryId,
-        );
+        const response = await clothesService.getClothes();
 
         if (cancelled) {
           return;
         }
 
-        const items = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response)
-            ? response
-            : [];
+        // SnapAddPage와 같은 방식으로 응답 처리
+        const items = response?.data?.content || [];
 
         if (!items.length) {
-          setClothes(FALLBACK_CLOTHES);
+          setRawClothes([]);
+          setClothes([]);
           return;
         }
 
+        // SnapAddPage 방식을 참고하여 데이터 변환
         const adapted = items.map((item, index) => ({
-          id: item.id ?? `closet-${index}`,
-          name: item.name ?? "이름 미입력",
-          brand: item.brand ?? item.brandName ?? "브랜드 미입력",
-          price: item.price ?? item.purchasePrice ?? null,
-          image:
-            item.images?.[0]?.url ||
-            item.images?.[0] ||
-            item.thumbnailUrl ||
-            FALLBACK_CLOTHES[index % FALLBACK_CLOTHES.length].image,
+          id: item.clothesId || `closet-${index}`,
+          name: item.name || "이름 미입력",
+          brand: item.brand || "브랜드 미입력",
+          price: item.price ?? null,
+          categoryName: item.categoryName || "",
+          subCategoryName: item.subCategoryName || "",
+          categoryCode: item.categoryCode || "",
+          description: item.description || "",
+          image: item.imageUrl || FALLBACK_CLOTHES[index % FALLBACK_CLOTHES.length].image,
         }));
 
-        setClothes(adapted);
+        setRawClothes(adapted);
       } catch (error) {
         if (!cancelled) {
           console.error("최근 착용한 옷 조회 실패", error);
-          setClothes(FALLBACK_CLOTHES);
+          setRawClothes([]);
+          setClothes([]);
           setClothesError("옷 정보를 불러오지 못했습니다.");
         }
       } finally {
@@ -354,7 +368,89 @@ const MainPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [activeFilter]);
+  }, []);
+
+  useEffect(() => {
+    if (isLoadingClothes) {
+      return;
+    }
+
+    const filtered = filterClothesByKeywords(rawClothes, activeFilter.keywords);
+
+    if (filtered.length) {
+      setClothes(filtered.slice(0, 4));
+      setClothesError(null);
+      return;
+    }
+
+    if (rawClothes.length) {
+      setClothes(rawClothes.slice(0, 4));
+      setClothesError(null);
+      return;
+    }
+
+    setClothes([]);
+  }, [activeFilter, isLoadingClothes, rawClothes]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchSnaps = async () => {
+      setIsLoadingSnaps(true);
+      setSnapError(null);
+
+      try {
+        const response = await postService.getAllPosts();
+
+        if (cancelled) {
+          return;
+        }
+
+        const items = Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.data?.data)
+            ? response.data.data
+            : Array.isArray(response)
+              ? response
+              : [];
+
+        if (!items.length) {
+          setSnaps([]);
+          return;
+        }
+
+        const adapted = items.map((item, index) => ({
+          id: item.postId || item.id || `snap-${index}`,
+          image:
+            item.imageUrl || item.thumbnailUrl || SNAP_FALLBACKS[index % SNAP_FALLBACKS.length],
+          author: item.authorNickname || item.nickname || item.userName || "CoordiFit 사용자",
+          title: item.title || item.postTitle || "오늘의 데일리룩",
+          likes:
+            typeof item.likeCount === "number"
+              ? item.likeCount
+              : PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
+        }));
+
+        setSnaps(adapted.slice(0, 4));
+      } catch (error) {
+        if (!cancelled) {
+          console.error("스냅 게시물 조회 실패", error);
+          setSnapError("스냅 게시물을 불러오지 못했습니다.");
+          setSnaps([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingSnaps(false);
+        }
+      }
+    };
+
+    fetchSnaps();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleFilterClick = useCallback((filter) => {
     setActiveFilter(filter);
@@ -369,6 +465,9 @@ const MainPage = () => {
       })),
     [clothes],
   );
+
+  const displaySnaps = useMemo(() => (snaps.length ? snaps : SNAP_FALLBACK_DATA), [snaps]);
+  const canNavigateSnap = snaps.length > 0;
 
   return (
     <div className={styles.page}>
@@ -524,18 +623,32 @@ const MainPage = () => {
                   className={`${styles.clothesCard} ${styles.skeleton}`}
                 />
               ))
-            : formattedClothes.map((item) => (
-                <div className={styles.clothesCard} key={item.id}>
-                  <div className={styles.clothesImageWrapper}>
-                    <img src={item.image} alt={`${item.name} 이미지`} />
+            : formattedClothes.length > 0
+              ? formattedClothes.map((item) => (
+                  <div className={styles.clothesCard} key={item.id}>
+                    <div className={styles.clothesImageWrapper}>
+                      <img src={item.image} alt={`${item.name} 이미지`} />
+                    </div>
+                    <div className={styles.clothesMeta}>
+                      <span className={styles.brand}>{item.brand}</span>
+                      <strong className={styles.clothesName}>{item.name}</strong>
+                      {item.priceLabel && <span className={styles.price}>{item.priceLabel}</span>}
+                    </div>
                   </div>
-                  <div className={styles.clothesMeta}>
-                    <span className={styles.brand}>{item.brand}</span>
-                    <strong className={styles.clothesName}>{item.name}</strong>
-                    {item.priceLabel && <span className={styles.price}>{item.priceLabel}</span>}
+                ))
+              : !clothesError && (
+                  <div
+                    style={{
+                      gridColumn: "1 / -1",
+                      textAlign: "center",
+                      padding: "40px 0",
+                      color: "#999",
+                    }}
+                  >
+                    <p>등록된 옷이 없습니다.</p>
+                    <p>옷장에서 새로운 옷을 등록해보세요!</p>
                   </div>
-                </div>
-              ))}
+                )}
         </div>
       </section>
 
@@ -553,17 +666,34 @@ const MainPage = () => {
             게시글 보기
           </button>
         </header>
+        {snapError && <p className={styles.errorText}>{snapError}</p>}
         <div className={styles.snapGrid}>
-          {SNAP_DUMMIES.map((snap) => (
-            <div className={styles.snapCard} key={snap.id}>
-              <img src={snap.image} alt={`${snap.title} 스냅 이미지`} />
-              <div className={styles.snapMeta}>
-                <span className={styles.snapAuthor}>{snap.author}</span>
-                <p className={styles.snapTitle}>{snap.title}</p>
-                <span className={styles.snapLikes}>❤️ {snap.likes.toLocaleString()}</span>
-              </div>
-            </div>
-          ))}
+          {isLoadingSnaps
+            ? Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`snap-skeleton-${index}`}
+                  className={`${styles.snapCard} ${styles.skeleton}`}
+                  aria-hidden="true"
+                />
+              ))
+            : displaySnaps.map((snap) => (
+                <button
+                  key={snap.id}
+                  type="button"
+                  className={styles.snapCard}
+                  onClick={() => canNavigateSnap && handleSectionNavigate(`/snap/${snap.id}`)}
+                  disabled={!canNavigateSnap}
+                >
+                  <div className={styles.snapImageWrapper}>
+                    <img src={snap.image} alt={`${snap.title} 스냅 이미지`} />
+                  </div>
+                  <div className={styles.snapMeta}>
+                    <span className={styles.snapAuthor}>{snap.author}</span>
+                    <p className={styles.snapTitle}>{snap.title}</p>
+                    <span className={styles.snapLikes}>❤️ {snap.likes.toLocaleString()}</span>
+                  </div>
+                </button>
+              ))}
         </div>
       </section>
     </div>

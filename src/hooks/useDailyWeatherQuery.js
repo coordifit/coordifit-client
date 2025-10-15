@@ -1,15 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 
 import { getCurrentWeather, getPastWeather } from "@/services/weatherApi";
-import { formatDate } from "@/utils/calendarUtils";
-
-const daysFromToday = (date) => {
-  const a = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const t = new Date();
-  const b = new Date(t.getFullYear(), t.getMonth(), t.getDate());
-  return Math.round((a - b) / (1000 * 60 * 60 * 24)); // 미래: 양수
-};
+import { daysDiffFromToday, formatDate } from "@/utils/calendarUtils";
 
 /**
  * 1일 날짜 데이터 호출 (최고 / 최저 / 날씨코드)
@@ -23,7 +15,7 @@ const daysFromToday = (date) => {
 const useDailyWeatherQuery = (targetDate, coords) => {
   const dateString = formatDate(targetDate);
 
-  const diff = useMemo(() => daysFromToday(targetDate), [targetDate]);
+  const diff = daysDiffFromToday(targetDate);
 
   const isPast = diff < 0;
   const canFetch = !!coords?.lat && !!coords?.lng && (isPast || diff <= 5);
@@ -35,7 +27,7 @@ const useDailyWeatherQuery = (targetDate, coords) => {
         ? getPastWeather({ lat: coords.lat, lng: coords.lng, dateString })
         : getCurrentWeather({ lat: coords.lat, lng: coords.lng, dateString }),
     enabled: canFetch,
-    staleTime: 1000 * 60 * 5, // 5분
+    staleTime: 1000 * 60 * 5, // 5분qw
     retry: 1,
   });
 };

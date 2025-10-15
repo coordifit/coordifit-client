@@ -74,7 +74,7 @@ export const getCurrentWeatherRange = async ({ lat, lng, startDate, endDate }) =
 };
 
 export const getPastWeatherRange = async ({ lat, lng, startDate, endDate }) => {
-  const res = await weatherApi.get("/v1/archive", {
+  const res = await pastWeatherApi.get("/v1/archive", {
     params: {
       latitude: lat,
       longitude: lng,

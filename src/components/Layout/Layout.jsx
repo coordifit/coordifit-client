@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { Outlet, useBlocker, useMatches, useNavigationType } from "react-router-dom";
 
+import classNames from "classnames/bind";
+
 import BottomNav from "@/components/Layout/BottomNav/BottomNav";
 import Header from "@/components/Layout/Header/Header";
 import Modal from "@/components/Modal/Modal";
 
 import styles from "./Layout.module.css";
 import { useClothesStore } from "@/store/clothesStore";
+
+const cn = classNames.bind(styles);
 
 const lastDefined = (arr) => [...arr].reverse().find((v) => v !== undefined);
 const isEditorPath = (pathname) => /^\/calendar\/\d{4}-\d{2}-\d{2}\/editor$/.test(pathname);
@@ -22,11 +26,12 @@ const Layout = () => {
 
   const shouldBlock =
     clothes.length > 0 && isEditorPath(location.pathname) && navigationType === "POP";
+  const blocker = useBlocker(shouldBlock);
 
   const showHeader = lastDefined(handles.map((h) => h.showHeader));
   const showTabbar = lastDefined(handles.map((h) => h.showTabbar));
-
-  const blocker = useBlocker(shouldBlock);
+  const contentPadding = lastDefined(handles.map((h) => h.contentPadding));
+  const isNoPad = contentPadding === "none";
 
   useEffect(() => {
     if (blocker.state === "blocked") {
@@ -46,10 +51,10 @@ const Layout = () => {
 
   return (
     <>
-      <div className={styles.page}>
-        <div className={styles.app}>
+      <div className={cn("page")}>
+        <div className={cn("app")}>
           {showHeader !== false && <Header />}
-          <main className={styles["main-content"]}>
+          <main className={cn("main-content", { "no-padding": isNoPad })}>
             <Outlet />
           </main>
           {showTabbar && <BottomNav />}

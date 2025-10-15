@@ -36,10 +36,15 @@
 .main-content {
   flex: 1;
   overflow: auto;
-  padding-bottom: 10px; /* BottomNav 높이(64px) + 여백(12px) */
+  padding: 12px;
+  padding-bottom: 10px;
   /* 스크롤바 숨기기 (WebKit 브라우저용) */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+.no-padding {
+  padding: 0;
 }
 
 .main-content::-webkit-scrollbar {

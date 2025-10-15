@@ -72,7 +72,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       // ✅ 비밀번호 재설정 페이지 (헤더 + 뒤로가기만 표시)
       {
         path: "/password-reset",
@@ -99,7 +98,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/calendar",
         element: (
@@ -112,6 +110,7 @@ const router = createBrowserRouter([
           showBack: false,
           showHeader: false,
           showTabbar: true,
+          contentPadding: "none",
         },
         children: [
           {
@@ -124,7 +123,6 @@ const router = createBrowserRouter([
           },
         ],
       },
-
       {
         path: "/calendar/:date/editor",
         element: (
@@ -163,7 +161,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       {
         path: "/closet/item/:itemId",
         element: (
@@ -178,7 +175,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/mypage",
         element: (
@@ -192,7 +188,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/mypage/:userId",
         element: (
@@ -206,7 +201,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/snap",
         element: (
@@ -221,7 +215,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/profile/edit",
         element: (
@@ -236,7 +229,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/ai-fitting",
         element: (
@@ -251,7 +243,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
       {
         path: "/ai-fitting/result",
         element: (
@@ -266,7 +257,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       {
         path: "/ai-fitting/avatars",
         element: (
@@ -281,7 +271,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       {
         path: "/ai-fitting/avatars/new",
         element: (
@@ -296,7 +285,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       {
         path: "/snap/add",
         element: (
@@ -311,7 +299,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       {
         path: "/snap/upload-complete",
         element: (
@@ -326,7 +313,6 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
-
       {
         path: "/snap/:postId",
         element: (

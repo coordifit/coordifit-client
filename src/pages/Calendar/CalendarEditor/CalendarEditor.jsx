@@ -58,7 +58,6 @@ const CalendarEditor = () => {
   };
 
   const addToCanvas = (item) => {
-    console.log("addToCanvas", item);
     const pos =
       item?.x != null && item?.y != null
         ? { x: item.x, y: item.y, scale: item.scaleX ?? 0.5 }

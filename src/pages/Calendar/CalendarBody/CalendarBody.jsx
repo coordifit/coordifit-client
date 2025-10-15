@@ -9,7 +9,7 @@ const CalendarBody = () => {
   const isMonthly = /^\d{4}-\d{2}$/.test(date);
   const isDaily = /^\d{4}-\d{2}-\d{2}$/.test(date);
 
-  const { targetDate, setTargetDate, clickHandler, setViewMode } = useOutletContext();
+  const { targetDate, setTargetDate, handleClickDay, setViewMode } = useOutletContext();
 
   return (
     <>
@@ -19,7 +19,7 @@ const CalendarBody = () => {
           date={date}
           setTargetDate={setTargetDate}
           setViewMode={setViewMode}
-          clickHandler={clickHandler}
+          handleClickDay={handleClickDay}
         />
       )}
       {isDaily && <CalendarDetail />}

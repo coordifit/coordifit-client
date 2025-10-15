@@ -24,11 +24,7 @@ const CalendarLayout = () => {
   const navigate = useNavigate();
   const { clothes } = useClothesStore();
 
-  // useEffect(() => {
-  //   navigate(`/calendar/${formatYearMonth(targetDate)}`);
-  // }, [targetDate]);
-
-  const clickHandler = (date) => {
+  const handleClickDay = (date) => {
     const dateString = formatDate(new Date(date));
 
     setTargetDate(date);
@@ -40,10 +36,10 @@ const CalendarLayout = () => {
     () => ({
       targetDate,
       setTargetDate,
-      clickHandler,
+      handleClickDay,
       setViewMode,
     }),
-    [viewMode, targetDate, isDateModalOpen],
+    [targetDate, viewMode, handleClickDay],
   );
 
   const handleViewMode = (viewMode) => {
@@ -79,7 +75,7 @@ const CalendarLayout = () => {
   const handleMonthMove = (e) => {
     let offset = e.currentTarget.id === "prev" ? -1 : 1;
 
-    const nextMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + offset, 1);
+    const nextMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + offset);
 
     setTargetDate(nextMonth);
     navigate(`/calendar/${formatYearMonth(nextMonth)}`);
@@ -94,8 +90,6 @@ const CalendarLayout = () => {
   };
 
   const handleDatePicker = (date) => {
-    console.log("date", date);
-    console.log("dateObject", new Date());
     const pickedDate = `${date.year}-${date.month}-${date.day}`;
     const pickedDateObject = new Date(pickedDate);
 

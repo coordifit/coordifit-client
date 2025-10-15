@@ -9,7 +9,7 @@ import classNames from "classnames/bind";
 
 const cx = classNames.bind(styles);
 
-const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, clickHandler }) => {
+const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleClickDay }) => {
   const navigate = useNavigate();
 
   const { data: dailyLooks = { data: [] }, isLoading, error } = useDailyLooksByMonthQuery(date);
@@ -17,7 +17,6 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, clickHa
   const { clearClothes } = useClothesStore();
 
   const trimDate = (datetime) => datetime.split(" ")[0];
-
   const isYearMonth = (value) => /^\d{4}-\d{2}$/.test(value);
 
   if (isLoading) return <h1>로딩 중...</h1>;
@@ -37,15 +36,9 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, clickHa
           formatShortWeekday={(locale, date) =>
             ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
           }
-          onChange={setTargetDate}
           value={targetDate}
-          onClickDay={clickHandler}
+          onClickDay={handleClickDay}
           showNavigation={false}
-          activeStartDate={targetDate}
-          onActiveStartDateChange={({ activeStartDate }) => {
-            setTargetDate(activeStartDate);
-            navigate(`/calendar/${formatYearMonth(activeStartDate)}`);
-          }}
           tileClassName={({ date, view }) => {
             if (view !== "month") return null;
             const day = date.getDay();

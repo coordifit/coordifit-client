@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import styles from "./MainPage.module.css";
 
-import userIcon from "@/assets/images/usericon.png";
+import userIcon from "@/assets/images/mainpage/usericon.png";
 import closetIcon from "@/assets/images/mainpage/closeticon.png";
 import calendarIcon from "@/assets/images/mainpage/calendaricon.png";
 import aiIcon from "@/assets/images/mainpage/aiicon.png";

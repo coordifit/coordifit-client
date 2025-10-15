@@ -19,6 +19,9 @@ const SnapDetailPage = () => {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
   const [currentUserProfileImage, setCurrentUserProfileImage] = useState(null);
+  const [isLikesModalOpen, setIsLikesModalOpen] = useState(false);
+  const [likeUsers, setLikeUsers] = useState([]);
+  const [loadingLikes, setLoadingLikes] = useState(false);
 
   useEffect(() => {
     const loadCurrentUserProfileImage = async () => {
@@ -43,12 +46,7 @@ const SnapDetailPage = () => {
       try {
         setLoading(true);
 
-        const [viewResponse, detailResponse] = await Promise.all([
-          postService.incrementViewCount(postId),
-          postService.getPostDetail(postId),
-        ]);
-
-        console.log("게시글 로드 및 조회수 증가 요청 완료");
+        const detailResponse = await postService.getPostDetail(postId);
 
         if (detailResponse.success) {
           setPostDetail(detailResponse.data);
@@ -98,9 +96,12 @@ const SnapDetailPage = () => {
       const response = await postService.createComment(postId, commentContent.trim(), parentId);
 
       if (response.success) {
-        const updatedPost = await postService.getPostDetail(postId);
-        if (updatedPost.success) {
-          setPostDetail(updatedPost.data);
+        const commentsResponse = await postService.getComments(postId);
+        if (commentsResponse.success) {
+          setPostDetail((prev) => ({
+            ...prev,
+            comments: commentsResponse.data,
+          }));
         }
         setCommentContent("");
         setReplyingTo(null);
@@ -125,34 +126,97 @@ const SnapDetailPage = () => {
     navigate(`/mypage/${userId}`);
   };
 
+  const handleOpenLikesModal = async () => {
+    setIsLikesModalOpen(true);
+    setLoadingLikes(true);
+
+    try {
+      const response = await postService.getPostLikes(postId);
+      if (response.success) {
+        setLikeUsers(response.data);
+      } else {
+        console.error("좋아요 목록 조회 실패:", response.message);
+        setLikeUsers([]);
+      }
+    } catch (error) {
+      console.error("좋아요 목록 조회 오류:", error);
+      setLikeUsers([]);
+    } finally {
+      setLoadingLikes(false);
+    }
+  };
+
+  const handleCloseLikesModal = () => {
+    setIsLikesModalOpen(false);
+    setLikeUsers([]);
+  };
+
   const handleTogglePostLike = async () => {
     if (!postDetail) return;
 
+    const previousState = {
+      liked: postDetail.liked,
+      likeCount: postDetail.likeCount,
+    };
+
+    setPostDetail((prev) => ({
+      ...prev,
+      liked: !prev.liked,
+      likeCount: prev.liked ? prev.likeCount - 1 : prev.likeCount + 1,
+    }));
+
     try {
       const response = await postService.togglePostLike(postId);
-      if (response.success) {
-        const updatedPost = await postService.getPostDetail(postId);
-        if (updatedPost.success) {
-          setPostDetail(updatedPost.data);
-        }
+      if (!response.success) {
+        setPostDetail((prev) => ({
+          ...prev,
+          liked: previousState.liked,
+          likeCount: previousState.likeCount,
+        }));
+        alert("좋아요 처리 중 오류가 발생했습니다.");
       }
     } catch (err) {
       console.error("게시글 좋아요 처리 실패:", err);
+      setPostDetail((prev) => ({
+        ...prev,
+        liked: previousState.liked,
+        likeCount: previousState.likeCount,
+      }));
       alert("좋아요 처리 중 오류가 발생했습니다.");
     }
   };
 
   const handleToggleCommentLike = async (commentId) => {
+    const previousComments = [...postDetail.comments];
+
+    setPostDetail((prev) => ({
+      ...prev,
+      comments: prev.comments.map((comment) =>
+        comment.commentId === commentId
+          ? {
+              ...comment,
+              liked: !comment.liked,
+              likeCount: comment.liked ? comment.likeCount - 1 : comment.likeCount + 1,
+            }
+          : comment,
+      ),
+    }));
+
     try {
       const response = await postService.toggleCommentLike(commentId);
-      if (response.success) {
-        const updatedPost = await postService.getPostDetail(postId);
-        if (updatedPost.success) {
-          setPostDetail(updatedPost.data);
-        }
+      if (!response.success) {
+        setPostDetail((prev) => ({
+          ...prev,
+          comments: previousComments,
+        }));
+        alert("좋아요 처리 중 오류가 발생했습니다.");
       }
     } catch (err) {
       console.error("댓글 좋아요 처리 실패:", err);
+      setPostDetail((prev) => ({
+        ...prev,
+        comments: previousComments,
+      }));
       alert("좋아요 처리 중 오류가 발생했습니다.");
     }
   };
@@ -247,11 +311,9 @@ const SnapDetailPage = () => {
                   className={styles.productImage}
                 />
                 <div className={styles.productInfo}>
-                  <div className={styles.productName}>
-                    {clothes.name || "Default Clothes Name Max Length is double line"}
-                  </div>
+                  <div className={styles.productName}>{clothes.name}</div>
                   <div className={styles.productPrice}>
-                    {clothes.price ? `${clothes.price.toLocaleString()}원` : "115,000원"}
+                    {clothes.price ? `${clothes.price.toLocaleString()}원` : ""}
                   </div>
                 </div>
               </div>
@@ -265,7 +327,7 @@ const SnapDetailPage = () => {
         <div className={styles.interactionHeader}>
           <div className={styles.actionButtons}>
             <button className={styles.actionButton} onClick={handleTogglePostLike}>
-              {postDetail.isLiked ? "❤️" : "🤍"}
+              {postDetail.liked ? "❤️" : "🤍"}
             </button>
             <button className={styles.actionButton} onClick={handleOpenCommentModal}>
               💬
@@ -275,10 +337,10 @@ const SnapDetailPage = () => {
             <span className={styles.statItem}>조회수 {postDetail.viewCount || 0}개</span>
           </div>
         </div>
-        <p className={styles.content}>
+        <p className={styles.content} onClick={handleOpenLikesModal} style={{ cursor: "pointer" }}>
           좋아요 <strong>{postDetail.likeCount || 0}</strong>개
         </p>
-        <p className={styles.content}>{postDetail.content || "내용 입니다~~~"}</p>
+        <p className={styles.content}>{postDetail.content}</p>
       </div>
 
       {/* 댓글 섹션 */}
@@ -289,7 +351,7 @@ const SnapDetailPage = () => {
             <div className={styles.commentHeader} onClick={handleOpenCommentModal}>
               <span className={styles.commentCount}>
                 {postDetail.comments.length > 1
-                  ? `${postDetail.comments.length - 1}개 댓글 더보기`
+                  ? `${postDetail.comments.length}개 댓글 더보기`
                   : "댓글"}
               </span>
             </div>
@@ -411,7 +473,7 @@ const SnapDetailPage = () => {
                         className={styles.modalLikeButton}
                         onClick={() => handleToggleCommentLike(comment.commentId)}
                       >
-                        {comment.isLiked ? "❤️" : "🤍"} {comment.likeCount || 0}
+                        {comment.liked ? "❤️" : "🤍"} {comment.likeCount || 0}
                       </button>
                     </div>
                     <div className={styles.modalCommentText}>{comment.content}</div>
@@ -431,6 +493,47 @@ const SnapDetailPage = () => {
             ) : (
               <div className={styles.modalEmptyComment}>
                 등록된 댓글이 없습니다. 가장 먼저 댓글을 남겨보세요.
+              </div>
+            )}
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* 좋아요 목록 바텀시트 */}
+      {isLikesModalOpen && (
+        <BottomSheet
+          title={`좋아요 ${likeUsers.length}명`}
+          onClose={handleCloseLikesModal}
+          height="50vh"
+        >
+          <div className={styles.likesModalContent}>
+            {loadingLikes ? (
+              <div className={styles.loadingLikes}>
+                <p>불러오는 중...</p>
+              </div>
+            ) : likeUsers.length > 0 ? (
+              <div className={styles.likeUserList}>
+                {likeUsers.map((likeUser, index) => (
+                  <div
+                    key={index}
+                    className={styles.likeUserItem}
+                    onClick={() => {
+                      handleCloseLikesModal();
+                      navigate(`/mypage/${likeUser.userId}`);
+                    }}
+                  >
+                    <img
+                      src={likeUser.profileImageUrl || profileImage}
+                      alt="프로필"
+                      className={styles.likeUserProfileImage}
+                    />
+                    <span className={styles.likeUserNickname}>{likeUser.nickname}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyLikes}>
+                <p>아직 좋아요가 없습니다.</p>
               </div>
             )}
           </div>

@@ -3,6 +3,11 @@ import styles from "./CalendarDetail.module.css";
 import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
 import Button from "@/components/Button/Button";
 import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
+import emptyImage from "@/assets/images/empty_image.png";
+
+import classNames from "classnames/bind";
+
+const cx = classNames.bind(styles);
 
 const CalendarDetail = () => {
   const { date } = useParams();
@@ -25,18 +30,19 @@ const CalendarDetail = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h3 className={styles.color}>This is Calendar Detail page</h3>
-      <h2>{date}</h2>
+    <div className={cx("container")}>
       {dailyLook?.data?.canvasJson ? (
         <>
-          <img
-            className={styles.image}
-            src={dailyLook.data.originImageUrl}
-            alt="Daily Look Thumbnail"
-          />
+          <div className={cx("wrapper")}>
+            <img
+              className={cx("image")}
+              src={dailyLook.data.originImageUrl}
+              alt="Daily Look Thumbnail"
+            />
+          </div>
+
           <ItemCarousel items={JSON.parse(dailyLook.data.canvasJson)} />
-          <div className={styles["button-wrapper"]}>
+          <div className={cx("button-wrapper")}>
             <Button onClick={handleEditClick} style="default">
               수정하기
             </Button>
@@ -47,12 +53,22 @@ const CalendarDetail = () => {
         </>
       ) : (
         <>
-          <div>등록된 데일리룩이 없습니다.</div>
-          <div>empty image box is here</div>
+          {/* 콘텐츠 */}
+          <div className={cx("content")}>
+            <img
+              src={emptyImage}
+              alt="비어 있는 데일리룩"
+              className={cx("emptyImage")}
+              draggable={false}
+            />
+            <p className={styles.message}>아직 등록된 코디가 없어요.</p>
+
+            <Button size="large" onClick={handleAddDailyLook}>
+              데일리룩 만들기
+            </Button>
+          </div>
         </>
       )}
-
-      <button onClick={handleAddDailyLook}>데일리룩 추가하기</button>
     </div>
   );
 };

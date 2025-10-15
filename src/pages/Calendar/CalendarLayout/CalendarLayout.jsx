@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import classNames from "classnames/bind";
@@ -14,6 +14,7 @@ import { formatDate, formatYearMonth } from "@/utils/calendarUtils";
 import styles from "./CalendarLayout.module.css";
 import "react-calendar/dist/Calendar.css";
 import { IoMdArrowDropdown } from "react-icons/io";
+import Weather from "../Weather/Weather";
 
 const cx = classNames.bind(styles);
 
@@ -127,7 +128,10 @@ const CalendarLayout = () => {
       {viewMode === "daily" && (
         <>
           <CalendarHeader onButtonClick={handleDayMove}>
-            <span className={cx("monthLabel")}>{formatDate(targetDate)}</span>
+            <div>
+              <span className={cx("monthLabel")}>{formatDate(targetDate)}</span>
+              <Weather targetDate={targetDate} />
+            </div>
           </CalendarHeader>
         </>
       )}

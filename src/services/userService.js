@@ -43,10 +43,50 @@ class UserService {
 
   async getMyPageInfo(userId) {
     try {
-      const response = await api.get(`/mypage/${userId}`);
+      const response = await api.get(`/user/${userId}/mypage`);
       return response.data;
     } catch (error) {
       console.error("마이페이지 정보 조회 오류:", error);
+      throw error;
+    }
+  }
+
+  async toggleFollow(userId) {
+    try {
+      const response = await api.post(`/user/${userId}/follow`);
+      return response.data;
+    } catch (error) {
+      console.error("팔로우 처리 오류:", error);
+      throw error;
+    }
+  }
+
+  async checkFollowing(userId) {
+    try {
+      const response = await api.get(`/user/${userId}/follow`);
+      return response.data;
+    } catch (error) {
+      console.error("팔로우 상태 조회 오류:", error);
+      throw error;
+    }
+  }
+
+  async getFollowers(userId) {
+    try {
+      const response = await api.get(`/user/${userId}/followers`);
+      return response.data;
+    } catch (error) {
+      console.error("팔로워 목록 조회 오류:", error);
+      throw error;
+    }
+  }
+
+  async getFollowings(userId) {
+    try {
+      const response = await api.get(`/user/${userId}/followings`);
+      return response.data;
+    } catch (error) {
+      console.error("팔로잉 목록 조회 오류:", error);
       throw error;
     }
   }

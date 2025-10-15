@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
 import clothesService from "../../services/clothesService";
+import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapAddPage.module.css";
-
-// 파일 객체를 페이지 간에 전달하기 위한 전역 변수
-export let snapImageFiles = [];
 
 const SnapAddPage = () => {
   const navigate = useNavigate();
+  const {
+    setImageFiles: setSnapImageFiles,
+    setUploadedImages: setSnapUploadedImages,
+    setSelectedItems: setSnapSelectedItems,
+  } = useSnapStore();
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
@@ -58,7 +61,7 @@ const SnapAddPage = () => {
         const clothes = await clothesService.getClothes();
 
         // API 응답을 기존 형식에 맞게 변환
-        const transformedClothes = clothes.map((item) => ({
+        const transformedClothes = clothes.data.content.map((item) => ({
           id: item.clothesId,
           name: item.name,
           brand: "브랜드",
@@ -151,12 +154,10 @@ const SnapAddPage = () => {
   };
 
   const handleNext = () => {
-    // 파일 객체들을 전역 변수에 저장
-    snapImageFiles = [...imageFiles];
-
-    // 선택된 상품들과 이미지 미리보기 URL들을 localStorage에 저장
-    localStorage.setItem("selectedItems", JSON.stringify(selectedItems));
-    localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
+    // 모든 데이터를 Zustand store에 저장
+    setSnapImageFiles([...imageFiles]);
+    setSnapUploadedImages([...uploadedImages]);
+    setSnapSelectedItems([...selectedItems]);
 
     // 스냅 업로드 완료 페이지로 이동
     navigate("/snap/upload-complete");

@@ -3,11 +3,17 @@ import { useNavigate } from "react-router-dom";
 import clothesService from "../../services/clothesService";
 import postService from "../../services/postService";
 import fileService from "../../services/fileService";
-import { snapImageFiles } from "./SnapAddPage";
+import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapUploadCompletePage.module.css";
 
 const SnapUploadCompletePage = () => {
   const navigate = useNavigate();
+  const {
+    imageFiles: snapImageFiles,
+    uploadedImages: snapUploadedImages,
+    selectedItems: snapSelectedItems,
+    clearSnapData,
+  } = useSnapStore();
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
@@ -17,16 +23,11 @@ const SnapUploadCompletePage = () => {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    // localStorage에서 데이터 가져오기
-    const storedImages = JSON.parse(localStorage.getItem("uploadedImages") || "[]");
-    const storedItems = JSON.parse(localStorage.getItem("selectedItems") || "[]");
-
-    setUploadedImages(storedImages);
-    setSelectedItems(storedItems);
-
-    // SnapAddPage에서 전달받은 파일 객체들
+    // Zustand store에서 모든 데이터 가져오기
+    setUploadedImages(snapUploadedImages);
+    setSelectedItems(snapSelectedItems);
     setImageFiles(snapImageFiles);
-  }, []);
+  }, [snapImageFiles, snapUploadedImages, snapSelectedItems]);
 
   // 옷 정보 로드
   useEffect(() => {
@@ -35,7 +36,7 @@ const SnapUploadCompletePage = () => {
         const clothes = await clothesService.getClothes();
 
         // API 응답을 기존 형식에 맞게 변환
-        const transformedClothes = clothes.map((item) => ({
+        const transformedClothes = clothes.data.content.map((item) => ({
           id: item.clothesId,
           name: item.name,
           brand: "브랜드",
@@ -91,9 +92,8 @@ const SnapUploadCompletePage = () => {
 
       console.log("게시물 등록 성공:", result);
 
-      // 3. localStorage 정리
-      localStorage.removeItem("uploadedImages");
-      localStorage.removeItem("selectedItems");
+      // 3. Zustand store 정리
+      clearSnapData();
 
       // 4. 메인 페이지로 이동
       navigate("/main");

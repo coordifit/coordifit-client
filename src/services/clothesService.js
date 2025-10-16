@@ -31,7 +31,7 @@ class ClothesService {
     if (!clothesId) throw new Error("clothesId는 필수입니다.");
     try {
       const res = await api.get(`/clothes/${clothesId}`);
-      return res.data; // ✅ 동일 구조
+      return res.data?.data; // ✅ 동일 구조
     } catch (error) {
       console.error(`❌ 옷 상세 조회 실패 (${clothesId})`, error);
       throw error;
@@ -42,7 +42,7 @@ class ClothesService {
   async createClothes(item) {
     try {
       const res = await api.post("/clothes/base64", item);
-      return res.data; // ✅ 기존 구조 유지
+      return res.data?.data; // ✅ 기존 구조 유지
     } catch (error) {
       console.error("❌ 옷 등록 실패:", error);
       throw error;
@@ -55,7 +55,7 @@ class ClothesService {
       throw new Error("등록할 옷 목록이 비어 있습니다.");
     try {
       const res = await api.post("/clothes/base64/bulk", { items });
-      return res.data; // ✅ 구조 동일
+      return res.data?.data; // ✅ 구조 동일
     } catch (error) {
       console.error("❌ 옷 일괄 등록 실패:", error);
       throw error;
@@ -67,7 +67,7 @@ class ClothesService {
     if (!clothesId) throw new Error("clothesId는 필수입니다.");
     try {
       const res = await api.put(`/clothes/${clothesId}/base64`, item);
-      return res.data;
+      return res.data?.data;
     } catch (error) {
       console.error(`❌ 옷 수정 실패 (${clothesId}):`, error);
       throw error;
@@ -79,7 +79,7 @@ class ClothesService {
     if (!clothesId) throw new Error("clothesId는 필수입니다.");
     try {
       const res = await api.delete(`/clothes/${clothesId}`);
-      return res.data;
+      return res.data?.data;
     } catch (error) {
       console.error(`❌ 옷 삭제 실패 (${clothesId}):`, error);
       throw error;
@@ -92,7 +92,7 @@ class ClothesService {
       throw new Error("삭제할 clothesIds가 비어 있습니다.");
     try {
       const res = await api.delete("/clothes/bulk", { data: clothesIds });
-      return res.data;
+      return res.data?.data;
     } catch (error) {
       console.error("❌ 옷 일괄 삭제 실패:", error);
       throw error;
@@ -104,7 +104,7 @@ class ClothesService {
     if (!clothesId) throw new Error("clothesId는 필수입니다.");
     try {
       const res = await api.get(`/clothes/${clothesId}/images`);
-      return res.data;
+      return res.data?.data;
     } catch (error) {
       console.error(`❌ 옷 이미지 목록 조회 실패 (${clothesId}):`, error);
       throw error;
@@ -122,11 +122,25 @@ class ClothesService {
     try {
       const params = { categoryCode, sort, dir, page, size };
       const res = await api.get("/clothes", { params });
-      return res.data;
+      return res.data?.data;
     } catch (error) {
       console.error("❌ 옷 전체 조회 실패:", error);
       throw error;
     }
   }
+
+  // 🧩 11️⃣ 이미지 개별 삭제
+  async deleteClothesImage(clothesId, fileId) {
+    if (!clothesId || !fileId) throw new Error("clothesId, fileId는 필수입니다.");
+
+    try {
+      const res = await api.delete(`/clothes/${clothesId}/images/${fileId}`);
+      return res.data?.data;
+    } catch (error) {
+      console.error(`❌ 옷 이미지 삭제 실패 (${clothesId}, ${fileId})`, error);
+      throw error;
+    }
+  }
 }
+
 export default new ClothesService();

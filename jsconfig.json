@@ -5,7 +5,8 @@
       "@/*": ["*"],
       "@page/*": ["pages/*"],
       "@images/*": ["assets/images/clothes/*"],
-      "@calendar/*": ["pages/Calendar/*"]
+      "@calendar/*": ["pages/Calendar/*"],
+      "@store/*": ["store/*"]
     }
   }
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { api } from "../../services/axiosInstance";
 import styles from "./CommonCodePage.module.css";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCommonCodesQuery } from "@/hooks/useClothesQuery";
+import { useCommonCodesQuery } from "@/hooks/useCommonCodeQuery";
 
 const CommonCodePage = () => {
   const [expandedNodes, setExpandedNodes] = useState(new Set());

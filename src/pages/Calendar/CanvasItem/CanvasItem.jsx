@@ -28,6 +28,7 @@ const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
   };
 
   if (!image) {
+    console.error("image 없음");
     return null;
   }
 

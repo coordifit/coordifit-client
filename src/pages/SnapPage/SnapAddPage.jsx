@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
 
-import { useSnapStore } from "@store/snapStore";
 import { useCategoryQuery } from "@/hooks/useCommonCodeQuery";
 import styles from "./SnapAddPage.module.css";
+import { useSnapStore } from "@/stores/snapStore";
 
 const SnapAddPage = () => {
   const navigate = useNavigate();

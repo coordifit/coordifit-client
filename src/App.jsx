@@ -3,31 +3,37 @@ import { createBrowserRouter, Navigate, RouterProvider, useNavigate } from "reac
 import { useEffect } from "react";
 
 import Layout from "@/components/Layout/Layout";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
 import AiFittingLanding from "@/pages/AiFitting/AiFittingLanding";
 import AiFittingResultPage from "@/pages/AiFitting/AiFittingResultPage";
 import AvatarCreationPage from "@/pages/AiFitting/AvatarCreationPage";
 import AvatarSelectionPage from "@/pages/AiFitting/AvatarSelectionPage";
-import CalendarPage from "@/pages/Calendar/CalendarPage/CalendarPage";
+
+import CalendarLayout from "@calendar/CalendarLayout/CalendarLayout";
+import CalendarBody from "@calendar/CalendarBody/CalendarBody";
+import CalendarEditor from "@calendar/CalendarEditor/CalendarEditor";
+
 import ClosetPage from "@/pages/ClosetPage/ClosetPage";
 import ClosetDetailPage from "@/pages/ClosetDetailPage/ClosetDetailPage";
 import ClosetRegisterPage from "@/pages/ClosetRegisterPage/ClosetRegisterPage";
+
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import MainPage from "@/pages/MainPage/MainPage";
 import PasswordReset from "@/pages/PasswordResetPage/PasswordResetPage";
 import SignUpPage from "@/pages/SignUpPage/SignUpPage";
+
 import SnapPage from "@/pages/SnapPage/SnapPage";
 import SnapAddPage from "@/pages/SnapPage/SnapAddPage";
 import SnapUploadCompletePage from "@/pages/SnapPage/SnapUploadCompletePage";
+import SnapDetailPage from "@/pages/SnapPage/SnapDetailPage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
-import CalendarRouter from "./pages/Calendar/CalendarRouter";
-import CalendarDetail from "./pages/Calendar/CalendarDetail/CalendarDetail";
-import CalendarEditor from "./pages/Calendar/CalendarEditor/CalendarEditor";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
-import { formatYearMonth } from "./utils/calenderUtils";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
 import { TokenManager } from "./services/axiosInstance";
+import { formatYearMonth } from "./utils/calendarUtils";
 
 const AutoLogin = () => {
   const navigate = useNavigate();
@@ -49,14 +55,35 @@ const router = createBrowserRouter([
   { path: "/", element: <AutoLogin /> },
   { path: "/start", element: <Start /> },
   { path: "/login", element: <LoginPage /> },
-  { path: "/signup", element: <SignUpPage /> },
-  { path: "/password-reset", element: <PasswordReset /> },
   { path: "/common-codes", element: <CommonCodePage /> },
 
-  // Layout 안에 들어가는 일반 페이지들
+  // Layout 내부 페이지들
   {
     element: <Layout />,
     children: [
+      // ✅ 회원가입 페이지 (헤더 + 뒤로가기만 표시)
+      {
+        path: "/signup",
+        element: <SignUpPage />,
+        handle: {
+          title: "회원가입",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      // ✅ 비밀번호 재설정 페이지 (헤더 + 뒤로가기만 표시)
+      {
+        path: "/password-reset",
+        element: <PasswordReset />,
+        handle: {
+          title: "비밀번호 재설정",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+
       // 루트 탭들: 헤더+탭 / 뒤로가기 없음
       {
         path: "/main",
@@ -75,7 +102,7 @@ const router = createBrowserRouter([
         path: "/calendar",
         element: (
           <ProtectedRoute>
-            <CalendarPage />
+            <CalendarLayout />
           </ProtectedRoute>
         ),
         handle: {
@@ -83,6 +110,7 @@ const router = createBrowserRouter([
           showBack: false,
           showHeader: false,
           showTabbar: true,
+          contentPadding: "none",
         },
         children: [
           {
@@ -91,13 +119,18 @@ const router = createBrowserRouter([
           },
           {
             path: ":date",
-            element: <CalendarRouter />,
-            children: [
-              { path: "", element: <CalendarDetail /> },
-              { path: "editor", element: <CalendarEditor /> },
-            ],
+            element: <CalendarBody />,
           },
         ],
+      },
+      {
+        path: "/calendar/:date/editor",
+        element: (
+          <ProtectedRoute>
+            <CalendarEditor />
+          </ProtectedRoute>
+        ),
+        handle: { title: "데일리룩 편집", showBack: true, showHeader: true, showTabbar: true },
       },
       {
         path: "/closet",
@@ -113,6 +146,7 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
+
       {
         path: "/closet/register",
         element: (
@@ -154,8 +188,19 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
-      // 헤더 X + 탭바 O
+      {
+        path: "/mypage/:userId",
+        element: (
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          showBack: true,
+          showHeader: true,
+          showTabbar: true,
+        },
+      },
       {
         path: "/snap",
         element: (
@@ -170,8 +215,6 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
-      // 헤더 O + 탭바 X (예: 상세/편집 페이지)
       {
         path: "/profile/edit",
         element: (
@@ -270,12 +313,26 @@ const router = createBrowserRouter([
           showTabbar: false,
         },
       },
+      {
+        path: "/snap/:postId",
+        element: (
+          <ProtectedRoute>
+            <SnapDetailPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "스냅",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
     ],
   },
 ]);
+
 const App = () => {
   return <RouterProvider router={router} />;
 };
 
 export default App;
-// --- IGNORE ---

@@ -14,10 +14,11 @@
 }
 
 .large {
-  padding: 14px 28px;
-  font-size: 20px;
-  font-weight: bold;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
   width: 80%;
+  max-width: 320px;
 }
 
 .small {

@@ -1,3 +1,96 @@
-.color {
-  color: orange;
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.errorContainer button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.errorContainer button:hover {
+  background-color: #333;
+}
+
+.postList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 0;
+}
+
+.postCard {
+  background: #f6f6f6;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
+}
+
+.postCard:hover {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.postImage {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.postImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 마이페이지와 동일한 스타일이므로 postInfo 관련 스타일 제거 */
+.postInfo {
+  display: none;
+}
+
+.userInfo {
+  display: none;
+}
+
+.profileImage {
+  display: none;
+}
+
+.nickname {
+  display: none;
+}
+
+.content {
+  display: none;
+}
+
+.stats {
+  display: none;
+}
+
+.stats span {
+  display: none;
 }

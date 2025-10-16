@@ -1,7 +1,7 @@
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   height: 68px;
   padding: 12px 20px;
   background: #ffffff;
@@ -10,7 +10,7 @@
   z-index: 30;
 }
 .title {
-  font-family: 'Pretendard';
+  font-family: "Pretendard";
   font-size: 18px;
   font-weight: 600;
   color: #222;

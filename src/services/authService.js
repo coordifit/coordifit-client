@@ -1,0 +1,110 @@
+import { api, TokenManager } from "./axiosInstance";
+
+import { useUserStore } from "@/stores/userStore";
+
+/**
+ * 로그인 요청
+ * @param {Object} formData { email, password }
+ * @returns {Promise<{success: boolean, data?: object, message?: string}>}
+ */
+export const requestLogin = async (formData) => {
+  try {
+    const response = await api.post("/auth/login", {
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (response.data.success) {
+      const { data } = response.data;
+
+      // ✅ JWT 토큰 저장
+      TokenManager.setTokens(data.accessToken, data.refreshToken);
+
+      // ✅ 토큰에서 사용자 정보 로드하여 store에 저장
+      const { loadUserFromToken } = useUserStore.getState();
+      loadUserFromToken?.();
+
+      return { success: true, data };
+    } else {
+      return { success: false, message: response.data.message || "로그인에 실패했습니다." };
+    }
+  } catch (error) {
+    console.error("❌ 로그인 오류:", error);
+    throw error;
+  }
+};
+
+/**
+ * 비활성화된 계정 재활성화 요청
+ * @param {string} userId
+ * @returns {Promise<{success: boolean, data?: object}>}
+ */
+export const requestActivateAccount = async (userId) => {
+  try {
+    const response = await api.post(`/users/${userId}/activate`);
+
+    if (response.data.success) {
+      const { accessToken, refreshToken } = response.data.data;
+
+      // ✅ 토큰 저장
+      TokenManager.setTokens(accessToken, refreshToken);
+
+      // ✅ 사용자 정보 로드
+      const { loadUserFromToken } = useUserStore.getState();
+      loadUserFromToken?.();
+
+      return { success: true, data: response.data.data };
+    }
+
+    return { success: false, message: response.data.message };
+  } catch (error) {
+    console.error("❌ 계정 활성화 오류:", error);
+    throw error;
+  }
+};
+
+/* -------------------- 회원가입 / 인증 관련 -------------------- */
+
+/** 이메일 중복 확인 */
+export const checkEmailDuplicate = async (email) => {
+  try {
+    const response = await api.get(`/auth/check-email?email=${encodeURIComponent(email)}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ 이메일 중복 확인 오류:", error);
+    throw error; // 프론트 단에서 예외 처리 가능하도록
+  }
+};
+
+/** 닉네임 중복 확인 */
+export const checkNicknameDuplicate = async (nickname) => {
+  try {
+    const response = await api.get(`/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ 닉네임 중복 확인 오류:", error);
+    throw error;
+  }
+};
+
+/** 인증 코드 발송 */
+export const sendVerificationCode = async (email) => {
+  try {
+    const response = await api.post("/auth/send-verification", { email });
+    return response.data;
+  } catch (error) {
+    console.error("❌ 인증 코드 발송 오류:", error);
+    throw error;
+  }
+};
+
+/** 회원가입 */
+export const signUp = async (formData) => {
+  try {
+    const response = await api.post("/auth/signup", formData);
+    return response.data;
+  } catch (error) {
+    console.error("❌ 회원가입 오류:", error);
+    throw error;
+  }
+};

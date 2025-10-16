@@ -11,9 +11,9 @@ class UserService {
     }
   }
 
-  async logout() {
+  async logout(userId) {
     try {
-      const response = await api.post("/auth/logout");
+      const response = await api.post("/auth/logout", userId);
       return response.data;
     } catch (error) {
       console.error("로그아웃 오류:", error);

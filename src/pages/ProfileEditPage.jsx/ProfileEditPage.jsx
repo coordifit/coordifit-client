@@ -91,10 +91,15 @@ const ProfileEditPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleLogout = () => {
-    userService.logout();
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await userService.logout(user.userId);
+    } catch (error) {
+      console.error("로그아웃 서버 요청 실패:", error);
+    } finally {
+      logout();
+      navigate("/login");
+    }
   };
   const openDeleteModal = () => {
     setDeleteModalOpen(true);

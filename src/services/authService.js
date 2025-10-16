@@ -108,3 +108,31 @@ export const signUp = async (formData) => {
     throw error;
   }
 };
+
+/* -------------------- 비밀번호 재설정 관련 -------------------- */
+
+/** 비밀번호 재설정 인증 코드 발송 */
+export const sendPasswordResetCode = async (email) => {
+  try {
+    const response = await api.post("/auth/send-password-reset-code", { email });
+    return response.data;
+  } catch (error) {
+    console.error("❌ 비밀번호 재설정 인증 코드 발송 오류:", error);
+    throw error;
+  }
+};
+
+/** 비밀번호 재설정 */
+export const resetPassword = async (email, verificationCode, newPassword) => {
+  try {
+    const response = await api.post("/auth/reset-password", {
+      email,
+      verificationCode,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ 비밀번호 재설정 오류:", error);
+    throw error;
+  }
+};

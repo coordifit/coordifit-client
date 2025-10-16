@@ -8,49 +8,50 @@ import outer1 from "@images/outer1.png";
 import shoes1 from "@images/shoes1.png";
 import shoes2 from "@images/shoes2.png";
 import acc1 from "@images/acc1.png";
+import { CATEGORIES } from "@/constants/category";
 
 const MOCK_CLOSET = [
   {
-    id: "top-01",
+    clothesId: "top-01",
     name: "Brown sweater",
-    category: "top",
-    imageUrl: top1,
+    categoryCode: "B30007",
+    thumbnailUrl: top1,
   },
   {
-    id: "top-02",
+    clothesId: "top-02",
     name: "Denim shirts",
-    category: "top",
-    imageUrl: top2,
+    categoryCode: "B30001",
+    thumbnailUrl: top2,
   },
   {
-    id: "pants-01",
+    clothesId: "pants-01",
     name: "Cotton pants",
-    category: "bottom",
-    imageUrl: pants1,
+    categoryCode: "B30014",
+    thumbnailUrl: pants1,
   },
   {
-    id: "outer-01",
+    clothesId: "outer-01",
     name: "Blue Shirt",
-    category: "outer",
-    imageUrl: outer1,
+    categoryCode: "B30001",
+    thumbnailUrl: outer1,
   },
   {
-    id: "shoes-01",
+    clothesId: "shoes-01",
     name: "Berwick Shoes",
-    category: "shoes",
-    imageUrl: shoes1,
+    categoryCode: "B30022",
+    thumbnailUrl: shoes1,
   },
   {
-    id: "shoes-02",
+    clothesId: "shoes-02",
     name: "Adidas Shoes",
-    category: "shoes",
-    imageUrl: shoes2,
+    categoryCode: "B30019",
+    thumbnailUrl: shoes2,
   },
   {
-    id: "acc-01",
+    clothesId: "acc-01",
     name: "Chrome hearts",
-    category: "default",
-    imageUrl: acc1,
+    categoryCode: "B30035",
+    thumbnailUrl: acc1,
   },
 ];
 
@@ -68,19 +69,19 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
         <div className={styles.sheetBody}>
           <div className={styles.closetGrid}>
             {MOCK_CLOSET.map((item) => {
-              const isAdded = clothes.some((c) => c.id === item.id);
+              const isAdded = clothes.some((c) => c.clothesId === item.clothesId);
 
               return (
                 <button
-                  key={item.id}
+                  key={item.clothesId}
                   className={cn(styles.closetCard, isAdded && styles.disabledCard)}
                   onClick={() => onAdd(item)}
                   disabled={isAdded}
                 >
-                  <img src={item.imageUrl} alt={item.name} className={styles.closetImg} />
+                  <img src={item.thumbnailUrl} alt={item.name} className={styles.closetImg} />
                   <div className={styles.closetInfo}>
                     <div className={styles.closetName}>{item.name}</div>
-                    <div className={styles.closetCat}>{item.category}</div>
+                    <div className={styles.closetCat}>{CATEGORIES[item.categoryCode].ko}</div>
                   </div>
                   {isAdded && <div className={styles.badge}>추가됨</div>}
                 </button>
@@ -93,10 +94,10 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
             ) : (
               <ul className={styles.selectedList}>
                 {clothes.map((item) => (
-                  <li key={item.id} className={styles.selectedItem}>
+                  <li key={item.clothesId} className={styles.selectedItem}>
                     <button
                       className={styles.removeBtn}
-                      onClick={() => onRemove(item.id)}
+                      onClick={() => onRemove(item.clothesId)}
                       aria-label="아이템 제거"
                     >
                       ×

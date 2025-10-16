@@ -40,6 +40,8 @@ export default [
         localStorage: "readonly", // ✅ 브라우저 저장소
         FormData: "readonly", // ✅ 폼데이터
         FileReader: "readonly", // ✅ 파일 업로드/미리보기
+        fetch: "readonly",
+        navigator: "readonly",
       },
     },
     settings: { react: { version: "detect" } },

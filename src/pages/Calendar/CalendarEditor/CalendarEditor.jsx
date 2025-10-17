@@ -14,7 +14,7 @@ import CanvasItem from "../CanvasItem/CanvasItem";
 import ClosetModal from "../ClosetModal/ClosetModal";
 
 import styles from "./CalendarEditor.module.css";
-import { CANVAS_CONFIG } from "@/constants/calender";
+import { CANVAS_CONFIG } from "@/constants/calendar";
 
 const CalendarEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -58,7 +58,6 @@ const CalendarEditor = () => {
   };
 
   const addToCanvas = (item) => {
-    console.log("addToCanvas", item);
     const pos =
       item?.x != null && item?.y != null
         ? { x: item.x, y: item.y, scale: item.scaleX ?? 0.5 }
@@ -79,11 +78,6 @@ const CalendarEditor = () => {
 
     addClothes(obj);
     setSelectedId(obj.id);
-  };
-
-  const updateObject = (id, next) => {
-    console.log("updateObject", id, next);
-    updateClothes(id, next);
   };
 
   const removeSelected = () => {
@@ -158,7 +152,7 @@ const CalendarEditor = () => {
                   obj={item}
                   isSelected={item.id === selectedId}
                   onSelect={() => setSelectedId(item.id)}
-                  onChange={(next) => updateObject(item.id, next)}
+                  onChange={(next) => updateClothes(item.id, next)}
                 />
               ))}
             </Layer>

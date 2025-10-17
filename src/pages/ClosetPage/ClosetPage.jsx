@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import styles from "./ClosetPage.module.css";
-import { CLOSET_TABS, CLOTHING_ITEMS, COORDI_ITEMS, MAIN_CATEGORIES } from "./closetData";
+import { CLOSET_TABS, CLOTHING_ITEMS, COORDI_ITEMS } from "./closetData";
+import ClothesService from "@/services/clothesService";
+import CommonCodeService from "@/services/commonCodeService";
 
 const ITEMS_PER_BATCH = 9;
 
@@ -11,58 +13,88 @@ const ClosetPage = () => {
   const [activeTab, setActiveTab] = useState("clothes");
   const [mainCategory, setMainCategory] = useState("all");
   const [subCategory, setSubCategory] = useState("all");
-  const [items, setItems] = useState(CLOTHING_ITEMS);
+
+  const [items, setItems] = useState([]); // 실제 서버 데이터
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_BATCH);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false);
   const observer = useRef(null);
 
-  const currentItems = useMemo(() => {
-    if (activeTab === "coordi") {
-      return COORDI_ITEMS;
-    }
+  // ✅ DB 기반 카테고리
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategoriesMap, setSubCategoriesMap] = useState({});
 
+  // ==================== 1️⃣ 카테고리 로드 ====================
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const { mainCategories, subCategoriesMap } = await CommonCodeService.getCategoryData();
+        setMainCategories(mainCategories);
+        setSubCategoriesMap(subCategoriesMap);
+      } catch (err) {
+        console.error("❌ 카테고리 조회 실패:", err);
+      }
+    };
+    fetchCategoryData();
+  }, []);
+
+  // ==================== 2️⃣ 내 옷 전체 불러오기 ====================
+  useEffect(() => {
+    const fetchMyClothes = async () => {
+      try {
+        const data = await ClothesService.getMyClothes(); // JWT 인증 자동
+        const mapped = data.map((c) => ({
+          id: c.clothesId,
+          name: c.name,
+          categoryCode: c.categoryCode,
+          purchaseDate: c.purchaseDate,
+          images: c.thumbnailUrl ? [c.thumbnailUrl] : [],
+        }));
+        setItems(mapped);
+      } catch (err) {
+        console.error("❌ 옷장 목록 조회 실패:", err);
+        setItems(CLOTHING_ITEMS); // fallback
+      }
+    };
+    fetchMyClothes();
+  }, []);
+
+  // ==================== 3️⃣ 탭별 아이템 분기 ====================
+  const currentItems = useMemo(() => {
+    if (activeTab === "coordi") return COORDI_ITEMS;
     return items;
   }, [activeTab, items]);
 
+  // ==================== 4️⃣ 카테고리 필터 ====================
+  // ==================== 4️⃣ 카테고리 필터 ====================
   const filteredItems = useMemo(() => {
-    if (activeTab === "coordi") {
-      return currentItems;
-    }
+    if (activeTab === "coordi") return currentItems;
 
     return currentItems.filter((item) => {
-      const matchMain = mainCategory === "all" ? true : item.category === mainCategory;
-      const matchSub =
-        subCategory === "all" || mainCategory === "all" ? true : item.subCategory === subCategory;
+      const code = item.categoryCode;
 
-      return matchMain && matchSub;
+      // 전체 (상의, 하의 등 무관하게 다 보여줌)
+      if (mainCategory === "all") return true;
+
+      // 상의 전체 등
+      if (subCategory === "all") {
+        return subCategoriesMap[mainCategory]?.some((sub) => sub.codeId === code);
+      }
+      // 셔츠 등 (정확히 일치)
+      return code === subCategory;
     });
   }, [activeTab, currentItems, mainCategory, subCategory]);
 
-  useEffect(() => {
-    setVisibleCount(ITEMS_PER_BATCH);
-  }, [mainCategory, subCategory, activeTab]);
-
-  useEffect(() => {
-    setSelectedItems((prev) => prev.filter((id) => filteredItems.some((item) => item.id === id)));
-  }, [filteredItems]);
-
+  // ==================== 5️⃣ 무한 스크롤 ====================
   const sentinelRef = useCallback(
     (node) => {
-      if (observer.current) {
-        observer.current.disconnect();
-      }
-
+      if (observer.current) observer.current.disconnect();
       if (!node) return;
 
       observer.current = new IntersectionObserver((entries) => {
         if (!entries[0].isIntersecting) return;
-
-        setVisibleCount((prev) => {
-          if (prev >= filteredItems.length) return prev;
-          return Math.min(prev + ITEMS_PER_BATCH, filteredItems.length);
-        });
+        setVisibleCount((prev) => Math.min(prev + ITEMS_PER_BATCH, filteredItems.length));
       });
 
       observer.current.observe(node);
@@ -73,15 +105,11 @@ const ClosetPage = () => {
   useEffect(() => () => observer.current?.disconnect(), []);
 
   const visibleItems = useMemo(
-    () => filteredItems.slice(0, Math.min(visibleCount, filteredItems.length)),
+    () => filteredItems.slice(0, visibleCount),
     [filteredItems, visibleCount],
   );
 
-  const activeMainCategory = useMemo(
-    () => MAIN_CATEGORIES.find((cat) => cat.id === mainCategory),
-    [mainCategory],
-  );
-
+  // ==================== 6️⃣ 선택모드 & 삭제 ====================
   const handleSelectMode = () => {
     setIsSelecting((prev) => !prev);
     setSelectedItems([]);
@@ -93,40 +121,50 @@ const ClosetPage = () => {
     );
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedItems.length) return;
+    if (!window.confirm("선택한 옷을 삭제하시겠습니까?")) return;
 
-    setItems((prev) => prev.filter((item) => !selectedItems.includes(item.id)));
-    setSelectedItems([]);
-    setIsSelecting(false);
+    try {
+      await ClothesService.deleteClothesBulk(selectedItems);
+      alert("삭제 완료되었습니다.");
+      setItems((prev) => prev.filter((i) => !selectedItems.includes(i.id)));
+      setSelectedItems([]);
+      setIsSelecting(false);
+    } catch (err) {
+      console.error("❌ 일괄 삭제 실패:", err);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
+  // ==================== 7️⃣ 클릭 핸들러 ====================
   const handleCardClick = (item) => {
     if (isSelecting) {
       toggleItemSelection(item.id);
       return;
     }
-
     navigate(`/closet/item/${item.id}`, { state: { item } });
   };
 
-  const handleAddClick = () => {
-    navigate("/closet/register");
-  };
+  const handleAddClick = () => navigate("/closet/register");
 
+  // ==================== 8️⃣ 카테고리 변경 ====================
+  // ==================== 8️⃣ 카테고리 변경 ====================
   const handleCategoryChange = (id) => {
     setMainCategory(id);
-    setSubCategory("all");
+    setSubCategory("all"); // ← 항상 초기화: "상의 전체" 포함
   };
 
   const handleSubCategoryChange = (id) => {
-    setSubCategory(id);
+    setSubCategory(id === "all" ? "all" : id);
   };
 
   const isCoordiTab = activeTab === "coordi";
 
+  // ==================== 9️⃣ 렌더링 ====================
   return (
     <div className={styles.container}>
+      {/* 탭바 */}
       <section className={styles.tabBar}>
         {CLOSET_TABS.map((tab) => (
           <button
@@ -140,38 +178,40 @@ const ClosetPage = () => {
         ))}
       </section>
 
+      {/* 카테고리 바 */}
       {!isCoordiTab && (
         <section className={styles.categories}>
           <div className={styles.categoryHeader}>
             <div className={styles.categoryMainList}>
-              {MAIN_CATEGORIES.map((category) => (
+              {mainCategories.map((cat) => (
                 <button
-                  key={category.id}
+                  key={cat.codeId}
                   type="button"
                   className={clsx(
                     styles.categoryButton,
-                    mainCategory === category.id && styles.activeCategory,
+                    mainCategory === cat.codeId && styles.activeCategory,
                   )}
-                  onClick={() => handleCategoryChange(category.id)}
+                  onClick={() => handleCategoryChange(cat.codeId)}
                 >
-                  {category.name}
+                  {cat.codeName}
                 </button>
               ))}
             </div>
           </div>
-          {activeMainCategory && (
+
+          {mainCategory !== "all" && (
             <div className={styles.subCategoryList}>
-              {activeMainCategory.subcategories.map((category) => (
+              {(subCategoriesMap[mainCategory] || []).map((sub) => (
                 <button
-                  key={category.id}
+                  key={sub.codeId}
                   type="button"
                   className={clsx(
                     styles.subCategoryButton,
-                    subCategory === category.id && styles.activeSubCategory,
+                    subCategory === sub.codeId && styles.activeSubCategory,
                   )}
-                  onClick={() => handleSubCategoryChange(category.id)}
+                  onClick={() => handleSubCategoryChange(sub.codeId)}
                 >
-                  {category.name}
+                  {sub.codeName}
                 </button>
               ))}
             </div>
@@ -179,6 +219,7 @@ const ClosetPage = () => {
         </section>
       )}
 
+      {/* 유틸리티 바 */}
       <div className={styles.utilityRow}>
         <button
           type="button"
@@ -202,6 +243,7 @@ const ClosetPage = () => {
         </button>
       </div>
 
+      {/* 목록 */}
       <section className={styles.gridSection}>
         <div className={styles.grid}>
           {visibleItems.map((item) => (
@@ -211,7 +253,11 @@ const ClosetPage = () => {
               onClick={() => handleCardClick(item)}
             >
               <div className={styles.cardImageWrapper}>
-                <img src={item.images?.[0]} alt={item.name} className={styles.cardImage} />
+                <img
+                  src={item.images?.[0] || "/noimage.png"}
+                  alt={item.name}
+                  className={styles.cardImage}
+                />
                 {isSelecting && (
                   <span
                     className={clsx(
@@ -227,6 +273,7 @@ const ClosetPage = () => {
               </div>
             </article>
           ))}
+
           {!isCoordiTab && (
             <button type="button" className={styles.addCard} onClick={handleAddClick}>
               <span className={styles.addIcon}>＋</span>
@@ -234,9 +281,11 @@ const ClosetPage = () => {
             </button>
           )}
         </div>
+
         <div ref={sentinelRef} className={styles.observerTarget} aria-hidden />
       </section>
 
+      {/* 카테고리 패널 */}
       {isCategoryPanelOpen && !isCoordiTab && (
         <aside className={styles.categoryPanel}>
           <header className={styles.categoryPanelHeader}>
@@ -250,31 +299,31 @@ const ClosetPage = () => {
             </button>
           </header>
           <div className={styles.categoryPanelBody}>
-            {MAIN_CATEGORIES.map((category) => (
-              <div key={category.id} className={styles.categoryPanelGroup}>
+            {mainCategories.map((cat) => (
+              <div key={cat.codeId} className={styles.categoryPanelGroup}>
                 <button
                   type="button"
                   className={clsx(
                     styles.categoryPanelMain,
-                    mainCategory === category.id && styles.activePanelMain,
+                    mainCategory === cat.codeId && styles.activePanelMain,
                   )}
-                  onClick={() => handleCategoryChange(category.id)}
+                  onClick={() => handleCategoryChange(cat.codeId)}
                 >
-                  {category.name}
+                  {cat.codeName}
                 </button>
-                {mainCategory === category.id && (
+                {mainCategory === cat.codeId && (
                   <div className={styles.categoryPanelSubList}>
-                    {category.subcategories.map((sub) => (
+                    {(subCategoriesMap[cat.codeId] || []).map((sub) => (
                       <button
-                        key={sub.id}
+                        key={sub.codeId}
                         type="button"
                         className={clsx(
                           styles.categoryPanelSub,
-                          subCategory === sub.id && styles.activePanelSub,
+                          subCategory === sub.codeId && styles.activePanelSub,
                         )}
-                        onClick={() => handleSubCategoryChange(sub.id)}
+                        onClick={() => handleSubCategoryChange(sub.codeId)}
                       >
-                        {sub.name}
+                        {sub.codeName}
                       </button>
                     ))}
                   </div>
@@ -285,6 +334,7 @@ const ClosetPage = () => {
         </aside>
       )}
 
+      {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>
           <span className={styles.deleteIcon} aria-hidden />

@@ -1,9 +1,5 @@
 .usedPanel {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: red;
 }
 
 .usedList {
@@ -17,9 +13,9 @@
 }
 
 .panelTitle {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .empty {

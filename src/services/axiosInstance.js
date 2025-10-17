@@ -3,6 +3,19 @@ import axios from "axios";
 import { API_URL } from "../config/config";
 
 const api = axios.create({ baseURL: API_URL });
+const weatherApi = axios.create({
+  baseURL: "https://api.open-meteo.com",
+  timeout: 8000,
+});
+
+const pastWeatherApi = axios.create({
+  baseURL: "https://archive-api.open-meteo.com",
+  timeout: 5000,
+});
+
+weatherApi.defaults.params = {
+  timezone: "auto",
+};
 
 // 토큰 관리 함수들
 const TokenManager = {
@@ -97,4 +110,4 @@ api.interceptors.response.use(
 );
 
 // 토큰 관리 함수들도 export
-export { api, TokenManager };
+export { api, weatherApi, pastWeatherApi, TokenManager };

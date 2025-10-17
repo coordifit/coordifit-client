@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import clsx from "clsx";
-
-import { useCategoryQuery } from "@/hooks/useCommonCodeQuery";
+import commonCodeService from "../../services/commonCodeService";
+import clothesService from "../../services/clothesService";
+import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapAddPage.module.css";
-import { useSnapStore } from "@/stores/snapStore";
 
 const SnapAddPage = () => {
   const navigate = useNavigate();
@@ -14,38 +13,36 @@ const SnapAddPage = () => {
     setUploadedImages: setSnapUploadedImages,
     setSelectedItems: setSnapSelectedItems,
   } = useSnapStore();
-
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [mainCategory, setMainCategory] = useState("all");
   const [subCategory, setSubCategory] = useState("all");
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+  const [mainCategories, setMainCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-
-  const {
-    data: categories,
-    isLoading: isCategoryLoading,
-    isError: isCategoryError,
-    error: categoryError,
-  } = useCategoryQuery();
-
-  const {
-    data: clothes,
-    isLoading: isClothesLoading,
-    isError: isClothesError,
-    error: clothesError,
-  } = useClothesQuery();
-
-  const isLoading = isCategoryLoading || isClothesLoading;
+  const [subCategoriesMap, setSubCategoriesMap] = useState({});
+  const [clothesItems, setClothesItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isCategoryError) console.error("❌ 카테고리 로드 오류:", categoryError);
-    if (isClothesError) console.error("❌ 옷 정보 로드 오류:", clothesError);
-  }, [isCategoryError, isClothesError, categoryError, clothesError]);
+    const loadCategories = async () => {
+      try {
+        setLoading(true);
 
-  const mainCategories = useMemo(() => categories?.mainCategories ?? [], [categories]);
-  const subCategoriesMap = useMemo(() => categories?.subCategoriesMap ?? {}, [categories]);
+        const categoryData = await commonCodeService.getCategoryData();
+        setMainCategories(categoryData.mainCategories);
+        setSubCategoriesMap(categoryData.subCategoriesMap);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("카테고리 로드 오류:", error);
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     if (mainCategory === "all") {
@@ -57,36 +54,52 @@ const SnapAddPage = () => {
     setSubCategories(subCategoriesForMain);
   }, [mainCategory, subCategoriesMap]);
 
-  const clothesItems = useMemo(() => {
-    if (!clothes?.data?.content) return [];
+  // 옷 정보 로드
+  useEffect(() => {
+    const loadAllClothes = async () => {
+      try {
+        const clothes = await clothesService.getClothes();
 
-    return clothes.data.content.map((item) => ({
-      id: item.clothesId,
-      name: item.name,
-      brand: "브랜드",
-      price: 0,
-      category: item.categoryCode,
-      subCategory: item.categoryCode,
-      images: [
-        item.imageUrl ||
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
-      ],
-    }));
-  }, [clothes]);
+        // API 응답을 기존 형식에 맞게 변환
+        const transformedClothes = clothes.data.content.map((item) => ({
+          id: item.clothesId,
+          name: item.name,
+          brand: "브랜드",
+          price: 0,
+          category: item.categoryCode,
+          subCategory: item.categoryCode,
+          images: [
+            item.imageUrl ||
+              "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
+          ],
+        }));
 
+        setClothesItems(transformedClothes);
+      } catch (error) {
+        console.error("옷 정보 로드 오류:", error);
+        setClothesItems([]);
+      }
+    };
+
+    loadAllClothes();
+  }, []);
+
+  // 필터링된 아이템들
   const filteredItems = useMemo(() => {
     return clothesItems.filter((item) => {
+      // 전체 선택 시 모든 아이템 표시
       if (mainCategory === "all") {
         return true;
       }
 
+      // 서브카테고리 선택 시 해당 서브카테고리만 표시
       if (subCategory !== "all") {
         return item.category === subCategory;
       }
 
+      // 메인카테고리 선택 시 해당 메인카테고리 하위의 모든 서브카테고리 표시
       const subCategoriesForMain = subCategoriesMap[mainCategory] || [];
       const subCategoryCodes = subCategoriesForMain.map((sub) => sub.codeId);
-
       return subCategoryCodes.includes(item.category);
     });
   }, [clothesItems, mainCategory, subCategory, subCategoriesMap]);
@@ -146,6 +159,7 @@ const SnapAddPage = () => {
     setSnapUploadedImages([...uploadedImages]);
     setSnapSelectedItems([...selectedItems]);
 
+    // 스냅 업로드 완료 페이지로 이동
     navigate("/snap/upload-complete");
   };
 
@@ -172,12 +186,12 @@ const SnapAddPage = () => {
     return uploadedImages.length > 0 && selectedItems.length > 0;
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.stepContent}>
           <div style={{ textAlign: "center", padding: "50px" }}>
-            <p>데이터를 불러오는 중...</p>
+            <p>카테고리를 불러오는 중...</p>
           </div>
         </div>
       </div>
@@ -219,6 +233,8 @@ const SnapAddPage = () => {
             </div>
           )}
         </div>
+
+        {/* 상품 선택 섹션 */}
         <div className={styles.productSelectionSection}>
           <div className={styles.sectionHeader}>
             <h3>함께 착용한 상품을 선택해주세요</h3>

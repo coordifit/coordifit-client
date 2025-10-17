@@ -65,7 +65,6 @@ const ClosetPage = () => {
   }, [activeTab, items]);
 
   // ==================== 4️⃣ 카테고리 필터 ====================
-  // ==================== 4️⃣ 카테고리 필터 ====================
   const filteredItems = useMemo(() => {
     if (activeTab === "coordi") return currentItems;
 
@@ -146,7 +145,6 @@ const ClosetPage = () => {
 
   const handleAddClick = () => navigate("/closet/register");
 
-  // ==================== 8️⃣ 카테고리 변경 ====================
   // ==================== 8️⃣ 카테고리 변경 ====================
   const handleCategoryChange = (id) => {
     setMainCategory(id);

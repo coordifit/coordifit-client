@@ -20,7 +20,7 @@ const ItemCarousel = ({ items = [], selectedId, onClick }) => {
             <img src={clothes.src} alt={clothes.name} className={styles.thumb} />
             <div className={styles.meta}>
               <div className={styles.name}>{clothes.name}</div>
-              <div className={styles.category}>{CATEGORIES[clothes.categoryCode].ko}</div>
+              {/* <div className={styles.category}>{CATEGORIES[clothes.categoryCode].ko}</div> */}
             </div>
           </li>
         ))}

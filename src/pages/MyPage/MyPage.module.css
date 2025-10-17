@@ -18,7 +18,7 @@
 .profile-section {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 30px;
 }
 .button-container {
   display: grid;
@@ -26,7 +26,7 @@
   gap: 16px;
 }
 .profile-image {
-  width: 80px;
+  width: 75px;
   aspect-ratio: 1;
   border-radius: 999px;
   overflow: hidden;
@@ -44,8 +44,8 @@
   flex: 1;
 }
 .nickname {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 500;
   margin: 0;
 }
 .bio {
@@ -156,8 +156,8 @@
 
 .metrics {
   display: flex;
-  justify-content: space-around;
-  gap: 0;
+  justify-content: flex-start;
+  gap: 40px;
 }
 .metrics button {
   border: none;
@@ -168,31 +168,31 @@
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #555;
+  color: #6b7280;
   font-weight: 500;
   cursor: pointer;
 }
 .metrics strong {
-  font-size: 18px;
+  font-size: 16px;
   color: #222;
   font-weight: 700;
 }
 .gallery {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   position: relative;
 }
 .image-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  margin-left: -12px;
+  margin-right: -12px;
 }
 .image-card {
   background: #f6f6f6;
-  border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 1;
+  border: #d9d9d9 1px solid;
 }
 .image-card img {
   width: 100%;
@@ -232,8 +232,8 @@
   position: absolute; /* .app 컨테이너 기준으로 위치 설정 */
   bottom: 89px; /* BottomNav 높이(79px) + 여백(10px) */
   right: 10px; /* 우측에서 20px 안쪽에 배치 */
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #333;
   border: none;

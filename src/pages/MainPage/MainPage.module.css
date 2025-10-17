@@ -250,7 +250,6 @@
 .calendarScroller {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
   overflow-x: auto;
   padding: 24px 4px 10px;
   scroll-snap-type: x mandatory;
@@ -464,7 +463,7 @@
   right: 0;
   bottom: -8px;
   height: 2px;
-  width: 110%;
+  width: 100%;
   background: transparent;
   transition: background 0.2s ease;
 }

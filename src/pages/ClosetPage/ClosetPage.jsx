@@ -337,13 +337,6 @@ const ClosetPage = () => {
           삭제
         </button>
       )}
-      <button
-        onClick={() => {
-          navigate("/closet/editor");
-        }}
-      >
-        코디만들기
-      </button>
     </div>
   );
 };

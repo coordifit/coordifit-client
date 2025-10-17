@@ -35,35 +35,6 @@ export const requestLogin = async (formData) => {
   }
 };
 
-/**
- * 비활성화된 계정 재활성화 요청
- * @param {string} userId
- * @returns {Promise<{success: boolean, data?: object}>}
- */
-export const requestActivateAccount = async (userId) => {
-  try {
-    const response = await api.post(`/users/${userId}/activate`);
-
-    if (response.data.success) {
-      const { accessToken, refreshToken } = response.data.data;
-
-      // ✅ 토큰 저장
-      TokenManager.setTokens(accessToken, refreshToken);
-
-      // ✅ 사용자 정보 로드
-      const { loadUserFromToken } = useUserStore.getState();
-      loadUserFromToken?.();
-
-      return { success: true, data: response.data.data };
-    }
-
-    return { success: false, message: response.data.message };
-  } catch (error) {
-    console.error("❌ 계정 활성화 오류:", error);
-    throw error;
-  }
-};
-
 /* -------------------- 회원가입 / 인증 관련 -------------------- */
 
 /** 이메일 중복 확인 */

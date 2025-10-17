@@ -34,6 +34,7 @@ import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 
 import { TokenManager } from "./services/axiosInstance";
 import { formatYearMonth } from "./utils/calendarUtils";
+import ClosetEditor from "./pages/Closet/ClosetEditor/ClosetEditor";
 
 const AutoLogin = () => {
   const navigate = useNavigate();
@@ -166,6 +167,20 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ClosetDetailPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "옷 상세보기",
+          showBack: true,
+          showHeader: true,
+          showTabbar: true,
+        },
+      },
+      {
+        path: "/closet/editor",
+        element: (
+          <ProtectedRoute>
+            <ClosetEditor />
           </ProtectedRoute>
         ),
         handle: {

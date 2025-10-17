@@ -1,5 +1,6 @@
 import { api, TokenManager } from "./axiosInstance";
 
+import { KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI } from "@/config/config";
 import { useUserStore } from "@/stores/userStore";
 
 /**
@@ -30,35 +31,6 @@ export const requestLogin = async (formData) => {
     }
   } catch (error) {
     console.error("❌ 로그인 오류:", error);
-    throw error;
-  }
-};
-
-/**
- * 비활성화된 계정 재활성화 요청
- * @param {string} userId
- * @returns {Promise<{success: boolean, data?: object}>}
- */
-export const requestActivateAccount = async (userId) => {
-  try {
-    const response = await api.post(`/users/${userId}/activate`);
-
-    if (response.data.success) {
-      const { accessToken, refreshToken } = response.data.data;
-
-      // ✅ 토큰 저장
-      TokenManager.setTokens(accessToken, refreshToken);
-
-      // ✅ 사용자 정보 로드
-      const { loadUserFromToken } = useUserStore.getState();
-      loadUserFromToken?.();
-
-      return { success: true, data: response.data.data };
-    }
-
-    return { success: false, message: response.data.message };
-  } catch (error) {
-    console.error("❌ 계정 활성화 오류:", error);
     throw error;
   }
 };
@@ -133,6 +105,49 @@ export const resetPassword = async (email, verificationCode, newPassword) => {
     return response.data;
   } catch (error) {
     console.error("❌ 비밀번호 재설정 오류:", error);
+    throw error;
+  }
+};
+
+/* -------------------- 카카오 로그인 관련 -------------------- */
+
+/**
+ * 카카오 로그인 URL 생성
+ * @returns {string} 카카오 로그인 URL
+ */
+export const getKakaoLoginUrl = () => {
+  return `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+};
+
+/**
+ * 카카오 로그인 처리
+ * @param {string} code - 카카오 인가 코드
+ * @param {string} redirectUri - 리다이렉트 URI
+ * @returns {Promise<{success: boolean, data?: object, message?: string}>}
+ */
+export const requestKakaoLogin = async (code, redirectUri) => {
+  try {
+    const response = await api.post("/auth/kakao/login", {
+      code,
+      redirectUri,
+    });
+
+    if (response.data.success) {
+      const { data } = response.data;
+
+      // ✅ JWT 토큰 저장
+      TokenManager.setTokens(data.accessToken, data.refreshToken);
+
+      // ✅ 토큰에서 사용자 정보 로드하여 store에 저장
+      const { loadUserFromToken } = useUserStore.getState();
+      loadUserFromToken?.();
+
+      return { success: true, data };
+    } else {
+      return { success: false, message: response.data.message || "카카오 로그인에 실패했습니다." };
+    }
+  } catch (error) {
+    console.error("❌ 카카오 로그인 오류:", error);
     throw error;
   }
 };

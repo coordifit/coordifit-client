@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import styles from "./MainPage.module.css";
@@ -28,6 +28,10 @@ import coatIcon from "@/assets/images/mainpage/coat.png";
 import paddingIcon from "@/assets/images/mainpage/jumper.png";
 import sneakersIcon from "@/assets/images/mainpage/sneakers.png";
 import dressShoesIcon from "@/assets/images/mainpage/shoes.png";
+import sunnyIcon from "@/assets/images/mainpage/sunnyicon.png";
+import overcastIcon from "@/assets/images/mainpage/overcasticon.png";
+import rainyIcon from "@/assets/images/mainpage/rainyicon.png";
+import snowIcon from "@/assets/images/mainpage/snowicon.png";
 import snapFallback1 from "@/assets/images/mainpage/snap1.png";
 import snapFallback2 from "@/assets/images/mainpage/snap2.png";
 import snapFallback3 from "@/assets/images/mainpage/snap3.png";
@@ -41,6 +45,7 @@ import shoesImage from "@/assets/images/clothes/shoes1.png";
 
 import clothesService from "@/services/clothesService";
 import postService from "@/services/postService";
+import commonCodeService from "@/services/commonCodeService";
 
 const HERO_CARDS = [
   {
@@ -52,22 +57,22 @@ const HERO_CARDS = [
   },
   {
     id: "calendar",
-    title: "데일리코디로 완성하는, 나만의 스타일 캘린더",
-    subtitle: "코디 관리의 시작, 캘린더에 담는 순간부터.",
+    title: "코디 관리의 시작, 캘린더에 담는 순간부터.",
+    subtitle: "데일리코디로 완성하는, 나만의 스타일 캘린더",
     image: heroCalendar,
     destination: "/calendar",
   },
   {
     id: "snap",
-    title: "#데일리룩 #오오티디",
-    subtitle: "나만의 코디 스냅으로 기록하고 공유해요",
+    title: `<span style="color:#A7C7E7;">나만의 코디</span><br/><span style="color:#333333;">스냅으로 기록하고 공유해요</span>`,
+    subtitle: "#데일리룩 #오오티디",
     image: heroSnap,
     destination: "/snap",
   },
   {
     id: "ai",
-    title: "AI 가상 피팅으로 나만의 룩을 완성하세요.",
-    subtitle: "나만의 AI 스타일리스트",
+    title: "나만의<br/>AI 스타일리스트",
+    subtitle: "AI 가상 피팅으로 나만의 룩을 완성하세요.",
     image: heroAi,
     destination: "/ai-fitting",
   },
@@ -79,49 +84,60 @@ const CATEGORY_ROWS = [
       id: "shirts",
       label: "셔츠",
       image: shirtIcon,
-      categoryId: "top",
-      subCategoryId: "shirts",
-      keywords: ["셔츠"],
+      mainLabel: "상의",
+      subLabel: "셔츠",
+      fallbackMainId: "top",
+      fallbackSubId: "shirts",
     },
     {
       id: "polo",
       label: "카라티",
       image: poloIcon,
-      categoryId: "top",
-      subCategoryId: "polo",
-      keywords: ["카라티", "폴로"],
+      mainLabel: "상의",
+      subLabel: "카라티",
+      subLabelAlternatives: ["폴로"],
+      fallbackMainId: "top",
+      fallbackSubId: "polo",
     },
     {
       id: "short-sleeve",
       label: "반팔",
       image: shortSleeveIcon,
-      categoryId: "top",
-      subCategoryId: "short-sleeve",
-      keywords: ["반팔", "반팔티"],
+      mainLabel: "상의",
+      subLabel: "반팔",
+      subLabelAlternatives: ["반팔티"],
+      fallbackMainId: "top",
+      fallbackSubId: "short-sleeve",
     },
     {
       id: "long-sleeve",
       label: "긴팔",
       image: longSleeveIcon,
-      categoryId: "top",
-      subCategoryId: "long-sleeve",
-      keywords: ["긴팔", "긴팔티"],
+      mainLabel: "상의",
+      subLabel: "긴팔",
+      subLabelAlternatives: ["긴팔티"],
+      fallbackMainId: "top",
+      fallbackSubId: "long-sleeve",
     },
     {
       id: "hoodie",
       label: "후드",
       image: hoodieIcon,
-      categoryId: "top",
-      subCategoryId: "hoodie",
-      keywords: ["후드", "후드티"],
+      mainLabel: "상의",
+      subLabel: "후드",
+      subLabelAlternatives: ["후드티"],
+      fallbackMainId: "top",
+      fallbackSubId: "hoodie",
     },
     {
       id: "shorts",
       label: "반바지",
       image: shortsIcon,
-      categoryId: "bottom",
-      subCategoryId: "shorts",
-      keywords: ["반바지", "숏팬츠"],
+      mainLabel: "하의",
+      subLabel: "반바지",
+      subLabelAlternatives: ["숏팬츠"],
+      fallbackMainId: "bottom",
+      fallbackSubId: "shorts",
     },
   ],
   [
@@ -129,82 +145,70 @@ const CATEGORY_ROWS = [
       id: "jeans",
       label: "청바지",
       image: jeansIcon,
-      categoryId: "bottom",
-      subCategoryId: "jeans",
-      keywords: ["청바지", "데님"],
+      mainLabel: "하의",
+      subLabel: "청바지",
+      subLabelAlternatives: ["데님"],
+      fallbackMainId: "bottom",
+      fallbackSubId: "jeans",
     },
     {
       id: "skirt",
       label: "치마",
       image: skirtIcon,
-      categoryId: "bottom",
-      subCategoryId: "skirt",
-      keywords: ["치마", "스커트"],
+      mainLabel: "하의",
+      subLabel: "치마",
+      subLabelAlternatives: ["스커트"],
+      fallbackMainId: "bottom",
+      fallbackSubId: "skirt",
     },
     {
       id: "coat",
       label: "코트",
       image: coatIcon,
-      categoryId: "outer",
-      subCategoryId: "coat",
-      keywords: ["코트"],
+      mainLabel: "아우터",
+      subLabel: "코트",
+      fallbackMainId: "outer",
+      fallbackSubId: "coat",
     },
     {
       id: "padding",
       label: "패딩",
       image: paddingIcon,
-      categoryId: "outer",
-      subCategoryId: "padding",
-      keywords: ["패딩", "점퍼"],
+      mainLabel: "아우터",
+      subLabel: "패딩",
+      subLabelAlternatives: ["점퍼"],
+      fallbackMainId: "outer",
+      fallbackSubId: "padding",
     },
     {
       id: "sneakers",
       label: "스니커즈",
       image: sneakersIcon,
-      categoryId: "shoes",
-      subCategoryId: "sneakers",
-      keywords: ["스니커즈", "운동화"],
+      mainLabel: "신발",
+      subLabel: "스니커즈",
+      subLabelAlternatives: ["운동화"],
+      fallbackMainId: "shoes",
+      fallbackSubId: "sneakers",
     },
     {
       id: "dress-shoes",
       label: "구두",
       image: dressShoesIcon,
-      categoryId: "shoes",
-      subCategoryId: "dress-shoes",
-      keywords: ["구두", "로퍼"],
+      mainLabel: "신발",
+      subLabel: "구두",
+      subLabelAlternatives: ["로퍼"],
+      fallbackMainId: "shoes",
+      fallbackSubId: "dress-shoes",
     },
   ],
 ];
 
-const FALLBACK_CLOTHES = [
-  {
-    id: "fallback-1",
-    name: "옥스포드 셔츠",
-    brand: "유니클로",
-    price: 200000,
-    image: topImage1,
-  },
-  {
-    id: "fallback-2",
-    name: "레드 헤비 스웨터",
-    brand: "무신사 스탠다드",
-    price: 155700,
-    image: topImage2,
-  },
-  {
-    id: "fallback-3",
-    name: "롱 셔츠",
-    brand: "자라",
-    price: 123000,
-    image: outerImage,
-  },
-  {
-    id: "fallback-4",
-    name: "헤비 웨이트 후드",
-    brand: "커버낫",
-    price: 232000,
-    image: pantsImage,
-  },
+const RECENT_CATEGORY_TABS = [
+  { id: "top", label: "상의", fallbackMainId: "top" },
+  { id: "bottom", label: "하의", fallbackMainId: "bottom" },
+  { id: "shoes", label: "신발", fallbackMainId: "shoes" },
+  { id: "outer", label: "아우터", fallbackMainId: "outer" },
+  { id: "fashion-item", label: "패션소품", fallbackMainId: "fashion-item" },
 ];
 const SNAP_FALLBACKS = [snapFallback1, snapFallback2, snapFallback3, snapFallback4];
 const PLACEHOLDER_LIKES = [428, 356, 512, 289, 643, 398];
@@ -216,34 +220,14 @@ const SNAP_FALLBACK_DATA = SNAP_FALLBACKS.map((image, index) => ({
   likes: PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
 }));
 
-const getSearchableValue = (item) =>
-  [item.categoryName, item.subCategoryName, item.categoryCode, item.categoryId, item.description]
-    .filter(Boolean)
-    .join("|")
-    .toLowerCase();
-
-const filterClothesByKeywords = (items, keywords = []) => {
-  if (!keywords.length) {
-    return items;
-  }
-
-  const normalizedKeywords = keywords.map((keyword) => keyword.toLowerCase());
-  return items.filter((item) => {
-    const haystack = getSearchableValue(item);
-    if (!haystack) {
-      return false;
-    }
-
-    return normalizedKeywords.some((keyword) => haystack.includes(keyword));
-  });
-};
-
 const CALENDAR_DAYS = [
   {
     id: "2025-01-23",
     day: "Tue",
     date: 23,
     weather: "overcast",
+    weatherLabel: "흐림",
+    weatherIcon: overcastIcon,
     temperature: "17°",
     outfitImage: topImage1,
   },
@@ -252,6 +236,8 @@ const CALENDAR_DAYS = [
     day: "Wed",
     date: 24,
     weather: "sunny",
+    weatherLabel: "맑음",
+    weatherIcon: sunnyIcon,
     temperature: "20°",
     outfitImage: topImage2,
   },
@@ -260,6 +246,8 @@ const CALENDAR_DAYS = [
     day: "Thu",
     date: 25,
     weather: "sunny",
+    weatherLabel: "맑음",
+    weatherIcon: sunnyIcon,
     temperature: "20°",
     outfitImage: outerImage,
   },
@@ -267,7 +255,9 @@ const CALENDAR_DAYS = [
     id: "2025-01-26",
     day: "Fri",
     date: 26,
-    weather: "sunny",
+    weather: "snow",
+    weatherLabel: "눈",
+    weatherIcon: snowIcon,
     temperature: "22°",
     outfitImage: shoesImage,
   },
@@ -275,28 +265,42 @@ const CALENDAR_DAYS = [
     id: "2025-01-27",
     day: "Sat",
     date: 27,
+    weather: "rainy",
+    weatherLabel: "비",
+    weatherIcon: rainyIcon,
+    temperature: "18°",
+    outfitImage: pantsImage,
+  },
+  {
+    id: "2025-01-28",
+    day: "Sun",
+    date: 28,
     weather: "add",
+    weatherLabel: "추가",
+    weatherIcon: null,
     temperature: null,
     outfitImage: null,
   },
 ];
 
-const weatherLabel = {
-  sunny: "☀️",
-  overcast: "⛅",
-  add: "＋",
-};
-
 const MainPage = () => {
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState(CATEGORY_ROWS[0][0]);
   const [isLoadingClothes, setIsLoadingClothes] = useState(true);
   const [rawClothes, setRawClothes] = useState([]);
-  const [clothes, setClothes] = useState([]);
   const [clothesError, setClothesError] = useState(null);
   const [isLoadingSnaps, setIsLoadingSnaps] = useState(false);
   const [snapError, setSnapError] = useState(null);
   const [snaps, setSnaps] = useState([]);
+  const [activeRecentTab, setActiveRecentTab] = useState(RECENT_CATEGORY_TABS[0].id);
+  const [categoryError, setCategoryError] = useState(null);
+  const [categoryMappings, setCategoryMappings] = useState({
+    mainByName: {},
+    mainNameByCode: {},
+    subByName: {},
+    subToMain: {},
+  });
+  const scrollRef = useRef(null);
+  const [activeCalendarIndex, setActiveCalendarIndex] = useState(1);
 
   const handleHeroClick = useCallback(
     (destination) => {
@@ -311,6 +315,58 @@ const MainPage = () => {
     },
     [navigate],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCategories = async () => {
+      setCategoryError(null);
+
+      try {
+        const categoryData = await commonCodeService.getCategoryData();
+
+        if (cancelled) {
+          return;
+        }
+
+        const mainByName = {};
+        const mainNameByCode = {};
+        const subByName = {};
+        const subToMain = {};
+
+        categoryData.mainCategories
+          .filter((category) => category.codeId !== "all")
+          .forEach((category) => {
+            mainByName[category.codeName] = category.codeId;
+            mainNameByCode[category.codeId] = category.codeName;
+          });
+
+        Object.entries(categoryData.subCategoriesMap).forEach(([mainCode, subs]) => {
+          subs
+            .filter((sub) => sub.codeId !== "all")
+            .forEach((sub) => {
+              subByName[sub.codeName] = sub.codeId;
+              subToMain[sub.codeId] = mainCode;
+            });
+        });
+
+        setCategoryMappings({ mainByName, mainNameByCode, subByName, subToMain });
+      } catch (error) {
+        if (!cancelled) {
+          console.error("카테고리 데이터 조회 실패", error);
+          setCategoryError("카테고리 정보를 불러오지 못했습니다.");
+        }
+      } finally {
+        // no-op
+      }
+    };
+
+    fetchCategories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -331,7 +387,6 @@ const MainPage = () => {
 
         if (!items.length) {
           setRawClothes([]);
-          setClothes([]);
           return;
         }
 
@@ -344,8 +399,10 @@ const MainPage = () => {
           categoryName: item.categoryName || "",
           subCategoryName: item.subCategoryName || "",
           categoryCode: item.categoryCode || "",
+          mainCategoryCode: item.mainCategoryCode || "",
+          subCategoryCode: item.subCategoryCode || item.categoryCode || "",
           description: item.description || "",
-          image: item.imageUrl || FALLBACK_CLOTHES[index % FALLBACK_CLOTHES.length].image,
+          image: item.imageUrl || "",
         }));
 
         setRawClothes(adapted);
@@ -353,7 +410,6 @@ const MainPage = () => {
         if (!cancelled) {
           console.error("최근 착용한 옷 조회 실패", error);
           setRawClothes([]);
-          setClothes([]);
           setClothesError("옷 정보를 불러오지 못했습니다.");
         }
       } finally {
@@ -369,29 +425,45 @@ const MainPage = () => {
       cancelled = true;
     };
   }, []);
-
+  // ✅ 스크롤 기반 중앙 카드 확대 효과
   useEffect(() => {
-    if (isLoadingClothes) {
-      return;
-    }
+    const container = scrollRef.current;
+    if (!container) return;
 
-    const filtered = filterClothesByKeywords(rawClothes, activeFilter.keywords);
+    const handleScroll = () => {
+      const cards = container.querySelectorAll(`.${styles.calendarCard}`);
+      const containerRect = container.getBoundingClientRect();
+      const centerX = containerRect.left + containerRect.width / 2;
 
-    if (filtered.length) {
-      setClothes(filtered.slice(0, 4));
-      setClothesError(null);
-      return;
-    }
+      let closestIndex = 0;
+      let closestDistance = Infinity;
 
-    if (rawClothes.length) {
-      setClothes(rawClothes.slice(0, 4));
-      setClothesError(null);
-      return;
-    }
+      cards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(centerX - cardCenter);
 
-    setClothes([]);
-  }, [activeFilter, isLoadingClothes, rawClothes]);
+        const scale = Math.max(0.9, 1.0 - distance / 500);
+        const opacity = Math.max(0.6, 1.1 - distance / 400);
+        card.style.transform = `scale(${scale})`;
+        card.style.opacity = opacity;
+        card.style.transformOrigin = "center bottom";
+        card.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
 
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      setActiveCalendarIndex(closestIndex);
+    };
+
+    handleScroll();
+    container.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
   useEffect(() => {
     let cancelled = false;
 
@@ -452,30 +524,149 @@ const MainPage = () => {
     };
   }, []);
 
-  const handleFilterClick = useCallback((filter) => {
-    setActiveFilter(filter);
-  }, []);
+  const clothesWithMainCategory = useMemo(() => {
+    if (!rawClothes.length) {
+      return [];
+    }
+
+    return rawClothes.map((item) => {
+      const subCode = item.subCategoryCode || "";
+      const subName = item.subCategoryName || "";
+      const mainName = item.categoryName || "";
+
+      const derivedMainCode =
+        item.mainCategoryCode ||
+        categoryMappings.subToMain[subCode] ||
+        (mainName && categoryMappings.mainByName[mainName]) ||
+        (subName && categoryMappings.subByName[subName]
+          ? categoryMappings.subToMain[categoryMappings.subByName[subName]]
+          : "");
+
+      const derivedMainName =
+        categoryMappings.mainNameByCode[derivedMainCode] ||
+        mainName ||
+        (derivedMainCode && categoryMappings.mainNameByCode[derivedMainCode]) ||
+        "";
+
+      return {
+        ...item,
+        mainCategoryCode: derivedMainCode,
+        mainCategoryName: derivedMainName,
+      };
+    });
+  }, [rawClothes, categoryMappings]);
+
+  const activeRecentTabConfig = useMemo(
+    () => RECENT_CATEGORY_TABS.find((tab) => tab.id === activeRecentTab) || RECENT_CATEGORY_TABS[0],
+    [activeRecentTab],
+  );
+
+  const filteredRecentClothes = useMemo(() => {
+    if (!clothesWithMainCategory.length) {
+      return [];
+    }
+
+    const desiredMainLabel = activeRecentTabConfig.label;
+    const fallbackMainId = activeRecentTabConfig.fallbackMainId;
+    const desiredMainCode = categoryMappings.mainByName[desiredMainLabel] || fallbackMainId;
+
+    return clothesWithMainCategory
+      .filter((item) => {
+        const itemMainCode =
+          item.mainCategoryCode ||
+          (item.mainCategoryName && categoryMappings.mainByName[item.mainCategoryName]) ||
+          (item.categoryName && categoryMappings.mainByName[item.categoryName]) ||
+          "";
+
+        if (itemMainCode && desiredMainCode && itemMainCode === desiredMainCode) {
+          return true;
+        }
+
+        const itemMainName =
+          item.mainCategoryName ||
+          item.categoryName ||
+          categoryMappings.mainNameByCode[itemMainCode] ||
+          "";
+
+        if (itemMainName && itemMainName === desiredMainLabel) {
+          return true;
+        }
+
+        const fallbackCandidates = [
+          item.subCategoryName,
+          item.categoryName,
+          item.categoryCode,
+          item.subCategoryCode,
+        ]
+          .filter(Boolean)
+          .map((value) => value.toString().toLowerCase());
+
+        return fallbackCandidates.some((value) => value.includes(fallbackMainId));
+      })
+      .slice(0, 4);
+  }, [
+    activeRecentTabConfig,
+    categoryMappings.mainByName,
+    categoryMappings.mainNameByCode,
+    clothesWithMainCategory,
+  ]);
 
   const formattedClothes = useMemo(
     () =>
-      clothes.map((item) => ({
+      filteredRecentClothes.map((item) => ({
         ...item,
         priceLabel:
-          typeof item.price === "number" ? item.price.toLocaleString() : (item.price ?? ""),
+          typeof item.price === "number" ? `${item.price.toLocaleString()}원` : (item.price ?? ""),
       })),
-    [clothes],
+    [filteredRecentClothes],
   );
 
   const displaySnaps = useMemo(() => (snaps.length ? snaps : SNAP_FALLBACK_DATA), [snaps]);
   const canNavigateSnap = snaps.length > 0;
 
+  const resolveShortcutCodes = useCallback(
+    (shortcut) => {
+      const mainCode = categoryMappings.mainByName[shortcut.mainLabel] || shortcut.fallbackMainId;
+      const subCode = [shortcut.subLabel, ...(shortcut.subLabelAlternatives || [])]
+        .map((name) => categoryMappings.subByName[name])
+        .find(Boolean);
+
+      return {
+        mainCode,
+        subCode: subCode || shortcut.fallbackSubId,
+      };
+    },
+    [categoryMappings.mainByName, categoryMappings.subByName],
+  );
+
+  const handleCategoryShortcut = useCallback(
+    (shortcut) => {
+      const { mainCode, subCode } = resolveShortcutCodes(shortcut);
+
+      navigate("/closet", {
+        state: {
+          mainCategoryId: mainCode,
+          subCategoryId: subCode,
+          mainCategoryName: shortcut.mainLabel,
+          subCategoryName: shortcut.subLabel,
+          fallbackMainId: shortcut.fallbackMainId,
+          fallbackSubId: shortcut.fallbackSubId,
+        },
+      });
+    },
+    [navigate, resolveShortcutCodes],
+  );
+
   return (
     <div className={styles.page}>
       <div className={styles.topHero}>
         <header className={styles.appHeader}>
-          <div>
-            <p className={styles.brand}>CoordiFit</p>
-            <p className={styles.weatherInfo}>오늘의 날씨 24°</p>
+          <div className={styles.brandGroup}>
+            <p className={styles.brandLogo}>CoordiFit</p>
+            <div className={styles.weatherInline}>
+              <img src={sunnyIcon} alt="맑음" className={styles.weatherIcon} />
+              <span className={styles.temperature}>24°</span>
+            </div>
           </div>
           <button
             type="button"
@@ -483,7 +674,7 @@ const MainPage = () => {
             onClick={() => navigate("/mypage")}
             aria-label="마이페이지로 이동"
           >
-            <img src={userIcon} alt="" />
+            <img src={userIcon} alt="프로필 아이콘" />
           </button>
         </header>
         <div className={styles.heroCarousel}>
@@ -491,13 +682,23 @@ const MainPage = () => {
             <button
               key={card.id}
               type="button"
-              className={styles.heroCard}
+              className={`${styles.heroCard} ${card.id === "snap" ? styles.snapHeroCard : ""}`}
               onClick={() => handleHeroClick(card.destination)}
             >
-              <img src={card.image} alt={`${card.subtitle} 배너`} className={styles.heroImage} />
+              <img
+                src={card.image}
+                alt={`${card.subtitle} 배너`}
+                className={styles.heroImage}
+                style={card.id === "snap" ? { opacity: 0.6 } : undefined}
+              />{" "}
               <div className={styles.heroTextBox}>
+                <h2
+                  className={styles.heroTitle}
+                  dangerouslySetInnerHTML={{
+                    __html: card.title.replace(/,\s*/g, ",<br />"),
+                  }}
+                />
                 <p className={styles.heroSubtitle}>{card.subtitle}</p>
-                <h2 className={styles.heroTitle}>{card.title}</h2>
               </div>
             </button>
           ))}
@@ -507,8 +708,8 @@ const MainPage = () => {
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
-            <img src={closetIcon} alt="옷장" />
             <h2>나의 옷장</h2>
+            <img src={closetIcon} alt="옷장" />
           </div>
           <button
             type="button"
@@ -523,58 +724,68 @@ const MainPage = () => {
           {CATEGORY_ROWS.map((row) => (
             <div className={styles.categoryRow} key={row.map((item) => item.id).join("-")}>
               {row.map((filter) => (
-                <button
-                  key={filter.id}
-                  type="button"
-                  className={
-                    filter.id === activeFilter.id
-                      ? `${styles.categoryButton} ${styles.activeCategory}`
-                      : styles.categoryButton
-                  }
-                  onClick={() => handleFilterClick(filter)}
-                  aria-pressed={filter.id === activeFilter.id}
-                >
-                  <img src={filter.image} alt={`${filter.label} 아이콘`} />
-                  <span>{filter.label}</span>
-                </button>
+                <div key={filter.id} className={styles.categoryItem}>
+                  <button
+                    type="button"
+                    className={styles.categoryButton}
+                    onClick={() => handleCategoryShortcut(filter)}
+                    aria-label={`${filter.label} 카테고리 보러가기`}
+                  >
+                    <div className={styles.categoryImageBox}>
+                      <img src={filter.image} alt={filter.label} className={styles.categoryImage} />
+                    </div>
+                  </button>
+                  <span className={styles.categoryLabel}>{filter.label}</span>
+                </div>
               ))}
             </div>
           ))}
         </div>
       </section>
 
+      {/* ✅ 코디 캘린더 */}
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
-            <img src={calendarIcon} alt="캘린더" />
             <h2>코디 캘린더</h2>
+            <img src={calendarIcon} alt="캘린더" />
           </div>
           <button
             type="button"
             className={styles.sectionLink}
-            onClick={() => handleSectionNavigate("/calendar")}
+            onClick={() => navigate("/calendar")}
           >
             달력 보기
           </button>
         </header>
-        <div className={styles.calendarScroller}>
-          {CALENDAR_DAYS.map((day) => (
-            <div className={styles.calendarCard} key={day.id}>
+
+        <div ref={scrollRef} className={styles.calendarScroller}>
+          {CALENDAR_DAYS.map((day, index) => (
+            <div
+              key={day.id}
+              className={`${styles.calendarCard} ${
+                index === activeCalendarIndex ? styles.activeCalendarCard : ""
+              }`}
+            >
               <div className={styles.calendarCardHeader}>
                 <div>
                   <span className={styles.calendarDay}>{day.day}</span>
                   <span className={styles.calendarDate}>{day.date}</span>
                 </div>
                 <div className={styles.calendarWeather}>
-                  <span>{weatherLabel[day.weather]}</span>
-                  {day.temperature && (
-                    <span className={styles.calendarTemp}>{day.temperature}</span>
+                  {day.weatherIcon && (
+                    <img
+                      src={day.weatherIcon}
+                      alt={`${day.weatherLabel} 아이콘`}
+                      className={styles.calendarWeatherIcon}
+                    />
                   )}
+                  <span className={styles.calendarTemp}>{day.temperature}</span>
                 </div>
               </div>
               <div className={styles.calendarCardBody}>
                 {day.outfitImage ? (
-                  <img src={day.outfitImage} alt={`${day.date}일 코디 미리보기`} />
+                  <img src={day.outfitImage} alt={`${day.date}일 코디`} />
                 ) : (
                   <img src={calendarPlus} alt="코디 추가하기" className={styles.calendarAdd} />
                 )}
@@ -587,24 +798,39 @@ const MainPage = () => {
       <section className={`${styles.section} ${styles.aiSection}`}>
         <header className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
-            <img src={aiIcon} alt="AI" />
             <h2>AI 옷 입히기</h2>
+            <img src={aiIcon} alt="AI" />
           </div>
         </header>
+
         <button
           type="button"
           className={styles.aiBannerButton}
           onClick={() => handleSectionNavigate("/ai-fitting")}
+          style={{ backgroundImage: `url(${aiBanner})` }}
         >
-          <img src={aiBanner} alt="AI 피팅 배너" />
+          <div className={styles.aiBannerOverlay} aria-hidden="true" />
+
+          {/* 내부 배너 컨텐츠 */}
+          <div className={styles.aiBannerContent}>
+            <p className={styles.aiBannerHeadline}>
+              <strong className={styles.aiHighlight}>AI </strong>
+              <span>피팅으로 완벽한 스타일을 찾아보세요.</span>
+            </p>
+
+            <div className={styles.aiBannerActionWrapper}>
+              <span className={styles.aiBannerAction}>+ 가상 피팅하기</span>
+            </div>
+          </div>
         </button>
       </section>
 
+      {/* ✅ 최근에 착용한 옷 섹션 */}
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
-            <img src={lastWornIcon} alt="최근 착용" />
             <h2>최근에 착용한 옷</h2>
+            <img src={lastWornIcon} alt="최근 착용" />
           </div>
           <button
             type="button"
@@ -614,10 +840,36 @@ const MainPage = () => {
             옷장 가기
           </button>
         </header>
+
+        {categoryError && <p className={styles.errorText}>{categoryError}</p>}
+
+        {/* ✅ 좌우 여백 제거용 래퍼 */}
+        <div className={styles.recentTabsWrapper}>
+          <div className={styles.recentTabs} role="tablist" aria-label="최근에 착용한 옷 카테고리">
+            {RECENT_CATEGORY_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                className={
+                  tab.id === activeRecentTab
+                    ? `${styles.recentTab} ${styles.activeRecentTab}`
+                    : styles.recentTab
+                }
+                onClick={() => setActiveRecentTab(tab.id)}
+                aria-pressed={tab.id === activeRecentTab}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 아래 옷 리스트 영역 */}
+
         {clothesError && <p className={styles.errorText}>{clothesError}</p>}
         <div className={styles.clothesGrid}>
           {isLoadingClothes
-            ? Array.from({ length: 4 }).map((_, index) => (
+            ? Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={`skeleton-${index}`}
                   className={`${styles.clothesCard} ${styles.skeleton}`}
@@ -627,26 +879,23 @@ const MainPage = () => {
               ? formattedClothes.map((item) => (
                   <div className={styles.clothesCard} key={item.id}>
                     <div className={styles.clothesImageWrapper}>
-                      <img src={item.image} alt={`${item.name} 이미지`} />
+                      {item.image ? (
+                        <img src={item.image} alt={`${item.name} 이미지`} />
+                      ) : (
+                        <span className={styles.imagePlaceholder}>이미지 없음</span>
+                      )}
                     </div>
                     <div className={styles.clothesMeta}>
-                      <span className={styles.brand}>{item.brand}</span>
-                      <strong className={styles.clothesName}>{item.name}</strong>
+                      <span className={styles.brand}>{item.brand || "브랜드 미입력"}</span>
+                      <strong className={styles.clothesName}>{item.name || "이름 없음"}</strong>
                       {item.priceLabel && <span className={styles.price}>{item.priceLabel}</span>}
                     </div>
                   </div>
                 ))
               : !clothesError && (
-                  <div
-                    style={{
-                      gridColumn: "1 / -1",
-                      textAlign: "center",
-                      padding: "40px 0",
-                      color: "#999",
-                    }}
-                  >
-                    <p>등록된 옷이 없습니다.</p>
-                    <p>옷장에서 새로운 옷을 등록해보세요!</p>
+                  <div className={styles.emptyState}>
+                    <p>선택한 카테고리에 등록된 옷이 없습니다.</p>
+                    <p>옷장에서 새로운 아이템을 추가해보세요!</p>
                   </div>
                 )}
         </div>
@@ -655,8 +904,8 @@ const MainPage = () => {
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
-            <img src={snapIcon} alt="스냅" />
             <h2>실시간 인기 스냅</h2>
+            <img src={snapIcon} alt="스냅" />
           </div>
           <button
             type="button"

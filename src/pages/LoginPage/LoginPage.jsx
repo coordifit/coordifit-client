@@ -1,14 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUserStore } from "../../stores/userStore";
 import Modal from "../../components/Modal/Modal";
-import { requestLogin, requestActivateAccount } from "../../services/authService";
+import { requestLogin, getKakaoLoginUrl, requestKakaoLogin } from "../../services/authService";
+import userService from "@/services/userService";
+import { KAKAO_REDIRECT_URI } from "@/config/config";
 
 import kakaobutton from "@/assets/images/kakaobutton.png";
 import styles from "./LoginPage.module.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { loadUserFromToken } = useUserStore();
   const [formData, setFormData] = useState({
     email: "",
@@ -79,7 +82,7 @@ const Login = () => {
     try {
       setIsLoading(true);
       // ✅ 서비스 모듈 호출로 교체
-      const response = await requestActivateAccount(deactivatedUserId);
+      const response = await userService.activateAccount(deactivatedUserId);
       if (response.success) {
         // 모달 닫기
         setActivateModalOpen(false);
@@ -98,6 +101,55 @@ const Login = () => {
   const handleCloseActivateModal = () => {
     setActivateModalOpen(false);
     setDeactivatedUserId("");
+  };
+
+  useEffect(() => {
+    const handleKakaoCallback = async () => {
+      const code = searchParams.get("code");
+      const errorParam = searchParams.get("error");
+
+      if (!code && !errorParam) return;
+
+      setIsLoading(true);
+      setError("");
+
+      if (errorParam) {
+        console.error("카카오 로그인 오류:", errorParam);
+        setError("카카오 로그인이 취소되었습니다.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await requestKakaoLogin(code, KAKAO_REDIRECT_URI);
+
+        if (response.success) {
+          console.log("카카오 로그인 성공:", response.data);
+          navigate("/main");
+        } else {
+          setError(response.message || "카카오 로그인에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("카카오 로그인 처리 중 오류:", error);
+
+        if (error.response?.status === 403 && !error.response?.data?.data?.isActive) {
+          setDeactivatedUserId(error.response.data.data.userId);
+          setActivateModalOpen(true);
+          setError("");
+        } else {
+          setError(error.response?.data?.message || "카카오 로그인 처리 중 오류가 발생했습니다.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleKakaoCallback();
+  }, [searchParams, navigate]);
+
+  const handleKakaoLogin = () => {
+    const kakaoLoginUrl = getKakaoLoginUrl();
+    window.location.href = kakaoLoginUrl;
   };
 
   return (
@@ -151,7 +203,7 @@ const Login = () => {
           </button>
         </div>
 
-        <button type="button" className={styles.kakaoButton} onClick={() => navigate("/main")}>
+        <button type="button" className={styles.kakaoButton} onClick={handleKakaoLogin}>
           <img src={kakaobutton} alt="카카오로 시작하기" />
         </button>
       </form>

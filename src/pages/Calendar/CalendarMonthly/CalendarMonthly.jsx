@@ -1,11 +1,11 @@
 import { useDailyLooksByMonthQuery } from "@/hooks/useDailyLookQuery";
-import { useClothesStore } from "@/store/clothesStore";
 import { formatDate, formatYearMonth } from "@/utils/calendarUtils";
 import Calendar from "react-calendar";
 import { useNavigate } from "react-router-dom";
 
 import styles from "./CalendarMonthly.module.css";
 import classNames from "classnames/bind";
+import { useClothesStore } from "@/stores/clothesStore";
 
 const cx = classNames.bind(styles);
 

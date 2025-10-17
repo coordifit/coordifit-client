@@ -6,10 +6,14 @@ import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
 import emptyImage from "@/assets/images/empty_image.png";
 
 import classNames from "classnames/bind";
+import { deleteDailyLookByDate } from "@/services/dailyLookApi";
+import { useQueryClient } from "@tanstack/react-query";
+import { formatDate } from "@/utils/calendarUtils";
 
 const cx = classNames.bind(styles);
 
 const CalendarDetail = () => {
+  const queryClient = useQueryClient();
   const { date } = useParams();
   const navigate = useNavigate();
 
@@ -23,9 +27,17 @@ const CalendarDetail = () => {
     navigate("editor");
   };
   const handleDeleteClick = async () => {
-    if (!dailyLook?.data?.id) {
+    if (!dailyLook) {
       alert("삭제할 데일리룩이 없습니다.");
       return;
+    } else {
+      await deleteDailyLookByDate(date);
+
+      queryClient.invalidateQueries(["dailyLook", date]);
+      queryClient.invalidateQueries(["dailyLooks", formatDate(new Date(date))]);
+
+      alert("삭제가 완료되었습니다.");
+      navigate("/calendar");
     }
   };
 

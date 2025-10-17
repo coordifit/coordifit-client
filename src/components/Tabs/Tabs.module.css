@@ -1,26 +1,41 @@
 .tabs {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    background: #f3f3f3;
-    border-radius: 12px;
-    padding: 4px;
-    gap: 4px;
-    margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 120px; /* 아이콘 간격 */
+  padding-top: 12px;
 }
+
+.tabWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .tab {
-    border: none;
-    border-radius: 10px;
-    background: transparent;
-    padding: 10px 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: #777;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
 }
-.tab:active {
-    transform: translateY(1px);
+
+.icon {
+  width: 24px;
+  height: 24px;
 }
-.tab.active {
-    background: #ffffff;
-    color: #222;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+/* 기본 밑줄 (비활성 상태는 투명) */
+.underline {
+  width: 50px;
+  height: 2px;
+  background: transparent;
+  transition: background-color 0.3s ease;
+}
+
+/* 활성 탭일 때 밑줄 표시 */
+.activeUnderline {
+  background: #000;
 }

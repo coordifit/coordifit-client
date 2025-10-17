@@ -18,7 +18,7 @@
 .profile-section {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 30px;
 }
 .button-container {
   display: grid;
@@ -26,7 +26,7 @@
   gap: 16px;
 }
 .profile-image {
-  width: 80px;
+  width: 75px;
   aspect-ratio: 1;
   border-radius: 999px;
   overflow: hidden;
@@ -44,8 +44,8 @@
   flex: 1;
 }
 .nickname {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 500;
   margin: 0;
 }
 .bio {
@@ -59,6 +59,7 @@
   padding: 8px 16px;
   background: white;
   color: #333;
+  font-family: "Pretendard-variable", sans-serif;
   font-size: 14px;
   font-weight: 500;
   align-self: center;
@@ -71,11 +72,11 @@
 }
 
 .follow-button {
-  border: 1px solid #007bff;
+  border: 1px solid #333333;
   border-radius: 8px;
   padding: 8px 16px;
-  background: #007bff;
-  color: white;
+  background: #333333;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 500;
   align-self: center;
@@ -84,22 +85,28 @@
   min-width: 80px;
 }
 
+/* hover 시 약간 밝게 */
 .follow-button:hover {
-  background-color: #0056b3;
+  background-color: #4a4a4a;
 }
 
+/* 비활성화 상태 */
 .follow-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* ✅ 팔로잉 상태 스타일 */
 .follow-button.following {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: #ffffff;
+  border-color: #333333;
+  color: #333333;
 }
 
+/* hover 시 테두리 진하게 */
 .follow-button.following:hover {
-  background-color: #5a6268;
+  background-color: #f7f7f7;
+  border-color: #000000;
 }
 
 /* 팔로워/팔로잉 목록 바텀시트 */
@@ -156,8 +163,8 @@
 
 .metrics {
   display: flex;
-  justify-content: space-around;
-  gap: 0;
+  justify-content: flex-start;
+  gap: 40px;
 }
 .metrics button {
   border: none;
@@ -168,31 +175,31 @@
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #555;
+  color: #6b7280;
   font-weight: 500;
   cursor: pointer;
 }
 .metrics strong {
-  font-size: 18px;
+  font-size: 16px;
   color: #222;
   font-weight: 700;
 }
 .gallery {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   position: relative;
 }
 .image-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  margin-left: -12px;
+  margin-right: -12px;
 }
 .image-card {
   background: #f6f6f6;
-  border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 1;
+  border: #d9d9d9 1px solid;
 }
 .image-card img {
   width: 100%;
@@ -232,8 +239,8 @@
   position: absolute; /* .app 컨테이너 기준으로 위치 설정 */
   bottom: 89px; /* BottomNav 높이(79px) + 여백(10px) */
   right: 10px; /* 우측에서 20px 안쪽에 배치 */
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #333;
   border: none;

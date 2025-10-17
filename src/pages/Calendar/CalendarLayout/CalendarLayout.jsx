@@ -8,13 +8,12 @@ import CalendarHeader from "@calendar/CalendarHeader/CalendarHeader";
 import DatePicker from "@calendar/DatePicker/DatePicker";
 import ViewMode from "@calendar/ViewMode/ViewMode";
 
-import { useClothesStore } from "@/store/clothesStore";
-
 import { formatDate, formatYearMonth } from "@/utils/calendarUtils";
 import styles from "./CalendarLayout.module.css";
 import "react-calendar/dist/Calendar.css";
 import { IoMdArrowDropdown } from "react-icons/io";
 import Weather from "../Weather/Weather";
+import { useClothesStore } from "@/stores/clothesStore";
 
 const cx = classNames.bind(styles);
 

@@ -8,7 +8,7 @@ import Header from "@/components/Layout/Header/Header";
 import Modal from "@/components/Modal/Modal";
 
 import styles from "./Layout.module.css";
-import { useClothesStore } from "@/store/clothesStore";
+import { useClothesStore } from "@/stores/clothesStore";
 
 const cn = classNames.bind(styles);
 

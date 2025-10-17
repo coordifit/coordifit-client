@@ -32,7 +32,6 @@ const SnapPage = () => {
     loadPosts();
   }, []);
 
-  // 게시물 클릭 처리
   const handlePostClick = (postId) => {
     navigate(`/snap/${postId}`);
   };

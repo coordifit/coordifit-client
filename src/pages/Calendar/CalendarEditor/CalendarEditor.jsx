@@ -6,7 +6,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import cn from "classnames";
 
 import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
-import { useClothesStore } from "@/store/clothesStore";
 import { api } from "@/services/axiosInstance";
 
 import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
@@ -16,6 +15,7 @@ import ClosetModal from "../ClosetModal/ClosetModal";
 import styles from "./CalendarEditor.module.css";
 import { CANVAS_CONFIG } from "@/constants/calendar";
 import { CATEGORIES } from "@/constants/category";
+import { useClothesStore } from "@/stores/clothesStore";
 
 const CalendarEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");

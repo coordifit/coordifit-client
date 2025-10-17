@@ -64,6 +64,7 @@
 .closetCard {
   display: flex;
   flex-direction: column;
+  height: 150px;
   gap: 6px;
   border: 1px solid #eee;
   border-radius: 12px;
@@ -189,4 +190,199 @@
   cursor: not-allowed;
   position: relative;
   opacity: 0.5;
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.categoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.categoryMainList {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.categoryButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 15px;
+  height: 30px;
+  border-radius: 10px;
+  border: none;
+  background: #ffffff;
+  color: #a6a6a6;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.activeCategory {
+  background: #333;
+  color: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.subCategoryList {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px 0;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.subCategoryButton {
+  border: none;
+  background: transparent;
+  padding: 8px 10px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d5d5d5;
+  white-space: nowrap;
+}
+
+.activeSubCategory {
+  color: #333;
+  border-bottom: 1px solid #000;
+}
+
+.categoryPanel {
+  position: fixed;
+  top: 88px;
+  right: 12px;
+  width: 220px;
+  max-height: calc(100vh - 140px);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 20;
+}
+
+.categoryPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.categoryPanelTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+}
+
+.categoryPanelClose {
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.categoryPanelBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.categoryPanelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.categoryPanelMain {
+  border: none;
+  background: #f3f3f3;
+  border-radius: 14px;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
+}
+
+.categoryPanelSubList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.categoryPanelSub {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #fff;
+  color: #666;
+}
+
+.activePanelSub {
+  border-color: #111;
+  color: #111;
+  font-weight: 600;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 0px 0px 12px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d5d5d5;
+  position: relative;
+  cursor: pointer;
+}
+
+.tabButton + .tabButton::before {
+  content: "";
+  position: absolute;
+  top: 0; /* 가로선과 밀착 */
+  bottom: 0; /* 세로선이 가득 차도록 */
+  left: 0;
+  width: 1px;
+  background: #e6eaec;
+}
+
+.tabButton::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
+}
+
+.activeTab {
+  color: #333;
+  font-size: 17px;
+}
+
+.tabBar {
+  display: flex;
+  border-bottom: 1px solid #e6eaec;
+  position: relative;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
 }

@@ -15,6 +15,7 @@ import ClosetModal from "../ClosetModal/ClosetModal";
 
 import styles from "./CalendarEditor.module.css";
 import { CANVAS_CONFIG } from "@/constants/calendar";
+import { CATEGORIES } from "@/constants/category";
 
 const CalendarEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -41,34 +42,34 @@ const CalendarEditor = () => {
     }
   }, [dailyLook]);
 
-  const getDefaultPlacement = (category) => {
+  const getDefaultPlacement = (categoryCode) => {
     const centerX = CANVAS_CONFIG.WIDTH / 2;
     const centerY = CANVAS_CONFIG.HEIGHT / 2;
+    const parentCategory = CATEGORIES[categoryCode].parent;
 
     const map = {
-      top: { x: centerX - 80, y: centerY - 220, scale: 0.5 },
-      outer: { x: centerX - 200, y: centerY - 120, scale: 0.5 },
-
-      bottom: { x: centerX - 80, y: centerY - 30, scale: 0.5 },
-      shoes: { x: centerX - 40, y: centerY + 70, scale: 0.4 },
-      default: { x: centerX - 150, y: centerY + 80, scale: 0.3 },
+      B20001: { x: centerX - 80, y: centerY - 220, scale: 0.5 },
+      B20004: { x: centerX - 200, y: centerY - 120, scale: 0.5 },
+      B20002: { x: centerX - 80, y: centerY - 30, scale: 0.5 },
+      B20003: { x: centerX - 40, y: centerY + 70, scale: 0.4 },
+      B20005: { x: centerX - 150, y: centerY + 80, scale: 0.3 },
     };
 
-    return map[category] ?? map.default;
+    return map[parentCategory] ?? map.B20005;
   };
 
   const addToCanvas = (item) => {
     const pos =
       item?.x != null && item?.y != null
         ? { x: item.x, y: item.y, scale: item.scaleX ?? 0.5 }
-        : getDefaultPlacement(item.category);
+        : getDefaultPlacement(item.categoryCode);
 
     const obj = {
-      instanceId: `${item.id}-${Date.now()}`,
-      id: item.id,
-      src: item.imageUrl,
+      instanceId: `${item.clothesId}-${Date.now()}`,
+      clothesId: item.clothesId,
+      src: item.thumbnailUrl,
       name: item.name,
-      category: item.category,
+      categoryCode: item.categoryCode,
       x: pos.x,
       y: pos.y,
       scaleX: pos.scale,
@@ -77,7 +78,7 @@ const CalendarEditor = () => {
     };
 
     addClothes(obj);
-    setSelectedId(obj.id);
+    setSelectedId(obj.clothesId);
   };
 
   const removeSelected = () => {
@@ -148,11 +149,11 @@ const CalendarEditor = () => {
             <Layer>
               {clothes.map((item) => (
                 <CanvasItem
-                  key={item.id}
+                  key={item.clothesId}
                   obj={item}
-                  isSelected={item.id === selectedId}
-                  onSelect={() => setSelectedId(item.id)}
-                  onChange={(next) => updateClothes(item.id, next)}
+                  isSelected={item.clothesId === selectedId}
+                  onSelect={() => setSelectedId(item.clothesId)}
+                  onChange={(next) => updateClothes(item.clothesId, next)}
                 />
               ))}
             </Layer>

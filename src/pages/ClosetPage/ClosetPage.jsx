@@ -2,11 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import styles from "./ClosetPage.module.css";
-import { CLOSET_TABS, CLOTHING_ITEMS, COORDI_ITEMS } from "./closetData";
+import { CLOSET_TABS, CLOTHING_ITEMS, COORDI_ITEMS, ITEMS_PER_BATCH } from "./closetData";
 import ClothesService from "@/services/clothesService";
 import CommonCodeService from "@/services/commonCodeService";
-
-const ITEMS_PER_BATCH = 9;
 
 const ClosetPage = () => {
   const navigate = useNavigate();

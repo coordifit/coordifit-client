@@ -1,6 +1,7 @@
 import { api } from "./axiosInstance";
 
 class ClothesService {
+  // 1️⃣ 카테고리별 조회
   async getClothes(categoryId = null, subCategoryId = null) {
     try {
       const params = {};
@@ -8,6 +9,7 @@ class ClothesService {
       if (subCategoryId) params.subCategoryId = subCategoryId;
 
       const response = await api.get("/clothes", { params });
+
       return response.data;
     } catch (error) {
       console.error("옷 정보 조회 오류:", error);
@@ -19,6 +21,7 @@ class ClothesService {
   async getMyClothes() {
     try {
       const res = await api.get("/clothes/me");
+
       return res.data?.data || [];
     } catch (error) {
       console.error("❌ 내 옷 전체 조회 실패:", error);

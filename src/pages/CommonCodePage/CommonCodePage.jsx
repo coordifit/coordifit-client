@@ -1,41 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { api } from '../../services/axiosInstance';
-import styles from './CommonCodePage.module.css';
+import React, { useState, useEffect } from "react";
+import { api } from "../../services/axiosInstance";
+import styles from "./CommonCodePage.module.css";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCommonCodesQuery } from "@/hooks/useCommonCodeQuery";
 
 const CommonCodePage = () => {
-  const [commonCodes, setCommonCodes] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [expandedNodes, setExpandedNodes] = useState(new Set());
   const [filteredCodes, setFilteredCodes] = useState({});
-  const [selectedParentCode, setSelectedParentCode] = useState('');
-  const [newCodeName, setNewCodeName] = useState('');
+  const [selectedParentCode, setSelectedParentCode] = useState("");
+  const [newCodeName, setNewCodeName] = useState("");
   const [isAddingCode, setIsAddingCode] = useState(false);
   const [isRootCode, setIsRootCode] = useState(false);
   const [editingCode, setEditingCode] = useState(null);
-  const [editCodeName, setEditCodeName] = useState('');
+  const [editCodeName, setEditCodeName] = useState("");
   const [isUpdatingCode, setIsUpdatingCode] = useState(false);
 
-  useEffect(() => {
-    loadCommonCodes();
-  }, []);
+  const queryClient = useQueryClient();
+
+  const { data: commonCodes, isError, error, isLoading, refetch } = useCommonCodesQuery();
 
   useEffect(() => {
     setFilteredCodes(commonCodes);
   }, [commonCodes]);
-
-  const loadCommonCodes = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/common-codes');
-      setCommonCodes(response.data);
-    } catch (err) {
-      setError(err.response?.data?.message || '공통코드 조회에 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   const toggleNode = (codeId) => {
     const newExpanded = new Set(expandedNodes);
@@ -49,13 +35,13 @@ const CommonCodePage = () => {
 
   const handleNodeClick = (code) => {
     setSelectedParentCode(code.codeId);
-    setNewCodeName('');
+    setNewCodeName("");
     setIsRootCode(false);
   };
 
   const handleRootCodeClick = () => {
-    setSelectedParentCode('');
-    setNewCodeName('');
+    setSelectedParentCode("");
+    setNewCodeName("");
     setIsRootCode(true);
   };
 
@@ -66,7 +52,7 @@ const CommonCodePage = () => {
 
   const handleEditCancel = () => {
     setEditingCode(null);
-    setEditCodeName('');
+    setEditCodeName("");
   };
 
   const updateCommonCode = async (codeId, codeName, isActive) => {
@@ -74,34 +60,33 @@ const CommonCodePage = () => {
       await api.put(`/common-codes/${codeId}`, {
         codeName: codeName,
         isActive: isActive,
-        updatedBy: 'U000001' // 실제로는 로그인한 사용자 ID
+        updatedBy: "U000001", // 실제로는 로그인한 사용자 ID
       });
 
-      loadCommonCodes();
+      console.log(">> 공통코드 업데이트 성공:", codeId);
+
+      queryClient.invalidateQueries({ queryKey: ["commonCodes"] });
+
       return true;
     } catch (error) {
-      console.error('코드 업데이트 중 오류:', error);
+      console.error("코드 업데이트 중 오류:", error);
       return false;
     }
   };
 
   const handleEditSave = async (code) => {
     if (!editCodeName.trim()) {
-      alert('코드명을 입력해주세요.');
+      alert("코드명을 입력해주세요.");
       return;
     }
 
     setIsUpdatingCode(true);
     try {
-      const success = await updateCommonCode(
-        code.codeId, 
-        editCodeName.trim(), 
-        code.isActive        
-      );
-      
+      const success = await updateCommonCode(code.codeId, editCodeName.trim(), code.isActive);
+
       if (success) {
         setEditingCode(null);
-        setEditCodeName('');
+        setEditCodeName("");
       }
     } finally {
       setIsUpdatingCode(false);
@@ -109,7 +94,7 @@ const CommonCodePage = () => {
   };
 
   const handleStatusToggle = async (code) => {
-    const newStatus = code.isActive === 'Y' ? 'N' : 'Y';
+    const newStatus = code.isActive === "Y" ? "N" : "Y";
     await updateCommonCode(code.codeId, code.codeName, newStatus);
   };
 
@@ -117,46 +102,45 @@ const CommonCodePage = () => {
     if (window.confirm(`'${code.codeName}' 코드를 삭제하시겠습니까?`)) {
       try {
         await api.delete(`/common-codes/${code.codeId}`);
-        alert('코드가 성공적으로 삭제되었습니다.');
-        loadCommonCodes();
+        queryClient.invalidateQueries({ queryKey: ["commonCodes"] });
+        alert("코드가 성공적으로 삭제되었습니다.");
       } catch (error) {
-        console.error('코드 삭제 중 오류:', error);
+        console.error("코드 삭제 중 오류:", error);
       }
     }
   };
 
   const handleAddCode = async () => {
     if (!newCodeName.trim()) {
-      alert('코드명을 입력해주세요.');
+      alert("코드명을 입력해주세요.");
       return;
     }
 
     if (!isRootCode && !selectedParentCode) {
-      alert('상위코드를 선택하거나 루트코드 버튼을 클릭해주세요.');
+      alert("상위코드를 선택하거나 루트코드 버튼을 클릭해주세요.");
       return;
     }
 
     setIsAddingCode(true);
     try {
-      await api.post('/common-codes', {
+      await api.post("/common-codes", {
         codeName: newCodeName.trim(),
         parentCodeId: isRootCode ? null : selectedParentCode,
-        isActive: 'Y',
-        createdBy: 'U000001' // 실제로는 로그인한 사용자 ID
+        isActive: "Y",
+        createdBy: "U000001", // 실제로는 로그인한 사용자 ID
       });
 
-      alert('코드가 성공적으로 추가되었습니다.');
-      setSelectedParentCode('');
-      setNewCodeName('');
+      queryClient.invalidateQueries({ queryKey: ["commonCodes"] });
+      alert("코드가 성공적으로 추가되었습니다.");
+      setSelectedParentCode("");
+      setNewCodeName("");
       setIsRootCode(false);
-      loadCommonCodes(); // 목록 새로고침
     } catch (error) {
-      alert(error.response?.data?.message || '코드 추가 중 오류가 발생했습니다.');
+      alert(error.response?.data?.message || "코드 추가 중 오류가 발생했습니다.");
     } finally {
       setIsAddingCode(false);
     }
   };
-
 
   const renderTreeNode = (code, level = 0) => {
     const hasChildren = code.children && Object.keys(code.children).length > 0;
@@ -165,19 +149,15 @@ const CommonCodePage = () => {
 
     return (
       <div key={code.codeId} className={styles.treeNode}>
-        <div 
+        <div
           className={styles.treeNodeContent}
           onClick={() => handleNodeClick(code)}
           onDoubleClick={() => hasChildren && toggleNode(code.codeId)}
         >
           <div className={styles.treeNodeHeader}>
             <div className={styles.codeIdSection} style={{ paddingLeft: `${indent}px` }}>
-              {hasChildren && (
-                <span className={styles.treeToggle}>
-                  {isExpanded ? '▼' : '▶'}
-                </span>
-              )}
-              {!hasChildren && <span className={styles.treeSpacer}></span>}            
+              {hasChildren && <span className={styles.treeToggle}>{isExpanded ? "▼" : "▶"}</span>}
+              {!hasChildren && <span className={styles.treeSpacer}></span>}
               <span className={styles.treeCodeId}>{code.codeId}</span>
             </div>
             <div className={styles.codeNameSection}>
@@ -194,42 +174,30 @@ const CommonCodePage = () => {
               )}
             </div>
             <div className={styles.statusSection}>
-              <button 
-                onClick={() => handleStatusToggle(code)}
-                className={styles.actionButton}
-              >
-                {code.isActive === 'Y' ? '사용' : '미사용'}
+              <button onClick={() => handleStatusToggle(code)} className={styles.actionButton}>
+                {code.isActive === "Y" ? "사용" : "미사용"}
               </button>
             </div>
             <div className={styles.actionSection}>
               {editingCode === code.codeId ? (
                 <>
-                  <button 
+                  <button
                     onClick={() => handleEditSave(code)}
                     disabled={isUpdatingCode}
                     className={styles.actionButton}
                   >
-                    {isUpdatingCode ? '저장 중...' : '저장'}
+                    {isUpdatingCode ? "저장 중..." : "저장"}
                   </button>
-                  <button 
-                    onClick={handleEditCancel}
-                    className={styles.actionButton}
-                  >
+                  <button onClick={handleEditCancel} className={styles.actionButton}>
                     취소
                   </button>
                 </>
               ) : (
                 <>
-                  <button 
-                    onClick={() => handleEditClick(code)}
-                    className={styles.actionButton}
-                  >
+                  <button onClick={() => handleEditClick(code)} className={styles.actionButton}>
                     수정
                   </button>
-                  <button 
-                    onClick={() => handleDeleteCode(code)}
-                    className={styles.actionButton}
-                  >
+                  <button onClick={() => handleDeleteCode(code)} className={styles.actionButton}>
                     삭제
                   </button>
                 </>
@@ -237,17 +205,17 @@ const CommonCodePage = () => {
             </div>
           </div>
         </div>
-        
+
         {hasChildren && isExpanded && (
           <div className={styles.treeChildren}>
-            {Object.values(code.children).map(child => renderTreeNode(child, level + 1))}
+            {Object.values(code.children).map((child) => renderTreeNode(child, level + 1))}
           </div>
         )}
       </div>
     );
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>
@@ -258,13 +226,15 @@ const CommonCodePage = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className={styles.container}>
         <div className={styles.error}>
           <h3>오류가 발생했습니다</h3>
           <p>{error}</p>
-          <button onClick={loadCommonCodes} className={styles.retryBtn}>다시 시도</button>
+          <button onClick={() => refetch()} className={styles.retryBtn}>
+            다시 시도
+          </button>
         </div>
       </div>
     );
@@ -275,7 +245,7 @@ const CommonCodePage = () => {
       <div className={styles.header}>
         <h1 className={styles.title}>공통코드 관리</h1>
         <div className={styles.actions}>
-          <button onClick={loadCommonCodes} className={styles.refreshBtn}>
+          <button onClick={() => refetch()} className={styles.refreshBtn}>
             조회
           </button>
         </div>
@@ -286,16 +256,16 @@ const CommonCodePage = () => {
           <div className={styles.fieldGroup}>
             <div className={styles.labelContainer}>
               <label className={styles.label}>상위코드:</label>
-              <button 
+              <button
                 onClick={handleRootCodeClick}
-                className={`${styles.actionButton} ${!isRootCode ? styles.active : ''}`}
+                className={`${styles.actionButton} ${!isRootCode ? styles.active : ""}`}
               >
                 루트코드
               </button>
             </div>
             <input
               type="text"
-              value={isRootCode ? '루트코드' : selectedParentCode}
+              value={isRootCode ? "루트코드" : selectedParentCode}
               readOnly
               className={styles.parentCodeInput}
               placeholder="노드를 선택하세요"
@@ -312,12 +282,12 @@ const CommonCodePage = () => {
             />
           </div>
           <div className={styles.buttonGroup}>
-            <button 
+            <button
               onClick={handleAddCode}
               disabled={(!isRootCode && !selectedParentCode) || !newCodeName.trim() || isAddingCode}
               className={styles.addCodeBtn}
             >
-              {isAddingCode ? '추가 중...' : '코드 추가'}
+              {isAddingCode ? "추가 중..." : "코드 추가"}
             </button>
           </div>
         </div>
@@ -330,12 +300,11 @@ const CommonCodePage = () => {
           <div>상태</div>
           <div>작업</div>
         </div>
-        
+
         <div className={styles.treeContent}>
-          {Object.values(filteredCodes).map(code => renderTreeNode(code))}
+          {Object.values(filteredCodes).map((code) => renderTreeNode(code))}
         </div>
       </div>
-
     </div>
   );
 };

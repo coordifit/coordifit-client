@@ -15,7 +15,7 @@ const SnapPage = () => {
       try {
         setLoading(true);
         const response = await postService.getAllPosts();
-
+        console.log("게시물 목록 응답:", response);
         if (response.success) {
           setPosts(response.data);
         } else {
@@ -61,6 +61,8 @@ const SnapPage = () => {
 
   return (
     <div className={styles.page}>
+      {/* ✅ 총 게시물 개수 표시 */}
+      <div className={styles.postCount}>총 {posts.length.toLocaleString()}건</div>
       <div className={styles.postList}>
         {posts.length > 0 ? (
           posts.map((post) => (

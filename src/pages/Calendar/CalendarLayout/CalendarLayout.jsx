@@ -53,7 +53,10 @@ const CalendarLayout = () => {
 
     if (clothes.length === 0) {
       setViewMode(viewMode);
-      navigate(nextPath);
+
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 0);
     }
   };
 

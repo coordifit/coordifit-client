@@ -104,7 +104,6 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
             </button>
           ))}
         </section>
-
         {/* 카테고리 선택 탭 */}
         {!isCoordiTab && (
           <section className={cn("categories")}>
@@ -196,7 +195,7 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                       ×
                     </button>
                     <div className={cn("selectedThumbWrap")}>
-                      <img src={item.src} alt={item.name} className={cn("selectedThumb")} />
+                      <img src={item.imageUrl} alt={item.name} className={cn("selectedThumb")} />
                     </div>
                     <div className={cn("selectedMeta")}>
                       <span className={cn("selectedName")}>{item.name}</span>

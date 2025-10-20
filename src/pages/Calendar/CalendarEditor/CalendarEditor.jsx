@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
 
 import { Layer, Rect, Stage } from "react-konva";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,12 +16,14 @@ import styles from "./CalendarEditor.module.css";
 import { CANVAS_CONFIG } from "@/constants/calendar";
 import { CATEGORIES } from "@/constants/category";
 import { useClothesStore } from "@/stores/clothesStore";
+import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
+import Modal from "@/components/Modal/Modal";
 
 const CalendarEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
   const [selectedId, setSelectedId] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [description, setDiscription] = useState("");
+  const [description, setDescription] = useState("");
 
   const { clothes, setClothes, updateClothes, addClothes, removeClothes, clearClothes } =
     useClothesStore();
@@ -32,13 +34,25 @@ const CalendarEditor = () => {
   const queryClient = useQueryClient();
   const stageRef = useRef(null);
 
+  const isDirty = clothes.length > 0;
+
+  const { open, confirm, cancel } = useLeaveConfirm(isDirty);
+
+  useBeforeUnload((e) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
   const { data: dailyLook = { data: {} } } = useDailyLookByDateQuery(date);
 
+  console.log("dailyLook", dailyLook);
   useEffect(() => {
     if (dailyLook?.data?.canvasJson) {
       const initial = JSON.parse(dailyLook.data.canvasJson);
       setClothes(initial);
-      setDiscription(dailyLook.data.description || "");
+      setDescription(dailyLook.data.description || "");
     }
   }, [dailyLook]);
 
@@ -67,7 +81,7 @@ const CalendarEditor = () => {
     const obj = {
       instanceId: `${item.clothesId}-${Date.now()}`,
       clothesId: item.clothesId,
-      src: item.thumbnailUrl,
+      imageUrl: item.thumbnailUrl,
       name: item.name,
       categoryCode: item.categoryCode,
       x: pos.x,
@@ -116,7 +130,9 @@ const CalendarEditor = () => {
 
       setSelectedId(prev);
       clearClothes();
-      navigate(`/calendar/${date}`);
+      setTimeout(() => {
+        navigate(`/calendar/${date}`);
+      }, 0);
     });
   };
 
@@ -128,7 +144,7 @@ const CalendarEditor = () => {
           className={styles.input}
           placeholder="오늘의 데일리룩에 대한 코멘트를 남겨주세요."
           value={description}
-          onChange={(e) => setDiscription(e.target.value)}
+          onChange={(e) => setDescription(e.target.value)}
         />
         <div className={styles.canvasCard}>
           <Stage
@@ -142,8 +158,8 @@ const CalendarEditor = () => {
                 width={CANVAS_CONFIG.WIDTH}
                 height={CANVAS_CONFIG.HEIGHT}
                 fill={bgColor}
-                onMouseDown={() => setSelectedId(null)} // 데스크탑 클릭 시 해제
-                onTouchStart={() => setSelectedId(null)} // 모바일 탭 시 해제
+                onMouseDown={() => setSelectedId(null)}
+                onTouchStart={() => setSelectedId(null)}
               />
             </Layer>
             <Layer>
@@ -197,6 +213,29 @@ const CalendarEditor = () => {
         clothes={clothes}
         onRemove={removeClothes}
       />
+      {open && (
+        <Modal
+          title="뒤로 가기"
+          onClose={cancel}
+          footer={
+            <>
+              <button type="button" onClick={cancel}>
+                아니요
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  clearClothes();
+                  confirm();
+                }}
+              >
+                예
+              </button>
+            </>
+          }
+          children={"변경 사항이 저장되지 않았습니다\n 계속 이동할까요?"}
+        />
+      )}
     </div>
   );
 };

@@ -10,7 +10,6 @@
   flex-direction: column;
   gap: 24px;
   flex: 1;
-  padding: 0 8px; /* Layout의 padding(12px)에서 4px만 추가 */
 }
 
 /* 이미지 업로드 섹션 */
@@ -22,18 +21,108 @@
 
 .uploadHint {
   font-size: 14px;
-  color: #666;
-  margin: 10px 0 16px 0;
+  color: #999999;
+  margin: 5px 0 16px 0;
 }
 
+/* ✅ 사진 첨부 영역 정사각형 중앙 정렬 */
 .uploadArea {
-  border: 2px dashed #ddd;
+  width: 200px;
+  height: 200px;
+  border: 1px dashed #d5d5d5;
   border-radius: 8px;
-  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   cursor: pointer;
+  margin: 0 auto; /* 중앙 정렬 */
   transition: border-color 0.2s;
-  background-color: #fafafa;
+}
+
+.uploadArea:hover {
+  border-color: #999;
+}
+
+.uploadIcon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.uploadArea p {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ✅ 서브카테고리: 밑줄만 있는 텍스트 탭 */
+.subCategoryTabs {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  border-bottom: 1px solid #eee;
+  padding: 4px 0 8px 0;
+}
+
+.subCategoryTab {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d5d5d5;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+}
+
+.subCategoryTab:hover {
+  color: #333;
+}
+
+.activeSubCategoryTab {
+  color: #333333;
+  font-weight: 600;
+}
+
+.activeSubCategoryTab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background-color: #333333;
+  border-radius: 1px;
+}
+
+/* ✅ 옷 선택 라디오버튼 - 오른쪽 위 */
+.radioWrapper {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  transform: none;
+}
+
+.radioWrapper input[type="radio"] {
+  display: none;
+}
+
+.radioWrapper label {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: block;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radioWrapper input[type="radio"]:checked + label {
+  background-color: #333;
+  border-color: #333;
 }
 
 .uploadArea:hover {
@@ -136,13 +225,13 @@
 .productSelectionSection {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .sectionHeader h3 {
@@ -160,8 +249,10 @@
   border-radius: 16px;
   padding: 6px 12px;
   font-size: 12px;
+  font-family: pretendard-variable;
   cursor: pointer;
   transition: all 0.2s;
+  margin-bottom: 15px;
 }
 
 .toggleViewButton:hover {
@@ -170,12 +261,12 @@
 }
 
 .required {
-  background-color: #ff6b6b;
-  color: white;
+  background-color: #cecece;
+  color: #333333;
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .categoryTabs {
@@ -194,10 +285,12 @@
 
 .categoryTab {
   background: none;
-  border: 1px solid #ddd;
-  border-radius: 20px;
+  border: 1px solid #ffffff;
+  border-radius: 10px;
   padding: 8px 16px;
   font-size: 14px;
+  font-family: pretendard-variable;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -212,16 +305,18 @@
   background-color: #333;
   color: white;
   border-color: #333;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 .subCategoryTabs {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
   /* 스크롤바 숨기기 */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+  margin-left: 20px;
 }
 
 .subCategoryTabs::-webkit-scrollbar {
@@ -230,10 +325,9 @@
 
 .subCategoryTab {
   background: none;
-  border: 1px solid #eee;
-  border-radius: 16px;
   padding: 6px 12px;
   font-size: 12px;
+  font-family: pretendard-variable;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -245,8 +339,7 @@
 }
 
 .activeSubCategoryTab {
-  background-color: #f0f0f0;
-  border-color: #ccc;
+  border-color: #333333;
 }
 
 .productGrid {
@@ -259,6 +352,7 @@
   padding-right: 4px; /* 스크롤바 공간 확보 */
   scrollbar-width: thin; /* Firefox에서 얇은 스크롤바 */
   scrollbar-color: #ddd transparent; /* Firefox 스크롤바 색상 */
+  margin-top: 10px;
 }
 
 .productGrid::-webkit-scrollbar {
@@ -292,43 +386,58 @@
   object-fit: cover;
 }
 
+/* ✅ 옷 선택 라디오버튼 - 오른쪽 위 */
 .radioWrapper {
   position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 6px;
+  right: 6px;
+  z-index: 2;
 }
 
-.radioWrapper input[type="radio"] {
+.radioWrapper input[type="checkbox"] {
   display: none;
 }
 
+/* 기본 상태: 반투명 원형 */
 .radioWrapper label {
   width: 20px;
   height: 20px;
-  border: 2px solid #fff;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid #d9d9d9;
   display: block;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.radioWrapper input[type="radio"]:checked + label {
-  background-color: #007bff;
-  border-color: #007bff;
+/* ✅ 체크 시: 아이콘으로 대체 (배경 완전 제거) */
+.radioWrapper input[type="checkbox"]:checked + label {
+  background: none;
+  background-image: url("@/assets/images/checkicon.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  width: 20px;
+  height: 20px;
 }
 
-.radioWrapper input[type="radio"]:checked + label::after {
-  content: "✓";
-  color: white;
-  font-size: 12px;
+/* ✅ 여전히 ✓ 문자나 잔상 없음 */
+.radioWrapper input[type="checkbox"]:checked + label::after {
+  content: none;
+}
+/* ✅ 체크 아이콘 */
+.checkIcon {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  pointer-events: none;
+  background-color: #ffffff; /* ✅ 아이콘 뒤 배경 흰색 */
+  border-radius: 50%; /* 원형으로 흰색 배경 */
+  padding: 0px; /* 회색 원 안에 아이콘 정중앙 배치 */
+  box-sizing: border-box;
 }
-
 .selectedProductsView {
   margin-top: 8px;
 }
@@ -379,7 +488,8 @@
 }
 
 .productName {
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 600;
   text-align: center;
   color: #666;
   line-height: 1.2;
@@ -387,8 +497,8 @@
 
 .removeProductButton {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 0px;
+  right: 0px;
   width: 18px;
   height: 18px;
   border-radius: 50%;

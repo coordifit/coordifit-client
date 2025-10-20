@@ -1,11 +1,20 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import styles from "./CanvasItem.module.css";
 import useImage from "use-image";
 import { Image, Transformer } from "react-konva";
 
 const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
   console.log("obj", obj);
-  const [image, status] = useImage(obj.imageUrl, "anonymous"); // ★
+
+  const bustRef = useRef(Date.now());
+
+  const stableSrc = useMemo(() => {
+    const url = new URL(obj.imageUrl);
+    url.searchParams.set("v", bustRef.current);
+    return url.toString();
+  }, [obj.imageUrl]);
+
+  const [image, status] = useImage(stableSrc, "anonymous");
   const shapeRef = useRef(null);
   const trRef = useRef(null);
   const MIN_SIZE = 10;

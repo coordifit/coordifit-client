@@ -3,7 +3,15 @@ import { api } from "./axiosInstance";
 class UserService {
   async updateUserProfile(userId, profileData) {
     try {
-      const response = await api.put(`/user/${userId}`, profileData);
+      const formData = new FormData();
+
+      Object.keys(profileData).forEach((key) => {
+        if (profileData[key] !== null && profileData[key] !== undefined) {
+          formData.append(key, profileData[key]);
+        }
+      });
+
+      const response = await api.put(`/user/${userId}`, formData);
       return response.data;
     } catch (error) {
       console.error("프로필 업데이트 오류:", error);

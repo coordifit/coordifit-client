@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import postService from "../../services/postService";
-import fileService from "../../services/fileService";
 import profileImage from "@/assets/images/profile.png";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import { useUserStore } from "@/stores/userStore";
@@ -18,28 +17,10 @@ const SnapDetailPage = () => {
   const [commentContent, setCommentContent] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
-  const [currentUserProfileImage, setCurrentUserProfileImage] = useState(null);
   const [isLikesModalOpen, setIsLikesModalOpen] = useState(false);
   const [likeUsers, setLikeUsers] = useState([]);
   const [loadingLikes, setLoadingLikes] = useState(false);
-
-  useEffect(() => {
-    const loadCurrentUserProfileImage = async () => {
-      if (!user?.fileId) {
-        setCurrentUserProfileImage(null);
-        return;
-      }
-      try {
-        const imageUrl = await fileService.getFileUrl(user.fileId);
-        setCurrentUserProfileImage(imageUrl);
-      } catch (err) {
-        console.error("현재 사용자 프로필 이미지 로드 실패:", err);
-        setCurrentUserProfileImage(null);
-      }
-    };
-
-    loadCurrentUserProfileImage();
-  }, [user?.fileId]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const loadPostDetail = async () => {
@@ -72,6 +53,13 @@ const SnapDetailPage = () => {
 
   const handleUserClick = (userId) => {
     navigate(`/mypage/${userId}`);
+  };
+
+  const handleImageScroll = (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    const imageWidth = e.target.scrollWidth / postDetail.imageUrls.length;
+    const newIndex = Math.round(scrollLeft / imageWidth);
+    setCurrentImageIndex(newIndex);
   };
 
   const handleOpenCommentModal = () => {
@@ -271,7 +259,7 @@ const SnapDetailPage = () => {
       <div className={styles.mainImageContainer}>
         {postDetail.imageUrls && postDetail.imageUrls.length > 0 ? (
           <div className={styles.imageScrollContainer}>
-            <div className={styles.imageScrollWrapper}>
+            <div className={styles.imageScrollWrapper} onScroll={handleImageScroll}>
               {postDetail.imageUrls.map((imageUrl, index) => (
                 <img
                   key={index}
@@ -283,7 +271,7 @@ const SnapDetailPage = () => {
             </div>
             {postDetail.imageUrls.length > 1 && (
               <div className={styles.imageCounter}>
-                <span className={styles.currentImage}>1</span>
+                <span className={styles.currentImage}>{currentImageIndex + 1}</span>
                 <span className={styles.imageSeparator}>/</span>
                 <span className={styles.totalImages}>{postDetail.imageUrls.length}</span>
               </div>
@@ -373,7 +361,7 @@ const SnapDetailPage = () => {
         {/* 댓글 입력 버튼 */}
         <button className={styles.commentInputButton} onClick={handleOpenCommentModal}>
           <img
-            src={currentUserProfileImage || profileImage}
+            src={user?.profileImageUrl || profileImage}
             alt="프로필"
             className={styles.commentProfileImage}
           />
@@ -401,7 +389,7 @@ const SnapDetailPage = () => {
           footer={
             <div className={styles.modalInputContainer}>
               <img
-                src={currentUserProfileImage || profileImage}
+                src={user?.profileImageUrl || profileImage}
                 alt="프로필"
                 className={styles.modalInputProfileImage}
               />

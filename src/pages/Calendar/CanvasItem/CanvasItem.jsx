@@ -4,19 +4,20 @@ import useImage from "use-image";
 import { Image, Transformer } from "react-konva";
 
 const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
-  const [image] = useImage(obj.src, "anonymous");
+  console.log("obj", obj);
+  const [image, status] = useImage(obj.imageUrl, "anonymous"); // ★
   const shapeRef = useRef(null);
   const trRef = useRef(null);
   const MIN_SIZE = 10;
 
   useEffect(() => {
-    if (isSelected && trRef.current && shapeRef.current) {
+    if (isSelected && trRef.current && shapeRef.current && status === "loaded") {
       trRef.current.nodes([shapeRef.current]);
       trRef.current.getLayer().batchDraw();
       trRef.current.moveToTop();
       trRef.current.getLayer().batchDraw();
     }
-  }, [isSelected, image]);
+  }, [isSelected, status]);
 
   const handleSelect = () => {
     if (shapeRef.current) {

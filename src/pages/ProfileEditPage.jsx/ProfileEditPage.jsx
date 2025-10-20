@@ -5,13 +5,14 @@ import { useUserStore } from "@/stores/userStore";
 import { TokenManager } from "@/services/axiosInstance";
 import userService from "@/services/userService";
 import commonCodeService from "@/services/commonCodeService";
-import CustomSelect from "@/components/CustomSelect/CustomSelect";
 import profileImage from "@/assets/images/profile.png";
+import chevronRight from "@/assets/images/chevron-right.png";
 import styles from "./ProfileEditPage.module.css";
-
+import { createPortal } from "react-dom";
 const ProfileEditPage = () => {
   const navigate = useNavigate();
   const { user, logout } = useUserStore();
+
   const [form, setForm] = useState({
     userId: "",
     nickname: "",
@@ -24,12 +25,16 @@ const ProfileEditPage = () => {
   const [file, setFile] = useState(null);
   const [fileImage, setFileImage] = useState(null);
   const fileInputRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(null); // 현재 수정 중인 필드
+  const [isGenderModalOpen, setGenderModalOpen] = useState(false); // 성별 모달
 
+  // ✅ 공통코드로 성별 목록 로드
   const loadGenderCodes = async () => {
     const genderCodes = await commonCodeService.getCommonCodesByParentCodeId("A10002");
     setGenderOptions(genderCodes);
   };
 
+  // ✅ 프로필 저장
   const handleSave = async (event) => {
     event.preventDefault();
 
@@ -47,12 +52,10 @@ const ProfileEditPage = () => {
 
       if (response.success && response.data) {
         const { accessToken, refreshToken } = response.data;
-
         TokenManager.setTokens(accessToken, refreshToken);
       }
 
       alert("프로필이 성공적으로 수정되었습니다.");
-
       navigate(-1);
     } catch (error) {
       console.error("프로필 저장 오류:", error);
@@ -60,14 +63,9 @@ const ProfileEditPage = () => {
     }
   };
 
-  const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     setFile(file);
-
     const reader = new FileReader();
     reader.onload = (e) => {
       setFileImage(e.target.result);
@@ -85,12 +83,7 @@ const ProfileEditPage = () => {
       navigate("/login");
     }
   };
-  const openDeleteModal = () => {
-    setDeleteModalOpen(true);
-  };
-  const closeDeleteModal = () => {
-    setDeleteModalOpen(false);
-  };
+
   const handleDeleteAccount = async () => {
     setDeleteModalOpen(false);
     try {
@@ -123,6 +116,16 @@ const ProfileEditPage = () => {
 
   return (
     <form className={styles.page} onSubmit={handleSave}>
+      {/* ✅ 상단 저장 버튼 (header portal) */}
+      {document.querySelector("#app-header") &&
+        createPortal(
+          <button type="button" className={styles.saveButton} onClick={handleSave}>
+            저장
+          </button>,
+          document.querySelector("#app-header"),
+        )}
+
+      {/* ✅ 프로필 이미지 */}
       <div className={styles.avatarContainer}>
         <div className={styles.avatar}>
           <input
@@ -139,62 +142,125 @@ const ProfileEditPage = () => {
             className={styles.avatarImage}
           />
         </div>
-        <button type="button" className={styles.saveButton} onClick={handleSave}>
-          저장
-        </button>
+        <span className={styles.avatarChangeText} onClick={() => fileInputRef.current?.click()}>
+          사진 변경
+        </span>
       </div>
 
+      {/* ✅ 프로필 정보 필드 */}
       <div className={styles.fields}>
-        <label className={styles.field}>
-          <span>닉네임</span>
-          <input
-            type="text"
-            value={form.nickname}
-            onChange={(event) => handleChange("nickname", event.target.value)}
-          />
-        </label>
-        <label className={styles.field}>
-          <span>이메일</span>
-          <input
-            type="email"
-            disabled
-            value={form.email}
-            onChange={(event) => handleChange("email", event.target.value)}
-          />
-        </label>
-        <div className={styles.field}>
-          <span>성별</span>
-          <CustomSelect
-            options={genderOptions}
-            value={form.gender}
-            onChange={(value) => handleChange("gender", value)}
-            placeholder="성별을 선택하세요"
+        {/* 닉네임 */}
+        <div className={`${styles.field} ${isEditing === "nickname" ? styles.editing : ""}`}>
+          <span className={styles.fieldLabel}>닉네임</span>
+          {isEditing === "nickname" ? (
+            <input
+              type="text"
+              value={form.nickname}
+              onChange={(e) => setForm({ ...form, nickname: e.target.value })}
+              onBlur={() => setIsEditing(null)}
+              autoFocus
+              className={styles.fieldValue}
+            />
+          ) : (
+            <span className={styles.fieldValue}>{form.nickname || "입력"}</span>
+          )}
+          <img
+            src={chevronRight}
+            alt=">"
+            className={styles.fieldChevron}
+            onClick={() => setIsEditing("nickname")}
           />
         </div>
-        <label className={styles.field}>
-          <span>생년월일</span>
-          <input
-            type="date"
-            value={form.birth}
-            onChange={(event) => handleChange("birth", event.target.value)}
+
+        {/* 이메일 */}
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>이메일</span>
+          <span className={styles.fieldValue}>{form.email}</span>
+        </div>
+
+        {/* 성별 */}
+        <div className={`${styles.field} ${isEditing === "gender" ? styles.editing : ""}`}>
+          <span className={styles.fieldLabel}>성별</span>
+          <span className={styles.fieldValue} onClick={() => setGenderModalOpen(true)}>
+            {genderOptions.find((opt) => opt.codeId === form.gender)?.codeName || "선택"}
+          </span>
+          <img
+            src={chevronRight}
+            alt=">"
+            className={styles.fieldChevron}
+            onClick={() => setGenderModalOpen(true)}
           />
-        </label>
+        </div>
+
+        {/* 생년월일 */}
+        <div className={`${styles.field} ${isEditing === "birth" ? styles.editing : ""}`}>
+          <span className={styles.fieldLabel}>생년월일</span>
+          {isEditing === "birth" ? (
+            <input
+              type="date"
+              value={form.birth}
+              onChange={(e) => setForm({ ...form, birth: e.target.value })}
+              onBlur={() => setIsEditing(null)}
+              autoFocus
+              className={styles.fieldValue}
+            />
+          ) : (
+            <span className={styles.fieldValue}>{form.birth || "추가"}</span>
+          )}
+          <img
+            src={chevronRight}
+            alt=">"
+            className={styles.fieldChevron}
+            onClick={() => setIsEditing("birth")}
+          />
+        </div>
       </div>
+
+      {/* ✅ 로그아웃 / 탈퇴 */}
       <div className={styles.actions}>
-        <button type="button" onClick={handleLogout}>
+        <button type="button" className={styles.logoutButton} onClick={handleLogout}>
           로그아웃
         </button>
-        <button type="button" className={styles["text-button"]} onClick={openDeleteModal}>
+        <button
+          type="button"
+          className={styles.textButton}
+          onClick={() => setDeleteModalOpen(true)}
+        >
           계정을 탈퇴하시겠습니까?
         </button>
       </div>
-      {isDeleteModalOpen ? (
+
+      {/* ✅ 성별 선택 모달 */}
+      {isGenderModalOpen && (
+        <Modal title="성별 선택" onClose={() => setGenderModalOpen(false)}>
+          <div className={styles.genderOptions}>
+            {genderOptions.map((option) => (
+              <button
+                key={option.codeId}
+                type="button"
+                className={`${styles.genderButton} ${
+                  form.gender === option.codeId ? styles.selected : ""
+                }`}
+                onClick={() => {
+                  setForm({ ...form, gender: option.codeId });
+                  setGenderModalOpen(false); // 선택 후 닫기
+                }}
+              >
+                {option.codeName}
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
+
+      {/* ✅ 탈퇴 확인 모달 */}
+      {isDeleteModalOpen && (
         <Modal
           title="계정을 탈퇴하시겠습니까?"
-          onClose={closeDeleteModal}
+          onClose={() => setDeleteModalOpen(false)}
           footer={
             <>
-              <button type="button" onClick={closeDeleteModal}>
+              <button type="button" onClick={() => setDeleteModalOpen(false)}>
                 취소
               </button>
               <button type="button" onClick={handleDeleteAccount}>
@@ -207,8 +273,9 @@ const ProfileEditPage = () => {
             탈퇴를 진행하면 지금까지 저장된 코디 기록이 모두 삭제돼요.
           </p>
         </Modal>
-      ) : null}
+      )}
     </form>
   );
 };
+
 export default ProfileEditPage;

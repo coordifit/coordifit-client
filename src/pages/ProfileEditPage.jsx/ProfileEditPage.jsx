@@ -1,25 +1,21 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useMatches } from "react-router-dom";
-import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
 import { useUserStore } from "@/stores/userStore";
 import { TokenManager } from "@/services/axiosInstance";
 import userService from "@/services/userService";
 import commonCodeService from "@/services/commonCodeService";
-import fileService from "@/services/fileService";
 import profileImage from "@/assets/images/profile.png";
 import chevronRight from "@/assets/images/chevron-right.png";
 import styles from "./ProfileEditPage.module.css";
 
 const ProfileEditPage = () => {
   const navigate = useNavigate();
-  const matches = useMatches();
   const { user, logout } = useUserStore();
 
   const [form, setForm] = useState({
     userId: "",
     nickname: "",
-    fileId: "",
     email: "",
     gender: "",
     birth: "",
@@ -43,20 +39,14 @@ const ProfileEditPage = () => {
     event.preventDefault();
 
     try {
-      let fileId = null;
-
-      // 파일이 선택된 경우 업로드
-      if (file) {
-        const uploadResult = await fileService.uploadFile(file);
-        fileId = uploadResult.fileId;
-      }
-
       const profileData = {
         nickname: form.nickname,
         genderCode: form.gender,
-        birthDate: form.birth || null,
-        fileId: fileId || form.fileId || null,
+        birthDate: form.birth ? form.birth : null,
+        file: file,
       };
+
+      console.log("프로필 업데이트 데이터:", profileData);
 
       const response = await userService.updateUserProfile(user.userId, profileData);
 
@@ -115,24 +105,14 @@ const ProfileEditPage = () => {
       setForm({
         userId: user.userId || "",
         nickname: user.nickname || "",
-        fileId: user.fileId || "",
         email: user.email || "",
         gender: user.genderCode || "",
         birth: user.birthDate ? user.birthDate.split("T")[0] : "",
       });
 
-      if (user.fileId) loadUserAvatar(user.fileId);
+      setFileImage(user.profileImageUrl || null);
     }
   }, [user]);
-
-  const loadUserAvatar = async (fileId) => {
-    try {
-      const fileInfo = await fileService.getFileById(fileId);
-      if (fileInfo?.s3Url) setFileImage(fileInfo.s3Url);
-    } catch (error) {
-      console.error("사용자 아바타 로드 실패:", error);
-    }
-  };
 
   return (
     <form className={styles.page} onSubmit={handleSave}>

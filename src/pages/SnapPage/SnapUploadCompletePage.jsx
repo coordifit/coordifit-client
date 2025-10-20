@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import clothesService from "../../services/clothesService";
 import postService from "../../services/postService";
-import fileService from "../../services/fileService";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapUploadCompletePage.module.css";
 
@@ -35,15 +34,14 @@ const SnapUploadCompletePage = () => {
       try {
         const clothes = await clothesService.getClothes();
 
-        // API 응답을 기존 형식에 맞게 변환
         const transformedClothes = clothes.data.content.map((item) => ({
           id: item.clothesId,
           name: item.name,
-          brand: "브랜드",
-          price: 0,
+          brand: item.brand,
+          price: item.price,
           category: item.categoryCode,
           images: [
-            item.imageUrl ||
+            item.images[0].url ||
               "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
           ],
         }));
@@ -72,30 +70,19 @@ const SnapUploadCompletePage = () => {
     setUploading(true);
 
     try {
-      // 1. 이미지 파일들을 S3에 업로드하고 파일 ID 받기
-      const imageFileIds = [];
-
-      for (const file of imageFiles) {
-        const uploadResult = await fileService.uploadFile(file);
-        imageFileIds.push(uploadResult.fileId);
-      }
-
-      // 2. 게시물 등록
       const postData = {
         content: postContent,
         isPublic: isPublic,
-        imageFileIds: imageFileIds,
         clothesIds: selectedItems,
+        files: imageFiles,
       };
 
       const result = await postService.createPost(postData);
 
       console.log("게시물 등록 성공:", result);
 
-      // 3. Zustand store 정리
       clearSnapData();
 
-      // 4. 메인 페이지로 이동
       navigate("/main");
     } catch (error) {
       console.error("게시물 등록 실패:", error);

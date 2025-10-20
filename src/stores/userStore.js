@@ -50,9 +50,7 @@ export const useUserStore = create(
           userId: payload.userId,
           email: payload.email,
           nickname: payload.nickname,
-          fileId: payload.fileId,
-          loginTypeCode: payload.loginTypeCode,
-          kakaoId: payload.kakaoId,
+          profileImageUrl: payload.profileImageUrl,
           genderCode: payload.genderCode,
           birthDate: payload.birthDate,
         };

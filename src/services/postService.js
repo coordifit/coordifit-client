@@ -13,7 +13,24 @@ class PostService {
 
   async createPost(postData) {
     try {
-      const response = await api.post("/posts", postData);
+      const formData = new FormData();
+
+      if (postData.content) formData.append("content", postData.content);
+      formData.append("isPublic", postData.isPublic !== undefined ? postData.isPublic : true);
+
+      if (postData.clothesIds && postData.clothesIds.length > 0) {
+        postData.clothesIds.forEach((clothesId) => {
+          formData.append("clothesIds", clothesId);
+        });
+      }
+
+      if (postData.files && postData.files.length > 0) {
+        postData.files.forEach((file) => {
+          formData.append("files", file);
+        });
+      }
+
+      const response = await api.post("/posts", formData);
       return response.data;
     } catch (error) {
       console.error("게시물 등록 오류:", error);

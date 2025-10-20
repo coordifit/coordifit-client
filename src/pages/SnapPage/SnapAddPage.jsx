@@ -60,16 +60,15 @@ const SnapAddPage = () => {
       try {
         const clothes = await clothesService.getClothes();
 
-        // API 응답을 기존 형식에 맞게 변환
         const transformedClothes = clothes.data.content.map((item) => ({
           id: item.clothesId,
           name: item.name,
-          brand: "브랜드",
-          price: 0,
+          brand: item.brand,
+          price: item.price,
           category: item.categoryCode,
           subCategory: item.categoryCode,
           images: [
-            item.imageUrl ||
+            item.images[0].url ||
               "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
           ],
         }));

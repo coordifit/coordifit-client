@@ -28,18 +28,20 @@ const CalendarEditor = () => {
   const { clothes, setClothes, updateClothes, addClothes, removeClothes, clearClothes } =
     useClothesStore();
 
+  const isSavingRef = useRef(false);
+  const stageRef = useRef(null);
+
   const navigate = useNavigate();
   const { date } = useParams();
 
   const queryClient = useQueryClient();
-  const stageRef = useRef(null);
 
   const isDirty = clothes.length > 0;
 
-  const { open, confirm, cancel } = useLeaveConfirm(isDirty);
+  const { open, confirm, cancel } = useLeaveConfirm(!isSavingRef.current && isDirty);
 
   useBeforeUnload((e) => {
-    if (isDirty) {
+    if (!isSavingRef.current && isDirty) {
       e.preventDefault();
       e.returnValue = "";
     }
@@ -103,36 +105,47 @@ const CalendarEditor = () => {
 
   const saveImage = async () => {
     if (!stageRef.current) return;
+    isSavingRef.current = true;
     const prev = selectedId;
     setSelectedId(null);
     requestAnimationFrame(async () => {
-      const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
-      const blob = await (await fetch(uri)).blob();
-      const formData = new FormData();
-      const fileName = `look-${date}-${Date.now()}.png`;
+      try {
+        const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
+        const blob = await (await fetch(uri)).blob();
+        const formData = new FormData();
+        const fileName = `look-${date}-${Date.now()}.png`;
 
-      formData.append("image", blob, fileName);
-      formData.append("description", description);
-      formData.append(
-        "items",
-        JSON.stringify(clothes.map((item) => ({ ...item, scaleX: 1, scaleY: 1 }))),
-      );
+        formData.append("image", blob, fileName);
+        formData.append("description", description);
+        formData.append(
+          "items",
+          JSON.stringify(clothes.map((item) => ({ ...item, scaleX: 1, scaleY: 1 }))),
+        );
 
-      await api.post(`/daily-look/date/${date}`, formData);
-      await queryClient.invalidateQueries(["dailyLook", date]);
+        await api.post(`/daily-look/date/${date}`, formData);
 
-      const link = document.createElement("a");
-      link.download = fileName;
-      link.href = uri;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        clearClothes();
 
-      setSelectedId(prev);
-      clearClothes();
-      setTimeout(() => {
-        navigate(`/calendar/${date}`);
-      }, 0);
+        setTimeout(() => {
+          navigate(`/calendar/${date}`);
+        }, 0);
+
+        setTimeout(() => {
+          queryClient.invalidateQueries(["dailyLook", date]);
+        }, 0);
+
+        // 다운로드는 그대로
+        const link = document.createElement("a");
+        link.download = fileName;
+        link.href = uri;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setSelectedId(prev);
+      } finally {
+        setTimeout(() => (isSavingRef.current = false), 0);
+      }
     });
   };
 

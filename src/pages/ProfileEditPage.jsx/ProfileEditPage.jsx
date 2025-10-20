@@ -1,23 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useMatches } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
 import { useUserStore } from "@/stores/userStore";
 import { TokenManager } from "@/services/axiosInstance";
 import userService from "@/services/userService";
 import commonCodeService from "@/services/commonCodeService";
-import fileService from "@/services/fileService";
 import CustomSelect from "@/components/CustomSelect/CustomSelect";
 import profileImage from "@/assets/images/profile.png";
 import styles from "./ProfileEditPage.module.css";
 
 const ProfileEditPage = () => {
   const navigate = useNavigate();
-  const matches = useMatches();
   const { user, logout } = useUserStore();
   const [form, setForm] = useState({
     userId: "",
     nickname: "",
-    fileId: "",
     email: "",
     gender: "",
     birth: "",
@@ -37,33 +34,20 @@ const ProfileEditPage = () => {
     event.preventDefault();
 
     try {
-      let fileId = null;
-
-      // 파일이 선택된 경우 업로드
-      if (file) {
-        console.log("파일 업로드 시작:", file.name);
-        const uploadResult = await fileService.uploadFile(file);
-        fileId = uploadResult.fileId;
-        console.log("파일 업로드 성공, fileId:", fileId);
-      }
-
       const profileData = {
         nickname: form.nickname,
         genderCode: form.gender,
         birthDate: form.birth ? form.birth : null,
-        fileId: fileId || form.fileId || null,
+        file: file,
       };
 
       console.log("프로필 업데이트 데이터:", profileData);
 
-      // 프로필 업데이트 및 새 토큰 받기
       const response = await userService.updateUserProfile(user.userId, profileData);
 
-      // 로그인 응답과 동일한 형식 (ApiResponseDto)
       if (response.success && response.data) {
         const { accessToken, refreshToken } = response.data;
 
-        // 새 토큰 저장 (ProtectedRoute에서 자동으로 loadUserFromToken 호출됨)
         TokenManager.setTokens(accessToken, refreshToken);
       }
 
@@ -128,29 +112,14 @@ const ProfileEditPage = () => {
       setForm({
         userId: user.userId || "",
         nickname: user.nickname || "",
-        fileId: user.fileId || "",
         email: user.email || "",
         gender: user.genderCode || "",
         birth: user.birthDate ? user.birthDate.split("T")[0] : "",
       });
 
-      if (user.fileId) {
-        loadUserAvatar(user.fileId);
-      }
+      setFileImage(user.profileImageUrl || null);
     }
-    console.log("user", user);
   }, [user]);
-
-  const loadUserAvatar = async (fileId) => {
-    try {
-      const fileInfo = await fileService.getFileById(fileId);
-      if (fileInfo && fileInfo.s3Url) {
-        setFileImage(fileInfo.s3Url);
-      }
-    } catch (error) {
-      console.error("사용자 아바타 로드 실패:", error);
-    }
-  };
 
   return (
     <form className={styles.page} onSubmit={handleSave}>

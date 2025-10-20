@@ -1,0 +1,276 @@
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
+import styles from "../ClosetPage/ClosetPage.module.css";
+import CommonCodeService from "@/services/commonCodeService";
+import ClothesServiceSample from "./clothesServiceSample";
+
+const ClosetPageSample = () => {
+  const navigate = useNavigate();
+
+  const [tabs, setTabs] = useState([]);
+  const [activeTab, setActiveTab] = useState("clothes");
+
+  // ✅ 카테고리 데이터
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategoriesMap, setSubCategoriesMap] = useState({});
+  const [mainCategory, setMainCategory] = useState("all");
+  const [subCategory, setSubCategory] = useState("all");
+
+  const [clothesItems, setClothesItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  useEffect(() => {
+    const fetchTabs = async () => {
+      try {
+        const response = await CommonCodeService.getCommonCodesByParentCodeId("B10002");
+        const tabsData = Object.values(response).map((tab) => ({
+          id: tab.codeId,
+          label: tab.codeName,
+        }));
+        setTabs(tabsData);
+      } catch (err) {
+        console.error("탭 데이터 로드 실패:", err);
+      }
+    };
+    fetchTabs();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const { mainCategories, subCategoriesMap } = await CommonCodeService.getCategoryData();
+        setMainCategories(mainCategories);
+        setSubCategoriesMap(subCategoriesMap);
+      } catch (err) {
+        console.error("카테고리 데이터 로드 실패:", err);
+      }
+    };
+    fetchCategoryData();
+  }, []);
+
+  useEffect(() => {
+    const fetchClothes = async () => {
+      try {
+        setLoading(true);
+        const response = await ClothesServiceSample.getUserClothes();
+        if (response.success && response.data) {
+          setClothesItems(response.data);
+        } else {
+          setClothesItems([]);
+          console.error("옷 목록 조회 실패:", response.message);
+        }
+      } catch (err) {
+        console.error("옷 목록 조회 실패:", err);
+        setClothesItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchClothes();
+  }, []);
+
+  const handleSelectMode = () => {
+    setIsSelecting((prev) => !prev);
+    setSelectedItems([]);
+  };
+
+  const toggleItemSelection = (itemId) => {
+    setSelectedItems((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId],
+    );
+  };
+
+  const handleCardClick = (item) => {
+    if (isSelecting) {
+      toggleItemSelection(item.clothesId);
+      return;
+    }
+    // TODO: 상세 페이지로 이동
+    navigate(`/closet/item-sample/${item.clothesId}`);
+  };
+
+  const handleAddClick = () => {
+    // TODO: 등록 페이지로 이동
+    navigate("/closet/register-sample");
+  };
+
+  const handleDelete = () => {
+    if (!selectedItems.length) return;
+    if (!window.confirm("선택한 옷을 삭제하시겠습니까?")) return;
+    // TODO: 삭제 기능 구현
+    alert("삭제 기능은 아직 구현되지 않았습니다.");
+  };
+
+  const handleCategoryChange = (id) => {
+    setMainCategory(id);
+    setSubCategory("all");
+  };
+
+  const handleSubCategoryChange = (id) => {
+    setSubCategory(id);
+  };
+
+  const filteredItems = useMemo(() => {
+    return clothesItems.filter((item) => {
+      if (mainCategory === "all") {
+        return true;
+      }
+
+      if (subCategory !== "all") {
+        return item.categoryCode === subCategory;
+      }
+
+      const subCategoriesForMain = subCategoriesMap[mainCategory] || [];
+      const subCategoryCodes = subCategoriesForMain.map((sub) => sub.codeId);
+      return subCategoryCodes.includes(item.categoryCode);
+    });
+  }, [clothesItems, mainCategory, subCategory, subCategoriesMap]);
+
+  const isCoordiTab = activeTab === "coordi";
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: "center", padding: "50px" }}>
+          <p>옷 목록을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      {/* TODO: 탭바 데이터 연결 */}
+      <section className={styles.tabBar}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={clsx(styles.tabButton, activeTab === tab.id && styles.activeTab)}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </section>
+
+      {/* TODO: 카테고리 데이터 연결 */}
+      {!isCoordiTab && (
+        <section className={styles.categories}>
+          <div className={styles.categoryHeader}>
+            <div className={styles.categoryMainList}>
+              {mainCategories.map((cat) => (
+                <button
+                  key={cat.codeId}
+                  type="button"
+                  className={clsx(
+                    styles.categoryButton,
+                    mainCategory === cat.codeId && styles.activeCategory,
+                  )}
+                  onClick={() => handleCategoryChange(cat.codeId)}
+                >
+                  {cat.codeName}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {mainCategory !== "all" && (
+            <div className={styles.subCategoryList}>
+              {(subCategoriesMap[mainCategory] || []).map((sub) => (
+                <button
+                  key={sub.codeId}
+                  type="button"
+                  className={clsx(
+                    styles.subCategoryButton,
+                    subCategory === sub.codeId && styles.activeSubCategory,
+                  )}
+                  onClick={() => handleSubCategoryChange(sub.codeId)}
+                >
+                  {sub.codeName}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* 유틸리티 바 */}
+      <div className={styles.utilityRow}>
+        <button
+          type="button"
+          className={clsx(styles.selectToggle, isSelecting && styles.cancelSelect)}
+          onClick={handleSelectMode}
+        >
+          <span className={styles.toggleIcon} aria-hidden />
+          {isSelecting ? "취소하기" : "선택하기"}
+        </button>
+        {isSelecting ? (
+          <div className={styles.selectionStatus}>
+            <span className={styles.selectionBadge} aria-hidden />
+            <span className={styles.selectionText}>{selectedItems.length}개 선택됨</span>
+          </div>
+        ) : (
+          <div className={styles.selectionPlaceholder} />
+        )}
+        <button type="button" className={styles.sortButton}>
+          구매일순
+          <span className={styles.sortIcon} aria-hidden />
+        </button>
+      </div>
+
+      <section className={styles.gridSection}>
+        <div className={styles.grid}>
+          {filteredItems.map((item) => (
+            <article
+              key={item.clothesId}
+              className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+              onClick={() => handleCardClick(item)}
+            >
+              <div className={styles.cardImageWrapper}>
+                <img
+                  src={item.imageUrl || "/noimage.png"}
+                  alt={item.name}
+                  className={styles.cardImage}
+                />
+                {isSelecting && (
+                  <span
+                    className={clsx(
+                      styles.checkbox,
+                      selectedItems.includes(item.clothesId) && styles.checkboxChecked,
+                    )}
+                  />
+                )}
+              </div>
+              <div className={styles.cardContent}>
+                <p className={styles.cardName}>{item.name}</p>
+                {item.purchaseDate && <p className={styles.cardMeta}>{item.purchaseDate}</p>}
+              </div>
+            </article>
+          ))}
+
+          {!isCoordiTab && (
+            <button type="button" className={styles.addCard} onClick={handleAddClick}>
+              <span className={styles.addIcon}>＋</span>
+              <span className={styles.addLabel}>아이템 추가</span>
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* 삭제 버튼 */}
+      {isSelecting && selectedItems.length > 0 && (
+        <button type="button" className={styles.deletePill} onClick={handleDelete}>
+          <span className={styles.deleteIcon} aria-hidden />
+          삭제
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default ClosetPageSample;

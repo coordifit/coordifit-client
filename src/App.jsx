@@ -18,6 +18,10 @@ import ClosetPage from "@/pages/ClosetPage/ClosetPage";
 import ClosetDetailPage from "@/pages/ClosetDetailPage/ClosetDetailPage";
 import ClosetRegisterPage from "@/pages/ClosetRegisterPage/ClosetRegisterPage";
 
+import ClosetPageSample from "@/pages/ClosetSamplePage/ClosetPageSample";
+import ClosetDetailPageSample from "@/pages/ClosetSamplePage/ClosetDetailPageSample";
+import ClosetRegisterPageSample from "@/pages/ClosetSamplePage/ClosetRegisterPageSample";
+
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import MainPage from "@/pages/MainPage/MainPage";
 import PasswordReset from "@/pages/PasswordResetPage/PasswordResetPage";
@@ -173,6 +177,48 @@ const router = createBrowserRouter([
           showBack: true,
           showHeader: true,
           showTabbar: true,
+        },
+      },
+      {
+        path: "/closet-sample",
+        element: (
+          <ProtectedRoute>
+            <ClosetPageSample />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "옷장 (샘플)",
+          showBack: false,
+          showHeader: true,
+          showTabbar: true,
+        },
+      },
+      {
+        path: "/closet/item-sample/:itemId",
+        element: (
+          <ProtectedRoute>
+            <ClosetDetailPageSample />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "옷 상세 (샘플)",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/closet/register-sample",
+        element: (
+          <ProtectedRoute>
+            <ClosetRegisterPageSample />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "옷 등록 (샘플)",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
         },
       },
       {

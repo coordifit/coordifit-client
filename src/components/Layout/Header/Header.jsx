@@ -21,7 +21,7 @@ const Header = () => {
   };
 
   return (
-    <header className={styles.header}>
+    <header id="app-header" className={styles.header}>
       {showBack ? (
         <button type="button" className={styles.backButton} onClick={onBack} aria-label="이전으로">
           <img src={backIcon} alt="" className={styles.backIcon} />

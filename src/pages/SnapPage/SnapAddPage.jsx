@@ -5,6 +5,8 @@ import commonCodeService from "../../services/commonCodeService";
 import clothesService from "../../services/clothesService";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapAddPage.module.css";
+import cameraIcon from "@/assets/images/snapupload.png";
+import checkIcon from "@/assets/images/checkicon.png";
 
 const SnapAddPage = () => {
   const navigate = useNavigate();
@@ -59,7 +61,7 @@ const SnapAddPage = () => {
     const loadAllClothes = async () => {
       try {
         const clothes = await clothesService.getClothes();
-
+        console.log("전체 옷 정보:", clothes);
         const transformedClothes = clothes.data.content.map((item) => ({
           id: item.clothesId,
           name: item.name,
@@ -210,7 +212,7 @@ const SnapAddPage = () => {
 
           {uploadedImages.length === 0 ? (
             <div className={styles.uploadArea} onClick={handleImageUpload}>
-              <div className={styles.uploadIcon}>📷</div>
+              <img src={cameraIcon} alt="카메라 아이콘" className={styles.cameraIcon} />
               <p>사진 첨부</p>
             </div>
           ) : (
@@ -284,19 +286,23 @@ const SnapAddPage = () => {
                   ))}
                 </div>
               )}
-
               <div className={styles.productGrid}>
                 {filteredItems.map((item) => (
                   <div key={item.id} className={styles.productCard}>
                     <img src={item.images[0]} alt={item.name} />
                     <div className={styles.radioWrapper}>
                       <input
-                        type="radio"
+                        type="checkbox"
                         id={item.id}
                         checked={selectedItems.includes(item.id)}
                         onChange={() => toggleItemSelection(item.id)}
                       />
                       <label htmlFor={item.id}></label>
+
+                      {/* ✅ 체크되면 아이콘 표시 */}
+                      {selectedItems.includes(item.id) && (
+                        <img src={checkIcon} alt="선택됨" className={styles.checkIcon} />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -337,7 +343,9 @@ const SnapAddPage = () => {
           onClick={handleNext}
           disabled={!canProceed()}
         >
-          {selectedItems.length > 0 ? `${selectedItems.length}개 상품 선택완료` : "다음"}
+          {selectedItems.length > 0
+            ? `${selectedItems.length}개 상품 선택완료`
+            : "상품을 선택하세요."}
         </button>
       </div>
     </div>

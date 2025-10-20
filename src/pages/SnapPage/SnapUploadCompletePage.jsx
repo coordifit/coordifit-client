@@ -117,10 +117,9 @@ const SnapUploadCompletePage = () => {
 
         {/* 스냅 설명 입력 */}
         <div className={styles.contentSection}>
-          <h3>스냅에 관련된 말들을 적어주세요.</h3>
           <textarea
             className={styles.contentInput}
-            placeholder="오늘의 코디에 대한 이야기를 남겨보세요..."
+            placeholder="스냅에 관련된 말들을 적어주세요."
             value={postContent}
             onChange={handlePostContentChange}
             rows={4}
@@ -133,8 +132,9 @@ const SnapUploadCompletePage = () => {
           <div className={styles.selectedProductsScroll}>
             {getSelectedProducts().map((product) => (
               <div key={product.id} className={styles.productCard}>
-                <img src={product.images[0]} alt={product.name} />
-                <div className={styles.productInfo}>
+                <img src={product.images[0]} alt={product.name} className={styles.productImage} />
+                <div className={styles.productText}>
+                  {" "}
                   <div className={styles.brandName}>{product.brand}</div>
                   <div className={styles.productName}>{product.name}</div>
                   <div className={styles.price}>{product.price.toLocaleString()}원</div>

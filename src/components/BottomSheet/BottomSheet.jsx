@@ -74,9 +74,6 @@ const BottomSheet = ({ title, onClose, children, footer, height = "60vh", showHa
         {title && (
           <div className={styles.header}>
             <h2 className={styles.title}>{title}</h2>
-            <button type="button" className={styles.close} onClick={onClose}>
-              ✕
-            </button>
           </div>
         )}
 

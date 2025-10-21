@@ -485,7 +485,7 @@ const MainPage = () => {
             : Array.isArray(response)
               ? response
               : [];
-
+        console.log("스냅 게시물 데이터:", items);
         if (!items.length) {
           setSnaps([]);
           return;

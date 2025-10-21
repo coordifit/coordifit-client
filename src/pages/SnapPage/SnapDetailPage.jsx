@@ -5,8 +5,10 @@ import profileImage from "@/assets/images/profile.png";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import { useUserStore } from "@/stores/userStore";
 import styles from "./SnapDetailPage.module.css";
-import heartRed from "@/assets/images/hearticon_red.png";
+import heartRed from "@/assets/images/heart.png";
+import heartlike from "@/assets/images/hearticon_red.png";
 import heartBlack from "@/assets/images/hearticon_black.png";
+import heartGray from "@/assets/images/hearticon_gray.png";
 import messageCircle from "@/assets/images/message-circle.png";
 const SnapDetailPage = () => {
   const { postId } = useParams();
@@ -23,6 +25,7 @@ const SnapDetailPage = () => {
   const [likeUsers, setLikeUsers] = useState([]);
   const [loadingLikes, setLoadingLikes] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [expandedReplies, setExpandedReplies] = useState(new Set());
 
   useEffect(() => {
     const loadPostDetail = async () => {
@@ -72,6 +75,7 @@ const SnapDetailPage = () => {
     setIsCommentModalOpen(false);
     setCommentContent("");
     setReplyingTo(null);
+    setExpandedReplies(new Set()); // 답글 확장 상태 초기화
   };
 
   const handleSubmitComment = async () => {
@@ -174,6 +178,18 @@ const SnapDetailPage = () => {
       }));
       alert("좋아요 처리 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleToggleReplies = (commentId) => {
+    setExpandedReplies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
   };
 
   const handleToggleCommentLike = async (commentId) => {
@@ -318,7 +334,7 @@ const SnapDetailPage = () => {
           <div className={styles.actionButtons}>
             <button className={styles.actionButton} onClick={handleTogglePostLike}>
               <img
-                src={postDetail.liked ? heartRed : heartBlack}
+                src={postDetail.liked ? heartlike : heartBlack}
                 alt="좋아요"
                 className={styles.actionIcon}
               />
@@ -449,59 +465,159 @@ const SnapDetailPage = () => {
             {/* 댓글이 있을 때만 표시 */}
             {postDetail.comments && postDetail.comments.length > 0 ? (
               <div className={styles.modalCommentList}>
-                {postDetail.comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.modalCommentItem} ${comment.parentId ? styles.replyComment : ""}`}
-                  >
-                    <div className={styles.modalCommentHeader}>
-                      <div className={styles.modalCommentUserInfo}>
-                        <img
-                          src={comment.profileImageUrl || profileImage}
-                          alt="프로필"
-                          className={styles.modalCommentProfileImage}
-                          onClick={() => handleCommentUserClick(comment.userId)}
-                        />
-                        <span
-                          className={styles.modalCommentUser}
-                          onClick={() => handleCommentUserClick(comment.userId)}
-                        >
-                          {comment.nickname}
-                        </span>
-                        <span className={styles.modalCommentDate}>
-                          {new Date(comment.createdAt)
-                            .toLocaleDateString("ko-KR", {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                            })
-                            .replace(/\./g, ".")}
-                        </span>
+                {postDetail.comments
+                  .filter((comment) => !comment.parentId)
+                  .map((comment, index) => {
+                    const replies = postDetail.comments.filter(
+                      (reply) => reply.parentId === comment.commentId,
+                    );
+                    const isExpanded = expandedReplies.has(comment.commentId);
+
+                    return (
+                      <div key={index} className={styles.commentThread}>
+                        {/* 원댓글 */}
+                        <div className={styles.modalCommentItem}>
+                          <img
+                            src={comment.profileImageUrl || profileImage}
+                            alt="프로필"
+                            className={styles.modalCommentProfileImage}
+                            onClick={() => handleCommentUserClick(comment.userId)}
+                          />
+
+                          <div className={styles.modalCommentContent}>
+                            <div className={styles.modalCommentHeader}>
+                              <span
+                                className={styles.modalCommentUser}
+                                onClick={() => handleCommentUserClick(comment.userId)}
+                              >
+                                {comment.nickname}
+                              </span>
+                              <span className={styles.modalCommentDate}>
+                                {new Date(comment.createdAt)
+                                  .toLocaleDateString("ko-KR", {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                  })
+                                  .replace(/\./g, ".")}
+                              </span>
+                            </div>
+
+                            <div className={styles.modalCommentText}>{comment.content}</div>
+
+                            <div className={styles.modalCommentActions}>
+                              <button
+                                className={styles.modalReplyButton}
+                                onClick={() => handleReplyToComment(comment)}
+                              >
+                                답글 달기
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className={styles.commentLikeSection}>
+                            <button
+                              className={styles.commentLikeButton}
+                              onClick={() => handleToggleCommentLike(comment.commentId)}
+                            >
+                              <img
+                                src={comment.liked ? heartRed : heartGray}
+                                alt="좋아요"
+                                className={styles.commentLikeIcon}
+                              />
+                            </button>
+                            <span className={styles.commentLikeCount}>
+                              {comment.likeCount || 0}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 답글 더보기 버튼 (펼치기만) */}
+                        {replies.length > 0 && !isExpanded && (
+                          <div className={styles.viewRepliesContainer}>
+                            <button
+                              className={styles.modalViewRepliesButton}
+                              onClick={() => handleToggleReplies(comment.commentId)}
+                            >
+                              답글 {replies.length}개 더보기
+                            </button>
+                          </div>
+                        )}
+
+                        {/* 답글들 */}
+                        {isExpanded && (
+                          <div className={styles.repliesContainer}>
+                            {replies.map((reply, replyIndex) => (
+                              <div
+                                key={replyIndex}
+                                className={`${styles.modalCommentItem} ${styles.replyComment}`}
+                              >
+                                <img
+                                  src={reply.profileImageUrl || profileImage}
+                                  alt="프로필"
+                                  className={styles.modalCommentProfileImage}
+                                  onClick={() => handleCommentUserClick(reply.userId)}
+                                />
+
+                                <div className={styles.modalCommentContent}>
+                                  <div className={styles.modalCommentHeader}>
+                                    <span
+                                      className={styles.modalCommentUser}
+                                      onClick={() => handleCommentUserClick(reply.userId)}
+                                    >
+                                      {reply.nickname}
+                                    </span>
+                                    <span className={styles.modalCommentDate}>
+                                      {new Date(reply.createdAt)
+                                        .toLocaleDateString("ko-KR", {
+                                          year: "numeric",
+                                          month: "2-digit",
+                                          day: "2-digit",
+                                        })
+                                        .replace(/\./g, ".")}
+                                    </span>
+                                  </div>
+
+                                  <div className={styles.modalCommentText}>{reply.content}</div>
+                                </div>
+
+                                <div className={styles.commentLikeSection}>
+                                  <button
+                                    className={styles.commentLikeButton}
+                                    onClick={() => handleToggleCommentLike(reply.commentId)}
+                                  >
+                                    <img
+                                      src={reply.liked ? heartRed : heartGray}
+                                      alt="좋아요"
+                                      className={styles.commentLikeIcon}
+                                    />
+                                  </button>
+                                  <span className={styles.commentLikeCount}>
+                                    {reply.likeCount || 0}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* 답글 숨기기 버튼 - 답글 이미지와 정렬 */}
+                            <div className={styles.hideRepliesContainer}>
+                              <button
+                                className={styles.modalViewRepliesButton}
+                                onClick={() => handleToggleReplies(comment.commentId)}
+                              >
+                                답글 숨기기
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <button
-                        className={styles.modalLikeButton}
-                        onClick={() => handleToggleCommentLike(comment.commentId)}
-                      >
-                        {comment.liked ? "❤️" : "🤍"} {comment.likeCount || 0}
-                      </button>
-                    </div>
-                    <div className={styles.modalCommentText}>{comment.content}</div>
-                    <div className={styles.modalCommentActions}>
-                      {!comment.parentId && (
-                        <button
-                          className={styles.modalReplyButton}
-                          onClick={() => handleReplyToComment(comment)}
-                        >
-                          답글 달기
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             ) : (
               <div className={styles.modalEmptyComment}>
-                등록된 댓글이 없습니다. 가장 먼저 댓글을 남겨보세요.
+                <p className={styles.noCommentTitle}>등록된 댓글이 없습니다.</p>
+                <p className={styles.noCommentSubtitle}>가장 먼저 댓글을 남겨보세요.</p>
               </div>
             )}
           </div>
@@ -513,7 +629,7 @@ const SnapDetailPage = () => {
         <BottomSheet
           title={`좋아요 ${likeUsers.length}명`}
           onClose={handleCloseLikesModal}
-          height="50vh"
+          height="75vh"
         >
           <div className={styles.likesModalContent}>
             {loadingLikes ? (

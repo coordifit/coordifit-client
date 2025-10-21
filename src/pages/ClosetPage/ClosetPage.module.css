@@ -1,555 +1,616 @@
 .container {
-    position: relative;
-    display: flex;
-    padding: 0px 0px 0px 0px;
-    flex-direction: column;
-    min-height: 100%;
-    background: #fff;
+  position: relative;
+  display: flex;
+  padding: 0px 0px 0px 0px;
+  flex-direction: column;
+  min-height: 100%;
+  height: 160px;
+  background: #fff;
 }
 
 .topActions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    min-height: 32px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 32px;
 }
 
 .selectToggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 14px;
-    border: 1px solid #ffffff;
-    border-radius: 14px;
-    background: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border: 1px solid #ffffff;
+  border-radius: 14px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
 }
 
 .selectToggle:not(.cancelSelect) .toggleIcon {
-    display: none;
+  display: none;
 }
 
 .cancelSelect {
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #000;
-    font-weight: 600;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #000;
+  font-weight: 600;
 }
 
 .toggleIcon {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    border: 1.5px solid #131214;
-    border-radius: 50%;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid #131214;
+  border-radius: 50%;
 }
 
 .toggleIcon::before,
 .toggleIcon::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 12px;
-    height: 1.5px;
-    background: #131214;
-    transform: translate(-50%, -50%);
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 1.5px;
+  background: #131214;
+  transform: translate(-50%, -50%);
 }
 
 .toggleIcon::after {
-    transform: translate(-50%, -50%) rotate(90deg);
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .cancelSelect .toggleIcon::before {
-    transform: translate(-50%, -50%) rotate(45deg);
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .cancelSelect .toggleIcon::after {
-    transform: translate(-50%, -50%) rotate(-45deg);
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .registerLink {
-    border: none;
-    background: transparent;
-    color: #111;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .tabBar {
-    display: flex;
-    border-bottom: 1px solid #e6eaec;
-    position: relative;
+  display: flex;
+  border-bottom: 1px solid #e6eaec;
+  position: relative;
 }
 
 .tabButton {
-    flex: 1;
-    padding: 0px 0px 12px;
-    background: none;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    color: #d5d5d5;
-    position: relative;
-    cursor: pointer;
+  flex: 1;
+  padding: 0px 0px 12px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d5d5d5;
+  position: relative;
+  cursor: pointer;
 }
 
 .tabButton + .tabButton::before {
-    content: "";
-    position: absolute;
-    top: 0; /* 가로선과 밀착 */
-    bottom: 0; /* 세로선이 가득 차도록 */
-    left: 0;
-    width: 1px;
-    background: #e6eaec;
+  content: "";
+  position: absolute;
+  top: 0; /* 가로선과 밀착 */
+  bottom: 0; /* 세로선이 가득 차도록 */
+  left: 0;
+  width: 1px;
+  background: #e6eaec;
 }
 
 .tabButton::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 2px;
-    background: transparent;
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
 }
 
 .activeTab {
-    color: #333;
-    font-size: 17px;
+  color: #333;
+  font-size: 17px;
 }
 
 .categories {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .categoryHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .categoryMainList {
-    display: flex;
-    gap: 6px;
-    padding: 0 20px 0;
-    overflow-x: auto;
-    padding-bottom: 4px;
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
 .categoryButton {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 15px;
-    height: 30px;
-    border-radius: 10px;
-    border: none;
-    background: #ffffff;
-    color: #a6a6a6;
-    font-size: 15px;
-    font-weight: 700;
-    white-space: nowrap;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 15px;
+  height: 30px;
+  border-radius: 10px;
+  border: none;
+  background: #ffffff;
+  color: #a6a6a6;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .activeCategory {
-    background: #333;
-    color: #fff;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  background: #333;
+  color: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 .panelToggle {
-    border: none;
-    background: transparent;
-    color: #8e8e93;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #8e8e93;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .subCategoryList {
-    display: flex;
-    gap: 12px;
-    padding: 0 20px 0;
-    overflow-x: auto;
-    padding-bottom: 6px;
+  display: flex;
+  gap: 12px;
+  padding: 0 20px 0;
+  overflow-x: auto;
+  padding-bottom: 6px;
 }
 
 .subCategoryButton {
-    border: none;
-    background: transparent;
-    padding: 8px 10px 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #d5d5d5;
-    white-space: nowrap;
+  border: none;
+  background: transparent;
+  padding: 8px 10px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d5d5d5;
+  white-space: nowrap;
 }
 
 .activeSubCategory {
-    color: #333;
-    border-bottom: 1px solid #000;
+  color: #333;
+  border-bottom: 1px solid #000;
 }
 
 .utilityRow {
-    display: flex;
-    justify-content: space-between; /* 좌-우 끝 배치 */
-    align-items: center;
-    margin: 0px 0 10px;
-    gap: 12px; /* 버튼 사이 간격 */
+  display: flex;
+  justify-content: space-between; /* 좌-우 끝 배치 */
+  align-items: center;
+  margin: 0px 0 10px;
+  gap: 12px; /* 버튼 사이 간격 */
 }
 
 .selectionStatus {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .selectionBadge {
-    position: relative;
-    display: inline-block;
-    width: 17px;
-    height: 17px;
-    border: 1.5px solid #131214;
-    border-radius: 4px;
+  position: relative;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid #131214;
+  border-radius: 4px;
 }
 
 .selectionBadge::after {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 2px;
-    width: 6px;
-    height: 10px;
-    border: 1.5px solid #131214;
-    border-top: 0;
-    border-left: 0;
-    transform: rotate(45deg);
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: 1.5px solid #131214;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
 }
 
 .selectionText {
-    font-size: 11px;
-    font-weight: 600;
-    color: #000;
+  font-size: 11px;
+  font-weight: 600;
+  color: #000;
 }
 
 .selectionPlaceholder {
-    min-height: 20px;
-    min-width: 81px;
+  min-height: 20px;
+  min-width: 81px;
 }
 
 .sortButton {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 0 8px;
-    height: 26px;
-    border: 1px solid #d9d9d9;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 13px;
-    font-weight: 500;
-    color: #000;
-    cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  height: 26px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #000;
+  cursor: pointer;
 }
 
 .sortIcon {
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid #131214;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #131214;
 }
 
 .gridSection {
-    position: relative;
+  position: relative;
+  overflow-y: auto;
 }
 
 .grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0; /* 카드 사이 간격 제거 */
-    justify-content: flex-start; /* 왼쪽 정렬 */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0; /* 카드 사이 간격 제거 */
+  justify-content: flex-start; /* 왼쪽 정렬 */
 }
 
 .card {
-    position: relative;
-    width: 112px;
-    height: 160px;
-    flex: 0 0 auto; /* 크기 고정 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 5px 10px;
-    border: 1px solid rgba(170, 178, 200, 0.2); /* #AAB2C8 20% */
-    background: #fff;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
+  position: relative;
+  width: 112px;
+  height: 160px;
+  flex: 0 0 auto; /* 크기 고정 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 5px 10px;
+  border: 1px solid rgba(170, 178, 200, 0.2); /* #AAB2C8 20% */
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
 }
 
 .cardImageWrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .cardImage {
-    width: 92px;
-    height: 92px;
-    object-fit: cover;
-    border-radius: 6px;
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .checkbox {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 1.5px solid #131214;
-    background: #fff;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #131214;
+  background: #fff;
 }
 
 .checkbox::after {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 1px;
-    width: 5px;
-    height: 9px;
-    border: 1.5px solid transparent;
-    transform: rotate(45deg);
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: 1.5px solid transparent;
+  transform: rotate(45deg);
 }
 
 .checkboxChecked {
-    background: #131214;
+  background: #131214;
 }
 
 .checkboxChecked::after {
-    border-right-color: #fff;
-    border-bottom-color: #fff;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
 }
 
 .cardContent {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
 }
 
 .cardName {
-    width: 100%;
-    font-size: 11px;
-    font-weight: 600;
-    color: #a6a6a6;
-    line-height: 1.4;
+  width: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a6a6a6;
+  line-height: 1.4;
 }
 
 .cardMeta {
-    width: 100%;
-    font-size: 8px;
-    color: #a6a6a6;
+  width: 100%;
+  font-size: 8px;
+  color: #a6a6a6;
 }
 
 .addCard {
-    width: 110px;
-    height: 160px;
-    flex: 0 0 auto; /* 크기 고정 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 5px;
-    border: 1px solid rgba(170, 178, 200, 0.2);
-    background: #f4f6f7;
-    color: #6b7280;
+  width: 110px;
+  height: 160px;
+  flex: 0 0 auto; /* 크기 고정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 5px;
+  border: 1px solid rgba(170, 178, 200, 0.2);
+  background: #f4f6f7;
+  color: #6b7280;
 }
 
 .addIcon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid #131214;
-    border-radius: 50%;
-    font-size: 16px;
-    line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #131214;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .addLabel {
-    font-size: 12px;
-    font-weight: 600;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .observerTarget {
-    width: 100%;
-    height: 1px;
+  width: 100%;
+  height: 1px;
 }
 
 .categoryPanel {
-    position: fixed;
-    top: 88px;
-    right: 12px;
-    width: 220px;
-    max-height: calc(100vh - 140px);
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    border-radius: 20px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    z-index: 20;
+  position: fixed;
+  top: 88px;
+  right: 12px;
+  width: 220px;
+  max-height: calc(100vh - 140px);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 20;
 }
 
 .categoryPanelHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .categoryPanelTitle {
-    font-size: 16px;
-    font-weight: 700;
-    color: #222;
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
 }
 
 .categoryPanelClose {
-    border: none;
-    background: transparent;
-    color: #999;
-    font-size: 14px;
-    cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .categoryPanelBody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
 }
 
 .categoryPanelGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .categoryPanelMain {
-    border: none;
-    background: #f3f3f3;
-    border-radius: 14px;
-    padding: 8px 12px;
-    text-align: left;
-    font-size: 14px;
-    color: #555;
+  border: none;
+  background: #f3f3f3;
+  border-radius: 14px;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
 }
 
 .activePanelMain {
-    background: #111;
-    color: #fff;
+  background: #111;
+  color: #fff;
 }
 
 .categoryPanelSubList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .categoryPanelSub {
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 6px 10px;
-    font-size: 12px;
-    background: #fff;
-    color: #666;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #fff;
+  color: #666;
 }
 
 .activePanelSub {
-    border-color: #111;
-    color: #111;
-    font-weight: 600;
+  border-color: #111;
+  color: #111;
+  font-weight: 600;
 }
 
 .deletePill {
-    position: fixed;
-    left: 50%;
-    bottom: 96px;
-    transform: translateX(-50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 20px;
-    border: none;
-    border-radius: 20px;
-    background: #8e8e93;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    cursor: pointer;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  position: fixed;
+  left: 50%;
+  bottom: 180px;
+  transform: translateX(-50%);
+  z-index: 200; /* ✅ 다른 요소 위로 띄우기 */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 20px;
+  background: #8e8e93;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .deleteIcon {
-    position: relative;
-    width: 17px;
-    height: 17px;
-    border: 1.5px solid #131214;
-    border-radius: 4px;
-    background: #fff;
+  position: relative;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid #131214;
+  border-radius: 4px;
+  background: #fff;
 }
 
 .deleteIcon::before,
 .deleteIcon::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 9px;
-    height: 1.5px;
-    background: #131214;
-    transform: translate(-50%, -50%);
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 1.5px;
+  background: #131214;
+  transform: translate(-50%, -50%);
 }
 
 .deleteIcon::after {
-    transform: translate(-50%, -50%) rotate(90deg);
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 .categoryMainList::-webkit-scrollbar,
 .subCategoryList::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
+  display: none; /* Chrome, Safari, Edge */
 }
 @media (max-width: 768px) {
-    .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-    .deletePill {
-        bottom: 84px;
-    }
+  .deletePill {
+    bottom: 84px;
+  }
 
-    .categoryPanel {
-        inset: auto 16px 84px 16px;
-        width: auto;
-    }
+  .categoryPanel {
+    inset: auto 16px 84px 16px;
+    width: auto;
+  }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 0px;
-    }
+  .container {
+    padding: 0px;
+  }
+}
+
+.sortWrapper {
+  position: relative;
+}
+
+.sortDropdown {
+  position: absolute;
+  top: 85px;
+  right: 0;
+  width: 120px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 6px 0;
+  z-index: 100;
+  animation: dropdownFade 0.15s ease-out;
+}
+
+.sortOption {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sortOption:hover {
+  background: #f5f5f5;
+}
+
+.activeSort {
+  font-weight: 600;
+  color: #111;
+  background: #f0f0f0;
+}
+
+.sortArrow {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #131214;
+  margin-left: 6px;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

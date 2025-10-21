@@ -43,9 +43,14 @@ import outerImage from "@/assets/images/clothes/outer1.png";
 import pantsImage from "@/assets/images/clothes/pants1.png";
 import shoesImage from "@/assets/images/clothes/shoes1.png";
 
+import heartBlack from "@/assets/images/hearticon_white.png";
+import heartRed from "@/assets/images/hearticon_red.png";
+import profileImage from "@/assets/images/mainpage/usericon.png";
+
 import clothesService from "@/services/clothesService";
 import postService from "@/services/postService";
 import commonCodeService from "@/services/commonCodeService";
+import { useUserStore } from "@/stores/userStore";
 
 const HERO_CARDS = [
   {
@@ -212,13 +217,7 @@ const RECENT_CATEGORY_TABS = [
 ];
 const SNAP_FALLBACKS = [snapFallback1, snapFallback2, snapFallback3, snapFallback4];
 const PLACEHOLDER_LIKES = [428, 356, 512, 289, 643, 398];
-const SNAP_FALLBACK_DATA = SNAP_FALLBACKS.map((image, index) => ({
-  id: `snap-fallback-${index}`,
-  image,
-  author: "CoordiFit",
-  title: "오늘의 데일리룩",
-  likes: PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
-}));
+// SNAP_FALLBACK_DATA는 컴포넌트 내부에서 사용자 정보와 함께 생성
 
 const CALENDAR_DAYS = [
   {
@@ -285,6 +284,7 @@ const CALENDAR_DAYS = [
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
   const [isLoadingClothes, setIsLoadingClothes] = useState(true);
   const [rawClothes, setRawClothes] = useState([]);
   const [clothesError, setClothesError] = useState(null);
@@ -494,16 +494,28 @@ const MainPage = () => {
         const adapted = items.map((item, index) => ({
           id: item.postId || item.id || `snap-${index}`,
           image:
-            item.imageUrl || item.thumbnailUrl || SNAP_FALLBACKS[index % SNAP_FALLBACKS.length],
-          author: item.authorNickname || item.nickname || item.userName || "CoordiFit 사용자",
-          title: item.title || item.postTitle || "오늘의 데일리룩",
+            item.imageUrls?.[0] ||
+            item.imageUrl ||
+            item.thumbnailUrl ||
+            SNAP_FALLBACKS[index % SNAP_FALLBACKS.length],
+          author:
+            item.nickname ||
+            item.authorNickname ||
+            item.userName ||
+            user?.nickname ||
+            "CoordiFit 사용자",
+          profileImage: item.profileImageUrl || user?.profileImageUrl || profileImage,
+          title: item.content || item.title || item.postTitle || "오늘의 데일리룩",
           likes:
             typeof item.likeCount === "number"
               ? item.likeCount
               : PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
+          liked: item.liked || false,
         }));
 
-        setSnaps(adapted.slice(0, 4));
+        // 좋아요 수가 많은 순으로 정렬 후 상위 4개만 선택
+        const sortedByLikes = adapted.sort((a, b) => b.likes - a.likes);
+        setSnaps(sortedByLikes.slice(0, 4));
       } catch (error) {
         if (!cancelled) {
           console.error("스냅 게시물 조회 실패", error);
@@ -621,7 +633,22 @@ const MainPage = () => {
     [filteredRecentClothes],
   );
 
-  const displaySnaps = useMemo(() => (snaps.length ? snaps : SNAP_FALLBACK_DATA), [snaps]);
+  const displaySnaps = useMemo(() => {
+    if (snaps.length) {
+      return snaps;
+    }
+
+    // 사용자 정보를 활용한 fallback 데이터 생성
+    return SNAP_FALLBACKS.map((image, index) => ({
+      id: `snap-fallback-${index}`,
+      image,
+      author: user?.nickname || "CoordiFit 사용자",
+      profileImage: user?.profileImageUrl || profileImage,
+      title: "오늘의 데일리룩",
+      likes: PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
+      liked: false,
+    }));
+  }, [snaps, user?.nickname]);
   const canNavigateSnap = snaps.length > 0;
 
   const resolveShortcutCodes = useCallback(
@@ -656,6 +683,41 @@ const MainPage = () => {
     },
     [navigate, resolveShortcutCodes],
   );
+
+  const handleToggleSnapLike = useCallback(async (snapId, event) => {
+    event.stopPropagation(); // 또는 카드 클릭 이벤트 방지
+
+    // 즉시 UI 업데이트
+    setSnaps((prevSnaps) =>
+      prevSnaps.map((snap) =>
+        snap.id === snapId
+          ? {
+              ...snap,
+              liked: !snap.liked,
+              likes: snap.liked ? snap.likes - 1 : snap.likes + 1,
+            }
+          : snap,
+      ),
+    );
+
+    try {
+      await postService.togglePostLike(snapId);
+    } catch (error) {
+      console.error("좋아요 처리 오류:", error);
+      // 오류 시 원래 상태로 되돌리기
+      setSnaps((prevSnaps) =>
+        prevSnaps.map((snap) =>
+          snap.id === snapId
+            ? {
+                ...snap,
+                liked: !snap.liked,
+                likes: snap.liked ? snap.likes + 1 : snap.likes - 1,
+              }
+            : snap,
+        ),
+      );
+    }
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -926,22 +988,39 @@ const MainPage = () => {
                 />
               ))
             : displaySnaps.map((snap) => (
-                <button
+                <div
                   key={snap.id}
-                  type="button"
                   className={styles.snapCard}
                   onClick={() => canNavigateSnap && handleSectionNavigate(`/snap/${snap.id}`)}
-                  disabled={!canNavigateSnap}
+                  style={{ cursor: canNavigateSnap ? "pointer" : "default" }}
                 >
                   <div className={styles.snapImageWrapper}>
                     <img src={snap.image} alt={`${snap.title} 스냅 이미지`} />
+                    <button
+                      type="button"
+                      className={styles.snapLikeIcon}
+                      onClick={(e) => handleToggleSnapLike(snap.id, e)}
+                      aria-label={snap.liked ? "좋아요 취소" : "좋아요"}
+                    >
+                      <img
+                        src={snap.liked ? heartRed : heartBlack}
+                        alt={snap.liked ? "좋아요 됨" : "좋아요 안됨"}
+                      />
+                    </button>
                   </div>
                   <div className={styles.snapMeta}>
-                    <span className={styles.snapAuthor}>{snap.author}</span>
+                    <div className={styles.snapAuthorInfo}>
+                      <img
+                        src={snap.profileImage}
+                        alt={`${snap.author} 프로필`}
+                        className={styles.snapAuthorProfile}
+                      />
+                      <span className={styles.snapAuthor}>{snap.author}</span>
+                    </div>
                     <p className={styles.snapTitle}>{snap.title}</p>
                     <span className={styles.snapLikes}>❤️ {snap.likes.toLocaleString()}</span>
                   </div>
-                </button>
+                </div>
               ))}
         </div>
       </section>

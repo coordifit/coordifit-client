@@ -8,7 +8,7 @@ import snapIcon from "@/assets/images/snap.svg";
 import mypageIcon from "@/assets/images/mypage.svg";
 
 const tabs = [
-  { to: "/closet", icon: closetIcon, label: "내 옷장" },
+  { to: "/closet-sample", icon: closetIcon, label: "내 옷장" },
   { to: "/calendar", icon: calendarIcon, label: "코디 캘린더" },
   { to: "/main", icon: homeIcon, label: "홈" }, // ✅ 홈은 /main
   { to: "/snap", icon: snapIcon, label: "스냅" },

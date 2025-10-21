@@ -82,6 +82,29 @@ class ClothesServiceSample {
       throw error;
     }
   }
+
+  async deleteClothes(clothesId) {
+    try {
+      const response = await api.delete(`/clothes/sample/${clothesId}`);
+      return response.data;
+    } catch (error) {
+      console.error("옷 삭제 오류:", error);
+      throw error;
+    }
+  }
+
+  async bulkDeleteClothes(clothesIds) {
+    try {
+      if (!Array.isArray(clothesIds) || clothesIds.length === 0) {
+        throw new Error("삭제할 옷 ID 목록이 비어있습니다.");
+      }
+      const response = await api.delete("/clothes/sample/bulk", { data: clothesIds });
+      return response.data;
+    } catch (error) {
+      console.error("옷 일괄 삭제 오류:", error);
+      throw error;
+    }
+  }
 }
 
 export default new ClothesServiceSample();

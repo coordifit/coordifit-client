@@ -5,7 +5,9 @@ import profileImage from "@/assets/images/profile.png";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import { useUserStore } from "@/stores/userStore";
 import styles from "./SnapDetailPage.module.css";
-
+import heartRed from "@/assets/images/hearticon_red.png";
+import heartBlack from "@/assets/images/hearticon_black.png";
+import messageCircle from "@/assets/images/message-circle.png";
 const SnapDetailPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -28,7 +30,7 @@ const SnapDetailPage = () => {
         setLoading(true);
 
         const detailResponse = await postService.getPostDetail(postId);
-
+        console.log("포스트 상세 응답:", detailResponse);
         if (detailResponse.success) {
           setPostDetail(detailResponse.data);
         } else {
@@ -82,7 +84,7 @@ const SnapDetailPage = () => {
       setIsSubmittingComment(true);
       const parentId = replyingTo ? replyingTo.commentId : null;
       const response = await postService.createComment(postId, commentContent.trim(), parentId);
-
+      console.log("댓글 등록 응답:", response);
       if (response.success) {
         const commentsResponse = await postService.getComments(postId);
         if (commentsResponse.success) {
@@ -315,14 +317,22 @@ const SnapDetailPage = () => {
         <div className={styles.interactionHeader}>
           <div className={styles.actionButtons}>
             <button className={styles.actionButton} onClick={handleTogglePostLike}>
-              {postDetail.liked ? "❤️" : "🤍"}
+              <img
+                src={postDetail.liked ? heartRed : heartBlack}
+                alt="좋아요"
+                className={styles.actionIcon}
+              />
             </button>
+
             <button className={styles.actionButton} onClick={handleOpenCommentModal}>
-              💬
+              <img src={messageCircle} alt="댓글" className={styles.actionIcon} />
             </button>
           </div>
+
           <div className={styles.stats}>
-            <span className={styles.statItem}>조회수 {postDetail.viewCount || 0}개</span>
+            <span className={styles.statItem}>
+              조회수 <strong>{postDetail.viewCount || 0}</strong>개
+            </span>
           </div>
         </div>
         <p className={styles.content} onClick={handleOpenLikesModal} style={{ cursor: "pointer" }}>
@@ -338,33 +348,44 @@ const SnapDetailPage = () => {
           <>
             <div className={styles.commentHeader} onClick={handleOpenCommentModal}>
               <span className={styles.commentCount}>
-                {postDetail.comments.length > 1
-                  ? `${postDetail.comments.length}개 댓글 더보기`
-                  : "댓글"}
+                {postDetail.comments.length > 1 ? (
+                  <p>
+                    <strong>{postDetail.comments.length}</strong>개 댓글 더보기
+                  </p>
+                ) : (
+                  "댓글"
+                )}
               </span>
-            </div>
+            </div>{" "}
+            {/* ✅ 첫 번째 댓글 표시 */}
             <div className={styles.commentItem} onClick={handleOpenCommentModal}>
-              <span
-                className={styles.commentUser}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpenCommentModal();
-                }}
-              >
-                {postDetail.comments[0].nickname}
-              </span>
-              <span className={styles.commentText}>{postDetail.comments[0].content}</span>
+              <img
+                src={
+                  postDetail.comments[0].profileImageUrl
+                    ? postDetail.comments[0].profileImageUrl
+                    : profileImage
+                }
+                alt="댓글 작성자 프로필"
+                className={styles.commentUserProfile}
+              />
+              <div className={styles.commentTextGroup}>
+                <span
+                  className={styles.commentUser}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenCommentModal();
+                  }}
+                >
+                  {postDetail.comments[0].nickname}
+                </span>
+                <span className={styles.commentText}>{postDetail.comments[0].content}</span>
+              </div>
             </div>
           </>
         )}
 
         {/* 댓글 입력 버튼 */}
         <button className={styles.commentInputButton} onClick={handleOpenCommentModal}>
-          <img
-            src={user?.profileImageUrl || profileImage}
-            alt="프로필"
-            className={styles.commentProfileImage}
-          />
           <span className={styles.commentPlaceholder}>댓글을 남겨주세요.</span>
         </button>
 

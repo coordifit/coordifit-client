@@ -199,10 +199,22 @@ const ClosetDetailPageSample = () => {
     fetchClothesDetail();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!window.confirm("정말 이 옷을 삭제하시겠습니까?")) return;
-    // TODO: 삭제 기능 구현
-    alert("삭제 기능은 아직 구현되지 않았습니다.");
+
+    try {
+      const response = await ClothesServiceSample.deleteClothes(itemId);
+
+      if (response.success) {
+        alert("옷이 삭제되었습니다.");
+        navigate("/closet-sample");
+      } else {
+        alert("삭제에 실패했습니다: " + response.message);
+      }
+    } catch (error) {
+      console.error("삭제 오류:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
   const handleFieldChange = (field, value) => {

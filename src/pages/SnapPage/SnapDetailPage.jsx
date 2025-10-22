@@ -10,6 +10,7 @@ import heartlike from "@/assets/images/hearticon_red.png";
 import heartBlack from "@/assets/images/hearticon_black.png";
 import heartGray from "@/assets/images/hearticon_gray.png";
 import messageCircle from "@/assets/images/message-circle.png";
+import edit from "@/assets/images/edit.png";
 const SnapDetailPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -227,6 +228,12 @@ const SnapDetailPage = () => {
     }
   };
 
+  const handleEditPost = (e) => {
+    e.stopPropagation(); // 부모 클릭 이벤트 중단
+    // 단순히 스냅 추가 페이지로 이동
+    navigate("/snap/add");
+  };
+
   if (loading) {
     return (
       <div className={styles.page}>
@@ -270,6 +277,12 @@ const SnapDetailPage = () => {
             className={styles.profileImage}
           />
           <span className={styles.username}>{postDetail.nickname}</span>
+          {/* 수정 버튼 - 내 게시물일 때만 표시 */}
+          {user?.userId === postDetail.userId && (
+            <button className={styles.editButton} onClick={handleEditPost}>
+              수정
+            </button>
+          )}
         </div>
       </div>
 
@@ -343,6 +356,13 @@ const SnapDetailPage = () => {
             <button className={styles.actionButton} onClick={handleOpenCommentModal}>
               <img src={messageCircle} alt="댓글" className={styles.actionIcon} />
             </button>
+
+            {/* 수정 버튼 - 내 게시물일 때만 표시 */}
+            {user?.userId === postDetail.userId && (
+              <button className={styles.actionButton} onClick={handleEditPost}>
+                <img src={edit} alt="수정" className={styles.actionIcon} />
+              </button>
+            )}
           </div>
 
           <div className={styles.stats}>

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
 import styles from "./MainPage.module.css";
 
 import userIcon from "@/assets/images/mainpage/usericon.png";
@@ -36,16 +35,16 @@ import snapFallback1 from "@/assets/images/mainpage/snap1.png";
 import snapFallback2 from "@/assets/images/mainpage/snap2.png";
 import snapFallback3 from "@/assets/images/mainpage/snap3.png";
 import snapFallback4 from "@/assets/images/mainpage/snap4.png";
-
-import topImage1 from "@/assets/images/clothes/top1.png";
-import topImage2 from "@/assets/images/clothes/top2.png";
-import outerImage from "@/assets/images/clothes/outer1.png";
-import pantsImage from "@/assets/images/clothes/pants1.png";
-import shoesImage from "@/assets/images/clothes/shoes1.png";
+import heartBlack from "@/assets/images/hearticon_white.png";
+import heartRed from "@/assets/images/hearticon_red.png";
+import profileImage from "@/assets/images/mainpage/usericon.png";
 
 import clothesService from "@/services/clothesService";
 import postService from "@/services/postService";
 import commonCodeService from "@/services/commonCodeService";
+import { getDailyLooksByMonth } from "@/services/dailyLookApi";
+import { getCurrentWeatherRange, getPastWeatherRange } from "../../services/weatherApi";
+import { useUserStore } from "@/stores/userStore";
 
 const HERO_CARDS = [
   {
@@ -101,7 +100,7 @@ const CATEGORY_ROWS = [
     },
     {
       id: "short-sleeve",
-      label: "반팔",
+      label: "반팔티",
       image: shortSleeveIcon,
       mainLabel: "상의",
       subLabel: "반팔",
@@ -111,20 +110,20 @@ const CATEGORY_ROWS = [
     },
     {
       id: "long-sleeve",
-      label: "긴팔",
+      label: "긴팔티",
       image: longSleeveIcon,
       mainLabel: "상의",
-      subLabel: "긴팔",
+      subLabel: "긴팔티",
       subLabelAlternatives: ["긴팔티"],
       fallbackMainId: "top",
       fallbackSubId: "long-sleeve",
     },
     {
       id: "hoodie",
-      label: "후드",
+      label: "후드티",
       image: hoodieIcon,
       mainLabel: "상의",
-      subLabel: "후드",
+      subLabel: "후드티",
       subLabelAlternatives: ["후드티"],
       fallbackMainId: "top",
       fallbackSubId: "hoodie",
@@ -212,79 +211,55 @@ const RECENT_CATEGORY_TABS = [
 ];
 const SNAP_FALLBACKS = [snapFallback1, snapFallback2, snapFallback3, snapFallback4];
 const PLACEHOLDER_LIKES = [428, 356, 512, 289, 643, 398];
-const SNAP_FALLBACK_DATA = SNAP_FALLBACKS.map((image, index) => ({
-  id: `snap-fallback-${index}`,
-  image,
-  author: "CoordiFit",
-  title: "오늘의 데일리룩",
-  likes: PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
-}));
+// SNAP_FALLBACK_DATA는 컴포넌트 내부에서 사용자 정보와 함께 생성
 
-const CALENDAR_DAYS = [
-  {
-    id: "2025-01-23",
-    day: "Tue",
-    date: 23,
-    weather: "overcast",
-    weatherLabel: "흐림",
-    weatherIcon: overcastIcon,
-    temperature: "17°",
-    outfitImage: topImage1,
-  },
-  {
-    id: "2025-01-24",
-    day: "Wed",
-    date: 24,
-    weather: "sunny",
-    weatherLabel: "맑음",
-    weatherIcon: sunnyIcon,
-    temperature: "20°",
-    outfitImage: topImage2,
-  },
-  {
-    id: "2025-01-25",
-    day: "Thu",
-    date: 25,
-    weather: "sunny",
-    weatherLabel: "맑음",
-    weatherIcon: sunnyIcon,
-    temperature: "20°",
-    outfitImage: outerImage,
-  },
-  {
-    id: "2025-01-26",
-    day: "Fri",
-    date: 26,
-    weather: "snow",
-    weatherLabel: "눈",
-    weatherIcon: snowIcon,
-    temperature: "22°",
-    outfitImage: shoesImage,
-  },
-  {
-    id: "2025-01-27",
-    day: "Sat",
-    date: 27,
-    weather: "rainy",
-    weatherLabel: "비",
-    weatherIcon: rainyIcon,
-    temperature: "18°",
-    outfitImage: pantsImage,
-  },
-  {
-    id: "2025-01-28",
-    day: "Sun",
-    date: 28,
-    weather: "add",
-    weatherLabel: "추가",
-    weatherIcon: null,
-    temperature: null,
-    outfitImage: null,
-  },
-];
+// 날씨 코드에 따른 아이콘 매핑
+const getWeatherIcon = (code) => {
+  if (code === 0) return sunnyIcon; // 맑음
+  if ([1, 2, 3, 45, 48].includes(code)) return overcastIcon; // 구름/안개
+  if ([51, 53, 55, 61, 63, 65, 80, 81, 82, 95, 96, 99].includes(code)) return rainyIcon; // 비/폭풍
+  if ([56, 57, 66, 67, 71, 73, 75, 77, 85, 86].includes(code)) return snowIcon; // 눈
+  return sunnyIcon; // 기본값
+};
+
+// 날씨 코드에 따른 라벨 매핑
+const getWeatherLabel = (code) => {
+  if (code === 0) return "맑음";
+  if ([1, 2, 3].includes(code)) return "구름";
+  if ([45, 48].includes(code)) return "안개";
+  if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "비";
+  if ([95, 96, 99].includes(code)) return "폭풍";
+  if ([56, 57, 66, 67, 71, 73, 75, 77, 85, 86].includes(code)) return "눈";
+  return "맑음";
+};
+
+// 이번 달 전체 날짜 생성
+const generateCurrentMonthDays = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = [];
+
+  for (let date = 1; date <= daysInMonth; date++) {
+    const dateObj = new Date(year, month, date);
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    days.push({
+      id: dateObj.toISOString().slice(0, 10), // YYYY-MM-DD
+      day: dayNames[dateObj.getDay()],
+      date: date,
+      dateObj: dateObj,
+    });
+  }
+
+  return days;
+};
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
   const [isLoadingClothes, setIsLoadingClothes] = useState(true);
   const [rawClothes, setRawClothes] = useState([]);
   const [clothesError, setClothesError] = useState(null);
@@ -293,6 +268,12 @@ const MainPage = () => {
   const [snaps, setSnaps] = useState([]);
   const [activeRecentTab, setActiveRecentTab] = useState(RECENT_CATEGORY_TABS[0].id);
   const [categoryError, setCategoryError] = useState(null);
+  const [dailyLooks, setDailyLooks] = useState([]);
+  const [isLoadingDailyLooks, setIsLoadingDailyLooks] = useState(true);
+  const [weatherData, setWeatherData] = useState({});
+  const [isLoadingWeather, setIsLoadingWeather] = useState(true);
+  const [todayWeather, setTodayWeather] = useState(null);
+  const [isLoadingTodayWeather, setIsLoadingTodayWeather] = useState(true);
   const [categoryMappings, setCategoryMappings] = useState({
     mainByName: {},
     mainNameByCode: {},
@@ -368,6 +349,230 @@ const MainPage = () => {
     };
   }, []);
 
+  // 이번 달 일일룩 데이터 로드
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchDailyLooks = async () => {
+      setIsLoadingDailyLooks(true);
+
+      try {
+        const currentMonth = new Date().toISOString().slice(0, 7); // 2025-10 형식
+        const response = await getDailyLooksByMonth(currentMonth);
+
+        if (cancelled) {
+          return;
+        }
+
+        console.log("일일룩 데이터:", response);
+        const dailyLookData = response?.data || [];
+        setDailyLooks(dailyLookData);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("일일룩 데이터 조회 실패", error);
+          setDailyLooks([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingDailyLooks(false);
+        }
+      }
+    };
+
+    fetchDailyLooks();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 오늘 날씨 데이터 로드 (헤더용)
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchTodayWeather = async () => {
+      setIsLoadingTodayWeather(true);
+
+      // 서울 좌표 (기본값)
+      const lat = 37.5665;
+      const lng = 126.978;
+      const today = new Date().toISOString().slice(0, 10);
+
+      try {
+        // getCurrentWeatherRange로 오늘 하루만 가져오기
+        const weatherResult = await getCurrentWeatherRange({
+          lat,
+          lng,
+          startDate: today,
+          endDate: today,
+        });
+
+        if (cancelled) return;
+
+        // 첫 번째 (오늘) 데이터 추출
+        const todayData = {
+          tmax: Math.round(weatherResult.temperature_2m_max[0]),
+          tmin: Math.round(weatherResult.temperature_2m_min[0]),
+          wcode: weatherResult.weathercode[0],
+        };
+
+        setTodayWeather(todayData);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("오늘 날씨 데이터 조회 실패:", error);
+          setTodayWeather({ tmax: 24, tmin: 18, wcode: 0 }); // 기본값
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingTodayWeather(false);
+        }
+      }
+    };
+
+    fetchTodayWeather();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 이번 달 날씨 데이터 로드 (archive API 사용)
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchMonthWeatherData = async () => {
+      setIsLoadingWeather(true);
+
+      // 서울 좌표 (기본값)
+      const lat = 37.5665;
+      const lng = 126.978;
+
+      try {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+
+        // 이번 달 첫째 날과 마지막 날
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        const firstDayStr = firstDay.toISOString().slice(0, 10);
+        const lastDayStr = lastDay.toISOString().slice(0, 10);
+
+        const weatherMap = {};
+        const todayStr = today.toISOString().slice(0, 10);
+
+        try {
+          // 과거 날씨 데이터 (이번 달 첫날부터 어제까지)
+          if (firstDayStr < todayStr) {
+            const pastEndDate = new Date(today);
+            pastEndDate.setDate(pastEndDate.getDate() - 1);
+            const pastEndStr = pastEndDate.toISOString().slice(0, 10);
+
+            // 과거 데이터 범위가 이번 달 범위와 겹치는 경우만 요청
+            // 10월 1일 데이터 누락 방지를 위해 firstDayStr부터 시작
+            if (firstDayStr <= pastEndStr) {
+              console.log("getPastWeatherRange 호출 파라미터:", {
+                lat,
+                lng,
+                startDate: firstDayStr, // 10월 1일부터
+                endDate: pastEndStr,
+              });
+
+              const pastWeatherData = await getPastWeatherRange({
+                lat,
+                lng,
+                startDate: firstDayStr, // 10월 1일부터
+                endDate: pastEndStr, // 어제까지
+              });
+
+              // 과거 데이터 매핑 (이번 달에 속하는 날짜만)
+              pastWeatherData.time.forEach((dateStr, index) => {
+                // 이번 달에 속하는 날짜인지 확인
+                if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
+                  weatherMap[dateStr] = {
+                    tmax: Math.round(pastWeatherData.temperature_2m_max[index]),
+                    tmin: Math.round(pastWeatherData.temperature_2m_min[index]),
+                    wcode: pastWeatherData.weathercode[index],
+                  };
+                }
+              });
+            }
+          }
+
+          // 현재/미래 날씨 데이터 (오늘부터 이번 달 마지막까지)
+          if (todayStr <= lastDayStr) {
+            console.log("getCurrentWeatherRange 호출 파라미터:", {
+              lat,
+              lng,
+              startDate: todayStr,
+              endDate: lastDayStr,
+            });
+
+            const currentWeatherData = await getCurrentWeatherRange({
+              lat,
+              lng,
+              startDate: todayStr,
+              endDate: lastDayStr,
+            });
+
+            console.log("getCurrentWeatherRange 응답 데이터:", currentWeatherData);
+
+            // 현재/미래 데이터 매핑 (이번 달에 속하는 날짜만)
+            currentWeatherData.time.forEach((dateStr, index) => {
+              // 이번 달에 속하는 날짜인지 확인
+              if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
+                console.log(`날짜 ${dateStr} 매핑:`, {
+                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
+                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
+                  wcode: currentWeatherData.weathercode[index],
+                });
+
+                weatherMap[dateStr] = {
+                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
+                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
+                  wcode: currentWeatherData.weathercode[index],
+                };
+              }
+            });
+          }
+        } catch (error) {
+          console.warn("날씨 데이터 조회 실패, 기본값 사용:", error);
+
+          // 실패 시 이번 달 모든 날짜에 기본값 설정
+          for (let date = new Date(firstDay); date <= lastDay; date.setDate(date.getDate() + 1)) {
+            const dateString = date.toISOString().slice(0, 10);
+            weatherMap[dateString] = {
+              tmax: 20,
+              tmin: 15,
+              wcode: 0,
+            };
+          }
+        }
+
+        if (cancelled) return;
+
+        console.log("변환된 날씨 데이터:", weatherMap);
+        setWeatherData(weatherMap);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("이번 달 날씨 데이터 조회 실패:", error);
+          setWeatherData({});
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingWeather(false);
+        }
+      }
+    };
+
+    fetchMonthWeatherData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -377,7 +582,7 @@ const MainPage = () => {
 
       try {
         const response = await clothesService.getClothes();
-
+        console.log("최근 착용한 옷 응답:", response);
         if (cancelled) {
           return;
         }
@@ -402,7 +607,7 @@ const MainPage = () => {
           mainCategoryCode: item.mainCategoryCode || "",
           subCategoryCode: item.subCategoryCode || item.categoryCode || "",
           description: item.description || "",
-          image: item.imageUrl || "",
+          image: item.thumbnailUrl || "",
         }));
 
         setRawClothes(adapted);
@@ -494,16 +699,23 @@ const MainPage = () => {
         const adapted = items.map((item, index) => ({
           id: item.postId || item.id || `snap-${index}`,
           image:
-            item.imageUrl || item.thumbnailUrl || SNAP_FALLBACKS[index % SNAP_FALLBACKS.length],
-          author: item.authorNickname || item.nickname || item.userName || "CoordiFit 사용자",
-          title: item.title || item.postTitle || "오늘의 데일리룩",
+            item.imageUrls?.[0] ||
+            item.imageUrl ||
+            item.thumbnailUrl ||
+            SNAP_FALLBACKS[index % SNAP_FALLBACKS.length],
+          author: item.nickname || "CoordiFit 사용자", // API에서 받은 nickname 우선 사용
+          profileImage: item.profileImageUrl || profileImage, // API에서 받은 profileImageUrl 우선 사용
+          title: item.content || item.title || item.postTitle || "오늘의 데일리룩",
           likes:
             typeof item.likeCount === "number"
               ? item.likeCount
               : PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
+          liked: item.liked || false,
         }));
 
-        setSnaps(adapted.slice(0, 4));
+        // 좋아요 수가 많은 순으로 정렬 후 상위 4개만 선택
+        const sortedByLikes = adapted.sort((a, b) => b.likes - a.likes);
+        setSnaps(sortedByLikes.slice(0, 4));
       } catch (error) {
         if (!cancelled) {
           console.error("스냅 게시물 조회 실패", error);
@@ -621,7 +833,69 @@ const MainPage = () => {
     [filteredRecentClothes],
   );
 
-  const displaySnaps = useMemo(() => (snaps.length ? snaps : SNAP_FALLBACK_DATA), [snaps]);
+  const displaySnaps = useMemo(() => {
+    if (snaps.length) {
+      return snaps;
+    }
+
+    // 사용자 정보를 활용한 fallback 데이터 생성
+    return SNAP_FALLBACKS.map((image, index) => ({
+      id: `snap-fallback-${index}`,
+      image,
+      author: user?.nickname || "CoordiFit 사용자",
+      profileImage: user?.profileImageUrl || profileImage,
+      title: "오늘의 데일리룩",
+      likes: PLACEHOLDER_LIKES[index % PLACEHOLDER_LIKES.length],
+      liked: false,
+    }));
+  }, [snaps, user?.nickname]);
+
+  // 캘린더 데이터를 API 데이터와 날씨 데이터로 합치기
+  const calendarData = useMemo(() => {
+    const monthDays = generateCurrentMonthDays();
+
+    return monthDays.map((day) => {
+      // API 데이터에서 해당 날짜의 일일룩 찾기 - wearDate에서 날짜 부분만 추출
+      const dailyLookForDate = dailyLooks.find((look) => {
+        if (!look.wearDate) return false;
+        const lookDate = look.wearDate.slice(0, 10); // "2025-10-20 00:00:00" -> "2025-10-20"
+        return lookDate === day.id;
+      });
+
+      // 날씨 데이터 가져오기
+      const weather = weatherData[day.id];
+
+      // 10월 1일 디버깅
+      if (day.id === "2025-10-01") {
+        const testIcon = getWeatherIcon(weather?.wcode);
+        console.log("🔍 10월 1일 날씨 데이터 디버깅:", {
+          dayId: day.id,
+          weatherData: weather,
+          wcode: weather?.wcode,
+          returnedIcon: testIcon,
+          rainyIconPath: rainyIcon,
+          sunnyIconPath: sunnyIcon,
+          iconComparison:
+            testIcon === rainyIcon ? "rainyIcon" : testIcon === sunnyIcon ? "sunnyIcon" : "other",
+          allWeatherData: Object.keys(weatherData),
+        });
+      }
+
+      const weatherIcon = weather ? getWeatherIcon(weather.wcode) : sunnyIcon;
+      const weatherLabel = weather ? getWeatherLabel(weather.wcode) : "맑음";
+      const temperature = weather ? `${weather.tmax}°` : "20°";
+
+      return {
+        ...day,
+        weatherIcon,
+        weatherLabel,
+        temperature,
+        outfitImage: dailyLookForDate ? dailyLookForDate.thumbImageUrl : calendarPlus,
+        dailyLookId: dailyLookForDate?.dailylookId,
+        hasData: !!dailyLookForDate,
+      };
+    });
+  }, [dailyLooks, weatherData]);
   const canNavigateSnap = snaps.length > 0;
 
   const resolveShortcutCodes = useCallback(
@@ -643,10 +917,10 @@ const MainPage = () => {
     (shortcut) => {
       const { mainCode, subCode } = resolveShortcutCodes(shortcut);
 
-      navigate("/closet", {
+      navigate("/closet-sample", {
         state: {
-          mainCategoryId: mainCode,
-          subCategoryId: subCode,
+          selectedMainCategory: mainCode,
+          selectedSubCategory: subCode,
           mainCategoryName: shortcut.mainLabel,
           subCategoryName: shortcut.subLabel,
           fallbackMainId: shortcut.fallbackMainId,
@@ -657,6 +931,49 @@ const MainPage = () => {
     [navigate, resolveShortcutCodes],
   );
 
+  const handleToggleSnapLike = useCallback(async (snapId, event) => {
+    event.stopPropagation(); // 또는 카드 클릭 이벤트 방지
+
+    // 즉시 UI 업데이트
+    setSnaps((prevSnaps) =>
+      prevSnaps.map((snap) =>
+        snap.id === snapId
+          ? {
+              ...snap,
+              liked: !snap.liked,
+              likes: snap.liked ? snap.likes - 1 : snap.likes + 1,
+            }
+          : snap,
+      ),
+    );
+
+    try {
+      await postService.togglePostLike(snapId);
+    } catch (error) {
+      console.error("좋아요 처리 오류:", error);
+      // 오류 시 원래 상태로 되돌리기
+      setSnaps((prevSnaps) =>
+        prevSnaps.map((snap) =>
+          snap.id === snapId
+            ? {
+                ...snap,
+                liked: !snap.liked,
+                likes: snap.liked ? snap.likes + 1 : snap.likes - 1,
+              }
+            : snap,
+        ),
+      );
+    }
+  }, []);
+
+  const handleCalendarCardClick = useCallback(
+    (day) => {
+      // 해당 날짜로 달력 페이지에 이동 (URL 경로에 날짜 포함)
+      navigate(`/calendar/${day.id}`); // /calendar/2025-10-13 형식
+    },
+    [navigate],
+  );
+
   return (
     <div className={styles.page}>
       <div className={styles.topHero}>
@@ -664,8 +981,21 @@ const MainPage = () => {
           <div className={styles.brandGroup}>
             <p className={styles.brandLogo}>CoordiFit</p>
             <div className={styles.weatherInline}>
-              <img src={sunnyIcon} alt="맑음" className={styles.weatherIcon} />
-              <span className={styles.temperature}>24°</span>
+              {!isLoadingTodayWeather && todayWeather ? (
+                <>
+                  <img
+                    src={getWeatherIcon(todayWeather.wcode)}
+                    alt={getWeatherLabel(todayWeather.wcode)}
+                    className={styles.weatherIcon}
+                  />
+                  <span className={styles.temperature}>{todayWeather.tmax}°</span>
+                </>
+              ) : (
+                <>
+                  <img src={sunnyIcon} alt="맑음" className={styles.weatherIcon} />
+                  <span className={styles.temperature}>24°</span>
+                </>
+              )}
             </div>
           </div>
           <button
@@ -714,7 +1044,7 @@ const MainPage = () => {
           <button
             type="button"
             className={styles.sectionLink}
-            onClick={() => handleSectionNavigate("/closet")}
+            onClick={() => handleSectionNavigate("/closet-sample")}
           >
             옷장 전체 보기
           </button>
@@ -760,12 +1090,13 @@ const MainPage = () => {
         </header>
 
         <div ref={scrollRef} className={styles.calendarScroller}>
-          {CALENDAR_DAYS.map((day, index) => (
+          {calendarData.map((day, index) => (
             <div
               key={day.id}
               className={`${styles.calendarCard} ${
                 index === activeCalendarIndex ? styles.activeCalendarCard : ""
               }`}
+              onClick={() => handleCalendarCardClick(day)}
             >
               <div className={styles.calendarCardHeader}>
                 <div>
@@ -784,10 +1115,15 @@ const MainPage = () => {
                 </div>
               </div>
               <div className={styles.calendarCardBody}>
-                {day.outfitImage ? (
+                {day.hasData && day.outfitImage ? (
                   <img src={day.outfitImage} alt={`${day.date}일 코디`} />
                 ) : (
-                  <img src={calendarPlus} alt="코디 추가하기" className={styles.calendarAdd} />
+                  <img
+                    src={calendarPlus}
+                    alt="코디 추가하기"
+                    className={styles.calendarAdd}
+                    style={{ width: "30px", height: "30px" }}
+                  />
                 )}
               </div>
             </div>
@@ -835,7 +1171,7 @@ const MainPage = () => {
           <button
             type="button"
             className={styles.sectionLink}
-            onClick={() => handleSectionNavigate("/closet")}
+            onClick={() => handleSectionNavigate("/closet-sample")}
           >
             옷장 가기
           </button>
@@ -926,22 +1262,39 @@ const MainPage = () => {
                 />
               ))
             : displaySnaps.map((snap) => (
-                <button
+                <div
                   key={snap.id}
-                  type="button"
                   className={styles.snapCard}
                   onClick={() => canNavigateSnap && handleSectionNavigate(`/snap/${snap.id}`)}
-                  disabled={!canNavigateSnap}
+                  style={{ cursor: canNavigateSnap ? "pointer" : "default" }}
                 >
                   <div className={styles.snapImageWrapper}>
                     <img src={snap.image} alt={`${snap.title} 스냅 이미지`} />
+                    <button
+                      type="button"
+                      className={styles.snapLikeIcon}
+                      onClick={(e) => handleToggleSnapLike(snap.id, e)}
+                      aria-label={snap.liked ? "좋아요 취소" : "좋아요"}
+                    >
+                      <img
+                        src={snap.liked ? heartRed : heartBlack}
+                        alt={snap.liked ? "좋아요 됨" : "좋아요 안됨"}
+                      />
+                    </button>
                   </div>
                   <div className={styles.snapMeta}>
-                    <span className={styles.snapAuthor}>{snap.author}</span>
+                    <div className={styles.snapAuthorInfo}>
+                      <img
+                        src={snap.profileImage}
+                        alt={`${snap.author} 프로필`}
+                        className={styles.snapAuthorProfile}
+                      />
+                      <span className={styles.snapAuthor}>{snap.author}</span>
+                    </div>
                     <p className={styles.snapTitle}>{snap.title}</p>
                     <span className={styles.snapLikes}>❤️ {snap.likes.toLocaleString()}</span>
                   </div>
-                </button>
+                </div>
               ))}
         </div>
       </section>

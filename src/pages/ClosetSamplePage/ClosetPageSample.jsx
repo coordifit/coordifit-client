@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import styles from "../ClosetPage/ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
@@ -8,6 +8,7 @@ import CheckIcon from "@/assets/images/checkicon.png";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState("clothes");
@@ -54,6 +55,37 @@ const ClosetPageSample = () => {
     };
     fetchCategoryData();
   }, []);
+
+  // MainPage에서 전달받은 카테고리 정보 처리
+  useEffect(() => {
+    if (location.state && mainCategories.length > 0) {
+      const { selectedMainCategory, selectedSubCategory } = location.state;
+
+      console.log("MainPage에서 전달받은 카테고리:", {
+        selectedMainCategory,
+        selectedSubCategory,
+      });
+
+      // 메인 카테고리 설정
+      if (selectedMainCategory && selectedMainCategory !== "all") {
+        const validMainCategory = mainCategories.find((cat) => cat.codeId === selectedMainCategory);
+        if (validMainCategory) {
+          setMainCategory(selectedMainCategory);
+
+          // 서브 카테고리 설정
+          if (selectedSubCategory && selectedSubCategory !== "all") {
+            const subCategories = subCategoriesMap[selectedMainCategory] || [];
+            const validSubCategory = subCategories.find(
+              (sub) => sub.codeId === selectedSubCategory,
+            );
+            if (validSubCategory) {
+              setSubCategory(selectedSubCategory);
+            }
+          }
+        }
+      }
+    }
+  }, [location.state, mainCategories, subCategoriesMap]);
 
   useEffect(() => {
     const fetchClothes = async () => {

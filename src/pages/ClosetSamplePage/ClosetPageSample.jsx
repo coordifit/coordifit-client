@@ -5,6 +5,7 @@ import styles from "../ClosetPage/ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
 import ClothesServiceSample from "./clothesServiceSample";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
+import CheckIcon from "@/assets/images/checkicon.png";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import styles from "../ClosetPage/ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
@@ -7,6 +7,7 @@ import ClothesServiceSample from "./clothesServiceSample";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState("clothes");
@@ -22,6 +23,8 @@ const ClosetPageSample = () => {
 
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [sortType, setSortType] = useState("purchase");
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
   useEffect(() => {
     const fetchTabs = async () => {
@@ -51,6 +54,37 @@ const ClosetPageSample = () => {
     };
     fetchCategoryData();
   }, []);
+
+  // MainPage에서 전달받은 카테고리 정보 처리
+  useEffect(() => {
+    if (location.state && mainCategories.length > 0) {
+      const { selectedMainCategory, selectedSubCategory } = location.state;
+
+      console.log("MainPage에서 전달받은 카테고리:", {
+        selectedMainCategory,
+        selectedSubCategory,
+      });
+
+      // 메인 카테고리 설정
+      if (selectedMainCategory && selectedMainCategory !== "all") {
+        const validMainCategory = mainCategories.find((cat) => cat.codeId === selectedMainCategory);
+        if (validMainCategory) {
+          setMainCategory(selectedMainCategory);
+
+          // 서브 카테고리 설정
+          if (selectedSubCategory && selectedSubCategory !== "all") {
+            const subCategories = subCategoriesMap[selectedMainCategory] || [];
+            const validSubCategory = subCategories.find(
+              (sub) => sub.codeId === selectedSubCategory,
+            );
+            if (validSubCategory) {
+              setSubCategory(selectedSubCategory);
+            }
+          }
+        }
+      }
+    }
+  }, [location.state, mainCategories, subCategoriesMap]);
 
   useEffect(() => {
     const fetchClothes = async () => {
@@ -98,11 +132,26 @@ const ClosetPageSample = () => {
     navigate("/closet/register-sample");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedItems.length) return;
-    if (!window.confirm("선택한 옷을 삭제하시겠습니까?")) return;
-    // TODO: 삭제 기능 구현
-    alert("삭제 기능은 아직 구현되지 않았습니다.");
+    if (!window.confirm(`선택한 ${selectedItems.length}개의 옷을 삭제하시겠습니까?`)) return;
+
+    try {
+      const response = await ClothesServiceSample.bulkDeleteClothes(selectedItems);
+
+      if (response.success) {
+        alert("선택한 옷이 삭제되었습니다.");
+        // 삭제된 아이템 제거
+        setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.clothesId)));
+        setSelectedItems([]);
+        setIsSelecting(false);
+      } else {
+        alert("삭제에 실패했습니다: " + response.message);
+      }
+    } catch (error) {
+      console.error("삭제 오류:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
   const handleCategoryChange = (id) => {
@@ -128,6 +177,15 @@ const ClosetPageSample = () => {
       const subCategoryCodes = subCategoriesForMain.map((sub) => sub.codeId);
       return subCategoryCodes.includes(item.categoryCode);
     });
+
+    if (sortType === "purchase") {
+      result.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate));
+    } else if (sortType === "wear") {
+      result.sort((a, b) => (b.wearCount || 0) - (a.wearCount || 0));
+    } else if (sortType === "recent") {
+      result.sort((a, b) => new Date(b.lastWornDate || 0) - new Date(a.lastWornDate || 0));
+    }
+    return result;
   }, [clothesItems, mainCategory, subCategory, subCategoriesMap]);
 
   const isCoordiTab = activeTab === "coordi";
@@ -217,10 +275,46 @@ const ClosetPageSample = () => {
         ) : (
           <div className={styles.selectionPlaceholder} />
         )}
-        <button type="button" className={styles.sortButton}>
-          구매일순
-          <span className={styles.sortIcon} aria-hidden />
+        <button
+          type="button"
+          className={styles.sortButton}
+          onClick={() => setIsSortOpen((prev) => !prev)}
+        >
+          {sortType === "purchase" ? "구매일순" : sortType === "wear" ? "입은횟수순" : "최근착용순"}
+          <span className={styles.sortArrow} aria-hidden />
         </button>
+
+        {isSortOpen && (
+          <ul className={styles.sortDropdown}>
+            <li
+              className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
+              onClick={() => {
+                setSortType("recent");
+                setIsSortOpen(false);
+              }}
+            >
+              최근착용순
+            </li>
+            <li
+              className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
+              onClick={() => {
+                setSortType("wear");
+                setIsSortOpen(false);
+              }}
+            >
+              입은횟수순
+            </li>
+            <li
+              className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
+              onClick={() => {
+                setSortType("purchase");
+                setIsSortOpen(false);
+              }}
+            >
+              구매일순
+            </li>
+          </ul>
+        )}
       </div>
 
       <section className={styles.gridSection}>

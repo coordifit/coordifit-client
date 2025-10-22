@@ -4,7 +4,7 @@ import styles from "./Tabs.module.css";
 import gridBlack from "@/assets/images/gridicon_black.png";
 import gridGray from "@/assets/images/gridicon_gray.png";
 import heartBlack from "@/assets/images/hearticon_black.png";
-import heartGray from "@/assets/images/hearticon_gray.png";
+import heartGray from "@/assets/images/hearticon_gray2.png";
 
 const Tabs = ({ tabs, activeTab, onChange }) => {
   const getIconSrc = (id) => {

@@ -274,7 +274,6 @@
   background: #f5f6fa;
   border: 1px solid rgba(220, 221, 222, 0.6);
   border-radius: 18px;
-  padding: 14px 12px;
   gap: 12px;
   scroll-snap-align: center;
   cursor: pointer;
@@ -292,6 +291,8 @@
 
 .calendarCardHeader {
   display: flex;
+  padding: 14px 12px;
+
   align-items: flex-start;
   justify-content: space-between;
   color: #333333;
@@ -332,9 +333,10 @@
 .calendarCardBody {
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 12px;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
   overflow: hidden;
-  background: #ffffff;
+  background: #f5f6fa;
   display: grid;
   place-items: center;
 }
@@ -342,12 +344,15 @@
 .calendarCardBody img {
   width: 100%;
   height: 100%;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
   object-fit: cover;
 }
 
 .calendarAdd {
   width: 60%;
   height: auto;
+  background-color: #f5f6fa;
 }
 
 /* ---------------------- */
@@ -611,6 +616,7 @@
   height: 200px;
   background: #f5f6fa;
   overflow: hidden;
+  position: relative;
 }
 
 .snapImageWrapper img {
@@ -619,11 +625,50 @@
   object-fit: cover;
 }
 
+.snapLikeIcon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.snapLikeIcon:hover {
+  transform: scale(1.1);
+}
+
+.snapLikeIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .snapMeta {
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.snapAuthorInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.snapAuthorProfile {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .snapAuthor {

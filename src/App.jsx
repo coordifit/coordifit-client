@@ -248,7 +248,7 @@ const router = createBrowserRouter([
           title: "옷 상세 (샘플)",
           showBack: true,
           showHeader: true,
-          showTabbar: false,
+          showTabbar: true,
         },
       },
       {

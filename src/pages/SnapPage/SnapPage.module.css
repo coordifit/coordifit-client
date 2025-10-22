@@ -2,7 +2,120 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  margin: 0 -12px;
   background-color: #fafafa;
+}
+
+/* 카테고리 섹션 - 가로 스크롤 */
+.categoryContainer {
+  background: #ffffff;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: visible;
+}
+
+.categoryScroller {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 12px;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.categoryScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 50px;
+  scroll-snap-align: start;
+  position: relative;
+  padding-bottom: 16px;
+}
+
+.categoryItem::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: rgba(153, 153, 153, 0.2);
+  border-radius: 1px;
+}
+
+.categoryButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.categoryButton:hover {
+  transform: scale(1.05);
+}
+
+.categoryImageBox {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.activeCategoryButton .categoryImageBox {
+  background: #ebeef1;
+}
+
+.categoryImage {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.categoryLabel {
+  margin-top: 4px;
+  font-family: "Pretendard Variable", sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 12px;
+  color: #999999; /* 기본 비선택 상태 */
+  text-align: center;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* 선택된 카테고리의 라벨 스타일 */
+.activeCategoryButton + .categoryLabel {
+  color: #333333; /* 선택된 상태 */
+  font-weight: 600;
+}
+
+/* 선택된 카테고리의 하단 보더 */
+.activeCategoryButton + .categoryLabel::after {
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: #333333;
+  border-radius: 1px;
+  z-index: 10;
 }
 
 .loadingContainer,
@@ -12,8 +125,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 50px 20px;
   text-align: center;
+  font-family: "Pretendard Variable", sans-serif;
+  font-weight: 600; /* semibold */
+  font-size: 16px;
+  color: #333333;
+  min-height: 60vh; /* 화면 높이의 60%를 차지해서 중앙에 위치 */
+  width: 100%; /* 전체 너비 사용 */
+  padding: 20px; /* 좌우 여백 */
+  box-sizing: border-box; /* 패딩 포함한 박스 사이징 */
 }
 
 .errorContainer button {
@@ -30,19 +150,27 @@
 .errorContainer button:hover {
   background-color: #333;
 }
-
+/* ✅ 게시물 개수 표시 */
+.postCount {
+  font-family: "Pretendard", sans-serif;
+  font-weight: 600; /* Semibold */
+  font-size: 12px;
+  color: #999999;
+  margin-bottom: 8px;
+  padding: 0 12px;
+}
 .postList {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
   padding: 0;
 }
 
 .postCard {
+  width: 100%; /* grid column에 맞춰 자동 사이징 */
   background: #f6f6f6;
-  border-radius: 12px;
   overflow: hidden;
-  aspect-ratio: 1;
+  aspect-ratio: 1; /* 정사각형 비율 유지 */
   cursor: pointer;
   transition:
     transform 0.2s,
@@ -55,13 +183,13 @@
 }
 
 .postImage {
-  width: 100%;
-  height: 100%;
+  width: 100%; /* 부모 요소에 맞춰 자동 사이징 */
+  height: 100%; /* aspect-ratio에 맞춰 자동 높이 */
   overflow: hidden;
 }
 
 .postImage img {
-  width: 100%;
+  width: 100%; /* 부모 요소에 맞춰 자동 사이징 */
   height: 100%;
   object-fit: cover;
 }

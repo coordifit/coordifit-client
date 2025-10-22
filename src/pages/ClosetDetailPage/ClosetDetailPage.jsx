@@ -178,6 +178,7 @@ const ClosetDetailPage = () => {
                       src={img.url || img.dataUrl || img}
                       alt={`image-${idx}`}
                       className={styles.previewImage}
+                      draggable="false"
                     />
                     {isEditing && (
                       <button

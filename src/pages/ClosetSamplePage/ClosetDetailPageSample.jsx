@@ -20,6 +20,8 @@ const ClosetDetailPageSample = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const [deletedFileIds, setDeletedFileIds] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
 
   // 카테고리 데이터 로드
   useEffect(() => {
@@ -60,20 +62,23 @@ const ClosetDetailPageSample = () => {
     fetchClothesDetail();
   }, [itemId, navigate]);
 
+  const handleImageScroll = (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    const imageWidth = e.target.scrollWidth / (item?.images?.length || 1);
+    const newIndex = Math.round(scrollLeft / imageWidth);
+    setCurrentIndex(newIndex);
+  };
+
+  // 컴포넌트 언마운트 시 blob URL 정리
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const handleScroll = () => {
-      const scrollPosition = track.scrollLeft;
-      const slideWidth = track.offsetWidth;
-      const newIndex = Math.round(scrollPosition / slideWidth);
-      setCurrentIndex(newIndex);
+    return () => {
+      item?.images?.forEach((img) => {
+        if (!img.fileId && img.url && img.url.startsWith("blob:")) {
+          URL.revokeObjectURL(img.url);
+        }
+      });
     };
-
-    track.addEventListener("scroll", handleScroll);
-    return () => track.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [item]);
 
   const handleCategorySelect = (mainId, subId) => {
     setItem((prev) => ({
@@ -85,6 +90,26 @@ const ClosetDetailPageSample = () => {
   };
 
   const handleRemoveImage = (idx) => {
+    const imageToDelete = item.images[idx];
+
+    // 기존 이미지인 경우 (fileId 있음) - 삭제 목록에 추가
+    if (imageToDelete.fileId) {
+      setDeletedFileIds((prev) => [...prev, imageToDelete.fileId]);
+    }
+
+    // 새로 추가한 이미지인 경우 (fileId 없음) - newFiles에서도 제거
+    if (!imageToDelete.fileId) {
+      // URL 해제
+      if (imageToDelete.url && imageToDelete.url.startsWith("blob:")) {
+        URL.revokeObjectURL(imageToDelete.url);
+      }
+
+      // newFiles 배열에서 제거 (순서 기반)
+      const newImageIndex = item.images.slice(0, idx).filter((img) => !img.fileId).length;
+      setNewFiles((prev) => prev.filter((_, i) => i !== newImageIndex));
+    }
+
+    // 로컬 상태에서 제거
     setItem((prev) => {
       if (!prev?.images) return prev;
       return {
@@ -94,18 +119,102 @@ const ClosetDetailPageSample = () => {
     });
   };
 
-  const handleToggleEdit = () => {
+  const handleToggleEdit = async () => {
     if (isEditing) {
-      // TODO: 수정 저장 기능 구현
-      alert("수정 저장 기능은 아직 구현되지 않았습니다.");
+      // 수정 저장
+      try {
+        const updateData = {
+          name: item.name,
+          brand: item.brand,
+          categoryCode: item.categoryCode,
+          clothesSize: item.clothesSize,
+          price: item.price,
+          purchaseDate: item.purchaseDate,
+          purchaseUrl: item.purchaseUrl,
+          description: item.description,
+          deletedFileIds: deletedFileIds, // 삭제할 이미지 fileId 목록
+          files: newFiles, // 새로 추가할 이미지 파일
+        };
+
+        const response = await ClothesServiceSample.updateClothes(itemId, updateData);
+
+        if (response.success) {
+          alert("수정이 완료되었습니다.");
+          setIsEditing(false);
+          setDeletedFileIds([]); // 삭제 목록 초기화
+          setNewFiles([]); // 새 파일 목록 초기화
+
+          // 새로 추가한 이미지 URL 해제
+          item.images?.forEach((img) => {
+            if (!img.fileId && img.url && img.url.startsWith("blob:")) {
+              URL.revokeObjectURL(img.url);
+            }
+          });
+
+          // 데이터 새로고침
+          const detailResponse = await ClothesServiceSample.getClothesDetail(itemId);
+          if (detailResponse.success && detailResponse.data) {
+            setItem(detailResponse.data);
+          }
+        } else {
+          alert("수정에 실패했습니다: " + response.message);
+        }
+      } catch (error) {
+        console.error("수정 오류:", error);
+        alert("수정 중 오류가 발생했습니다.");
+      }
+    } else {
+      // 편집 모드 시작
+      setIsEditing(true);
+      setDeletedFileIds([]);
+      setNewFiles([]);
     }
-    setIsEditing((prev) => !prev);
   };
 
-  const handleDelete = () => {
+  // 편집 취소 핸들러 추가
+  const handleCancelEdit = () => {
+    // 새로 추가한 이미지 URL 해제
+    item?.images?.forEach((img) => {
+      if (!img.fileId && img.url && img.url.startsWith("blob:")) {
+        URL.revokeObjectURL(img.url);
+      }
+    });
+
+    // 상태 초기화 및 데이터 새로고침
+    setIsEditing(false);
+    setDeletedFileIds([]);
+    setNewFiles([]);
+
+    // 원본 데이터 다시 로드
+    const fetchClothesDetail = async () => {
+      try {
+        const response = await ClothesServiceSample.getClothesDetail(itemId);
+        if (response.success && response.data) {
+          setItem(response.data);
+        }
+      } catch (err) {
+        console.error("데이터 로드 실패:", err);
+      }
+    };
+    fetchClothesDetail();
+  };
+
+  const handleDelete = async () => {
     if (!window.confirm("정말 이 옷을 삭제하시겠습니까?")) return;
-    // TODO: 삭제 기능 구현
-    alert("삭제 기능은 아직 구현되지 않았습니다.");
+
+    try {
+      const response = await ClothesServiceSample.deleteClothes(itemId);
+
+      if (response.success) {
+        alert("옷이 삭제되었습니다.");
+        navigate("/closet-sample");
+      } else {
+        alert("삭제에 실패했습니다: " + response.message);
+      }
+    } catch (error) {
+      console.error("삭제 오류:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
   const handleFieldChange = (field, value) => {
@@ -156,10 +265,14 @@ const ClosetDetailPageSample = () => {
         <section className={styles.photoSection}>
           {item.images?.length ? (
             <div className={styles.carouselContainer}>
-              <div className={styles.carouselTrack} ref={trackRef}>
+              <div className={styles.carouselTrack} ref={trackRef} onScroll={handleImageScroll}>
                 {item.images.map((img, idx) => (
-                  <div key={idx} className={styles.carouselSlide}>
-                    <img src={img} alt={`${item.name}-${idx}`} className={styles.previewImage} />
+                  <div key={img.fileId || idx} className={styles.carouselSlide}>
+                    <img
+                      src={img.url || img}
+                      alt={`${item.name}-${idx}`}
+                      className={styles.previewImage}
+                    />
                     {isEditing && (
                       <button
                         type="button"
@@ -173,9 +286,11 @@ const ClosetDetailPageSample = () => {
                 ))}
               </div>
 
-              {item.images?.length > 0 && (
+              {item.images?.length > 1 && (
                 <div className={styles.photoCount}>
-                  {currentIndex + 1}/{item.images.length}
+                  <span className={styles.currentImage}>{currentIndex + 1}</span>
+                  <span className={styles.imageSeparator}>/</span>
+                  <span className={styles.totalImages}>{item.images.length}</span>
                 </div>
               )}
             </div>
@@ -197,13 +312,48 @@ const ClosetDetailPageSample = () => {
                 multiple
                 className={styles.fileInput}
                 onChange={(e) => {
-                  // TODO: 이미지 추가 기능 구현
-                  alert("이미지 추가 기능은 아직 구현되지 않았습니다.");
+                  const files = Array.from(e.target.files || []);
+
+                  if (files.length === 0) return;
+
+                  // 실제 파일 저장
+                  setNewFiles((prev) => [...prev, ...files]);
+
+                  // URL.createObjectURL()로 미리보기 생성 (메모리 효율적)
+                  const newImageUrls = files.map((file) => ({
+                    url: URL.createObjectURL(file),
+                    fileId: null, // 새 이미지는 fileId 없음
+                  }));
+
+                  setItem((prev) => ({
+                    ...prev,
+                    images: [...(prev.images || []), ...newImageUrls],
+                  }));
+
+                  e.target.value = ""; // 같은 파일 재선택 가능하도록
                 }}
               />
             </div>
           )}
-          <h2 className={styles.itemName}>{item.name || "이름 없는 아이템"}</h2>
+          {isEditing ? (
+            <input
+              className={styles.itemNameInput}
+              value={item.name || ""}
+              placeholder="옷 이름을 입력하세요"
+              onChange={(e) => handleFieldChange("name", e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                fontSize: "18px",
+                fontWeight: "600",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                marginBottom: "16px",
+              }}
+            />
+          ) : (
+            <h2 className={styles.itemName}>{item.name || "이름 없는 아이템"}</h2>
+          )}
 
           <div className={styles.statRow}>
             <div className={styles.statCard}>
@@ -420,12 +570,25 @@ const ClosetDetailPageSample = () => {
       </main>
 
       <footer className={styles.footer}>
-        <button type="button" className={styles.primaryAction} onClick={handleToggleEdit}>
-          {isEditing ? "수정완료" : "수정하기"}
-        </button>
-        <button type="button" className={styles.secondaryAction} onClick={handleDelete}>
-          삭제하기
-        </button>
+        {isEditing ? (
+          <>
+            <button type="button" className={styles.primaryAction} onClick={handleToggleEdit}>
+              수정완료
+            </button>
+            <button type="button" className={styles.secondaryAction} onClick={handleCancelEdit}>
+              취소
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" className={styles.primaryAction} onClick={handleToggleEdit}>
+              수정하기
+            </button>
+            <button type="button" className={styles.secondaryAction} onClick={handleDelete}>
+              삭제하기
+            </button>
+          </>
+        )}
       </footer>
     </div>
   );

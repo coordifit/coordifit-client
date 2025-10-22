@@ -1,8 +1,6 @@
 /* 페이지 전체 */
 .page {
-  min-height: 100vh;
   background-color: #ffffff;
-  padding-bottom: 80px; /* 하단 네비게이션 공간 */
 }
 
 /* 사용자 정보 */
@@ -14,13 +12,41 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-bottom: 12px;
   cursor: pointer;
+  margin-top: -12px;
   transition: background-color 0.2s;
   border-radius: 8px;
+  position: relative;
 }
 
 .userInfo:hover {
   background-color: #f5f5f5;
+}
+
+.editButton {
+  background: none;
+  border: none;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-left: auto;
+  transition: color 0.2s;
+  pointer-events: auto;
+}
+
+.editButton:hover {
+  color: #2196f3;
+}
+
+.editButton:focus {
+  outline: none;
+}
+
+.editButton:active {
+  color: #2196f3;
 }
 
 .profileImage {
@@ -38,7 +64,7 @@
 
 /* 메인 이미지 */
 .mainImageContainer {
-  width: 100%;
+  margin: 0 -12px; /* 부모의 padding 12px 상쇄 */
   background-color: #f8f9fa;
   min-height: 300px;
   display: flex;
@@ -111,7 +137,7 @@
 
 /* 상품 정보 */
 .productSection {
-  padding-top: 16px;
+  padding-top: 10px;
 }
 
 .productList {
@@ -128,18 +154,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 200px;
-  padding: 12px;
+  width: 240px;
   background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .productImage {
   width: 60px;
   height: 60px;
-  border-radius: 8px;
+  border-radius: 6px;
   object-fit: cover;
 }
 
@@ -148,17 +170,17 @@
 }
 
 .productName {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #333;
+  color: #222222;
   margin-bottom: 4px;
   line-height: 1.3;
 }
 
 .productPrice {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2196f3;
+  font-size: 12px;
+  font-weight: 700;
+  color: #333333;
 }
 
 .noProductSection {
@@ -176,22 +198,36 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  padding: 10px 0;
 }
 
 .actionButtons {
   display: flex;
-  gap: 16px;
+  gap: 10px;
 }
 
+/* ✅ 공통 버튼 아이콘 */
 .actionButton {
-  background: none;
   border: none;
-  font-size: 24px;
+  background: transparent;
+  padding: 0;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ 아이콘 크기 고정 */
+.actionIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* ✅ 조회수 숫자 강조 */
+.statItem strong {
+  font-weight: 600; /* Pretendard SemiBold 느낌 */
+  color: #000;
 }
 
 .actionButton:hover {
@@ -200,19 +236,19 @@
 
 .statItem {
   font-size: 14px;
-  color: #666;
+  color: #333;
 }
 
 .content {
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 14px;
+  padding: 6px 0;
   color: #333;
-  margin: 0;
+  font-weight: 600;
 }
 
 /* 댓글 섹션 */
 .commentSection {
-  padding: 0px;
+  padding: 6px 0;
 }
 
 .commentHeader {
@@ -228,6 +264,7 @@
 
 .commentCount {
   font-size: 14px;
+  font-weight: 500;
   color: #666;
   cursor: pointer;
   text-decoration: underline;
@@ -240,10 +277,10 @@
 .commentItem {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
+  padding: 6px 0;
+  margin-bottom: 6px;
   font-size: 14px;
   cursor: pointer;
-  padding: 8px;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
@@ -253,7 +290,7 @@
 }
 
 .commentUser {
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
   cursor: pointer;
   transition: color 0.2s;
@@ -265,12 +302,16 @@
 
 .commentText {
   color: #666;
+  font-weight: 500;
   flex: 1;
+  margin-left: 5px;
 }
 
 .postDate {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 600;
   color: #999;
+  padding: 5px 0;
   margin-bottom: 12px;
 }
 
@@ -279,7 +320,6 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 12px 0;
   background: none;
   border: none;
   cursor: pointer;
@@ -298,20 +338,28 @@
 }
 
 .commentPlaceholder {
-  font-size: 12px;
-  color: #999;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: pretendard-variable;
+  color: #808080;
 }
 
+/* ✅ 댓글 작성자 프로필 */
+.commentUserProfile {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
 /* 댓글 작성 모달 - 바텀시트 스타일 */
 .commentModalContent {
   display: flex;
   flex-direction: column;
-  height: 70vh;
-  max-height: 700px;
+  height: auto; /* ✅ 고정 높이 대신 콘텐츠 높이에 맞게 */
   background: white;
   border-radius: 20px 20px 0 0;
-  position: relative;
-  overflow: hidden;
+  overflow: hidden; /* ✅ 전체에는 스크롤 제거 */
 }
 
 /* 바텀시트 핸들 */
@@ -323,21 +371,26 @@
   transform: translateX(-50%);
   width: 36px;
   height: 4px;
-  background: #d0d0d0;
   border-radius: 2px;
   z-index: 10;
 }
 
 .modalCommentList {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 16px 16px 16px;
+  /* BottomSheet의 content에서 스크롤을 담당하므로 여기서는 스크롤 제거 */
+  overflow: visible;
+  height: auto;
+}
+
+.commentThread {
+  margin-bottom: 10px;
+  overflow: visible; /* 댓글 스레드에서 스크롤 방지 */
 }
 
 .modalCommentItem {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  gap: 12px;
+  padding: 8px 50px 8px 0; /* 오른쪽에 좋아요 버튼 공간 확보 */
+  position: relative;
 }
 
 .modalCommentItem:last-child {
@@ -347,40 +400,40 @@
 }
 
 .replyComment {
-  margin-left: 32px;
-  border-left: 2px solid #e0e0e0;
+  margin-left: 42px; /* 프로필 이미지 크기(30px) + 간격(12px) = 42px */
   padding-left: 16px;
-  background-color: #fafafa;
-  border-radius: 4px;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+.modalCommentProfileImage {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.modalCommentContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* flex 아이템이 줄어들 수 있도록 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
 }
 
 .modalCommentHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.modalCommentUserInfo {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.modalCommentProfileImage {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-}
-
 .modalCommentUser {
-  font-weight: 500;
-  color: #333;
-  font-size: 14px;
+  font-family: pretendard;
+  font-weight: 600;
+  color: #333333;
+  font-size: 12px;
+  line-height: 14px;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -390,16 +443,23 @@
 }
 
 .modalCommentDate {
+  font-family: pretendard;
   font-size: 12px;
-  color: #999;
-  margin-left: 12px;
+  color: #a6a6a6;
+  font-weight: 600;
+  line-height: 14px;
 }
 
 .modalCommentText {
-  color: #333;
+  font-family: pretendard-variable;
+  color: #333333;
   font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 12px;
+  line-height: 17px;
+  font-weight: 500;
+  margin: 6px 0;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .modalCommentActions {
@@ -408,14 +468,99 @@
 }
 
 .modalReplyButton {
+  font-family: pretendard-variable;
   background: none;
   border: none;
-  color: #666;
+  color: #8e8e93;
   font-size: 12px;
+  font-weight: 600;
+  line-height: 12px;
   cursor: pointer;
   padding: 0;
 }
 
+.modalReplyButton:hover {
+  color: #2196f3;
+}
+
+.viewRepliesContainer {
+  margin: 0px 0 0px 58px; /* 프로필 이미지 크기(30px) + 간격(12px) = 42px */
+}
+
+.hideRepliesContainer {
+  margin: 0px 0 0px 84px; /* 답글 들여쓰기(42px) + 프로필 이미지 크기(30px) + 간격(12px) = 84px */
+}
+
+.repliesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+
+  /* 🔥 내부 스크롤 완전 비활성화 */
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.repliesContainer::-webkit-scrollbar {
+  display: none !important;
+}
+
+.modalViewRepliesButton {
+  font-family: pretendard-variable;
+  background: none;
+  border: none;
+  color: #8e8e93;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.modalViewRepliesButton:hover {
+  color: #2196f3;
+}
+
+/* 오른쪽 하트 영역 */
+.commentLikeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 40px;
+}
+
+.commentLikeButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.commentLikeIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.commentLikeCount {
+  font-family: pretendard-variable;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+  color: #999999;
+  text-align: center;
+}
 .modalReplyButton:hover {
   color: #2196f3;
 }
@@ -442,21 +587,34 @@
 .modalEmptyComment {
   flex: 1;
   display: flex;
+  flex-direction: column; /* 줄바꿈 정렬 */
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: #666;
-  font-size: 14px;
-  padding: 40px 20px;
+  padding: 20vh 20px;
+  gap: 4px; /* 두 줄 간격 */
 }
 
+.modalEmptyComment .noCommentTitle {
+  font-family: pretendard-variable;
+  font-size: 14px;
+  font-weight: 600; /* SemiBold */
+  color: #333333;
+}
+
+.modalEmptyComment .noCommentSubtitle {
+  font-family: pretendard-variable;
+  font-size: 14px;
+  font-weight: 500; /* Medium */
+  color: #999999;
+}
 .modalInputContainer {
   display: flex;
   align-items: center;
   gap: 12px;
   background: #f8f9fa;
-  border-radius: 25px;
-  padding: 12px 16px;
+  border-radius: 10px;
+  padding: 10px 16px;
   border: 1px solid #e0e0e0;
 }
 
@@ -501,11 +659,11 @@
 }
 
 .modalSendButton {
-  background: #007aff;
+  background: #333333;
   color: white;
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   font-size: 18px;
   cursor: pointer;
@@ -565,7 +723,7 @@
 
 /* 좋아요 목록 바텀시트 */
 .likesModalContent {
-  padding: 0px;
+  padding: 6px;
 }
 
 .loadingLikes,
@@ -582,7 +740,6 @@
 .likeUserList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .likeUserItem {
@@ -607,36 +764,8 @@
 }
 
 .likeUserNickname {
+  font-family: pretendard-variable;
   font-size: 14px;
   font-weight: 500;
   color: #333;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 480px) {
-  .userSection,
-  .productSection,
-  .interactionSection,
-  .contentSection,
-  .commentSection {
-    padding-bottom: 12px;
-  }
-
-  .productItem {
-    min-width: 180px;
-    padding: 8px;
-  }
-
-  .productImage {
-    width: 50px;
-    height: 50px;
-  }
-
-  .productName {
-    font-size: 13px;
-  }
-
-  .productPrice {
-    font-size: 14px;
-  }
 }

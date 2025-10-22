@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
-import clothesService from "../../services/clothesService";
+import ClothesServiceSample from "../ClosetSamplePage/clothesServiceSample";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapAddPage.module.css";
 import cameraIcon from "@/assets/images/snapupload.png";
@@ -14,10 +14,13 @@ const SnapAddPage = () => {
     setImageFiles: setSnapImageFiles,
     setUploadedImages: setSnapUploadedImages,
     setSelectedItems: setSnapSelectedItems,
+    setDeletedFileIds: setSnapDeletedFileIds,
+    editPostData,
   } = useSnapStore();
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [deletedFileIds, setDeletedFileIds] = useState([]);
   const [mainCategory, setMainCategory] = useState("all");
   const [subCategory, setSubCategory] = useState("all");
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
@@ -60,22 +63,13 @@ const SnapAddPage = () => {
   useEffect(() => {
     const loadAllClothes = async () => {
       try {
-        const clothes = await clothesService.getClothes();
-        console.log("전체 옷 정보:", clothes);
-        const transformedClothes = clothes.data.content.map((item) => ({
-          id: item.clothesId,
-          name: item.name,
-          brand: item.brand,
-          price: item.price,
-          category: item.categoryCode,
-          subCategory: item.categoryCode,
-          images: [
-            item.images[0].url ||
-              "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
-          ],
-        }));
-
-        setClothesItems(transformedClothes);
+        const response = await ClothesServiceSample.getUserClothes();
+        console.log("전체 옷 정보:", response);
+        if (response.success && response.data) {
+          setClothesItems(response.data);
+        } else {
+          setClothesItems([]);
+        }
       } catch (error) {
         console.error("옷 정보 로드 오류:", error);
         setClothesItems([]);
@@ -84,6 +78,19 @@ const SnapAddPage = () => {
 
     loadAllClothes();
   }, []);
+
+  useEffect(() => {
+    if (editPostData) {
+      if (editPostData.images && editPostData.images.length > 0) {
+        setUploadedImages(editPostData.images);
+      }
+
+      if (editPostData.clothes && editPostData.clothes.length > 0) {
+        const clothesIds = editPostData.clothes.map((item) => item.clothesId);
+        setSelectedItems(clothesIds);
+      }
+    }
+  }, [editPostData]);
 
   // 필터링된 아이템들
   const filteredItems = useMemo(() => {
@@ -95,13 +102,13 @@ const SnapAddPage = () => {
 
       // 서브카테고리 선택 시 해당 서브카테고리만 표시
       if (subCategory !== "all") {
-        return item.category === subCategory;
+        return item.categoryCode === subCategory;
       }
 
       // 메인카테고리 선택 시 해당 메인카테고리 하위의 모든 서브카테고리 표시
       const subCategoriesForMain = subCategoriesMap[mainCategory] || [];
       const subCategoryCodes = subCategoriesForMain.map((sub) => sub.codeId);
-      return subCategoryCodes.includes(item.category);
+      return subCategoryCodes.includes(item.categoryCode);
     });
   }, [clothesItems, mainCategory, subCategory, subCategoriesMap]);
 
@@ -147,8 +154,13 @@ const SnapAddPage = () => {
   };
 
   const removeImage = (index) => {
-    // URL 해제 (메모리 누수 방지)
-    URL.revokeObjectURL(uploadedImages[index]);
+    const imageToDelete = uploadedImages[index];
+
+    if (imageToDelete?.fileId) {
+      setDeletedFileIds((prev) => [...prev, imageToDelete.fileId]);
+    } else {
+      URL.revokeObjectURL(imageToDelete);
+    }
 
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
@@ -159,6 +171,7 @@ const SnapAddPage = () => {
     setSnapImageFiles([...imageFiles]);
     setSnapUploadedImages([...uploadedImages]);
     setSnapSelectedItems([...selectedItems]);
+    setSnapDeletedFileIds([...deletedFileIds]);
 
     // 스냅 업로드 완료 페이지로 이동
     navigate("/snap/upload-complete");
@@ -205,7 +218,7 @@ const SnapAddPage = () => {
         {/* 이미지 업로드 섹션 */}
         <div className={styles.imageUploadSection}>
           <div className={styles.sectionHeader}>
-            <h3>스냅 사진을 올려주세요</h3>
+            <h3>{editPostData ? "스냅 사진 수정" : "스냅 사진을 올려주세요"}</h3>
             <span className={styles.required}>필수</span>
           </div>
           <p className={styles.uploadHint}>사진은 최대 10장까지 등록 가능합니다.</p>
@@ -219,7 +232,7 @@ const SnapAddPage = () => {
             <div className={styles.uploadedImages}>
               {uploadedImages.map((image, index) => (
                 <div key={index} className={styles.uploadedImage}>
-                  <img src={image} alt={`업로드된 이미지 ${index + 1}`} />
+                  <img src={image.url || image} alt={`업로드된 이미지 ${index + 1}`} />
                   <button className={styles.removeImageButton} onClick={() => removeImage(index)}>
                     ×
                   </button>
@@ -288,19 +301,19 @@ const SnapAddPage = () => {
               )}
               <div className={styles.productGrid}>
                 {filteredItems.map((item) => (
-                  <div key={item.id} className={styles.productCard}>
-                    <img src={item.images[0]} alt={item.name} />
+                  <div key={item.clothesId} className={styles.productCard}>
+                    <img src={item.imageUrl} alt={item.name} />
                     <div className={styles.radioWrapper}>
                       <input
                         type="checkbox"
-                        id={item.id}
-                        checked={selectedItems.includes(item.id)}
-                        onChange={() => toggleItemSelection(item.id)}
+                        id={item.clothesId}
+                        checked={selectedItems.includes(item.clothesId)}
+                        onChange={() => toggleItemSelection(item.clothesId)}
                       />
-                      <label htmlFor={item.id}></label>
+                      <label htmlFor={item.clothesId}></label>
 
                       {/* ✅ 체크되면 아이콘 표시 */}
-                      {selectedItems.includes(item.id) && (
+                      {selectedItems.includes(item.clothesId) && (
                         <img src={checkIcon} alt="선택됨" className={styles.checkIcon} />
                       )}
                     </div>
@@ -312,10 +325,10 @@ const SnapAddPage = () => {
             <div className={styles.selectedProductsView}>
               <div className={styles.selectedProducts}>
                 {selectedItems.map((itemId) => {
-                  const item = clothesItems.find((i) => i.id === itemId);
+                  const item = clothesItems.find((i) => i.clothesId === itemId);
                   return item ? (
                     <div key={itemId} className={styles.selectedProduct}>
-                      <img src={item.images[0]} alt={item.name} />
+                      <img src={item.imageUrl} alt={item.name} />
                       <span className={styles.productName}>{item.name}</span>
                       <button
                         className={styles.removeProductButton}

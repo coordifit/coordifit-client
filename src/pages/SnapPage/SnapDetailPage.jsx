@@ -4,6 +4,7 @@ import postService from "../../services/postService";
 import profileImage from "@/assets/images/profile.png";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import { useUserStore } from "@/stores/userStore";
+import { useSnapStore } from "@/stores/snapStore";
 import styles from "./SnapDetailPage.module.css";
 import heartRed from "@/assets/images/heart.png";
 import heartlike from "@/assets/images/hearticon_red.png";
@@ -15,6 +16,7 @@ const SnapDetailPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const { user } = useUserStore();
+  const { setEditPostData } = useSnapStore();
   const [postDetail, setPostDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,7 +65,7 @@ const SnapDetailPage = () => {
 
   const handleImageScroll = (e) => {
     const scrollLeft = e.target.scrollLeft;
-    const imageWidth = e.target.scrollWidth / postDetail.imageUrls.length;
+    const imageWidth = e.target.scrollWidth / postDetail.images.length;
     const newIndex = Math.round(scrollLeft / imageWidth);
     setCurrentImageIndex(newIndex);
   };
@@ -229,8 +231,16 @@ const SnapDetailPage = () => {
   };
 
   const handleEditPost = (e) => {
-    e.stopPropagation(); // 부모 클릭 이벤트 중단
-    // 단순히 스냅 추가 페이지로 이동
+    e.stopPropagation();
+
+    setEditPostData({
+      postId: postDetail.postId,
+      content: postDetail.content,
+      isPublic: postDetail.isPublic,
+      images: postDetail.images || [],
+      clothes: postDetail.clothes || [],
+    });
+
     navigate("/snap/add");
   };
 
@@ -288,23 +298,23 @@ const SnapDetailPage = () => {
 
       {/* 메인 이미지 */}
       <div className={styles.mainImageContainer}>
-        {postDetail.imageUrls && postDetail.imageUrls.length > 0 ? (
+        {postDetail.images && postDetail.images.length > 0 ? (
           <div className={styles.imageScrollContainer}>
             <div className={styles.imageScrollWrapper} onScroll={handleImageScroll}>
-              {postDetail.imageUrls.map((imageUrl, index) => (
+              {postDetail.images.map((image, index) => (
                 <img
-                  key={index}
-                  src={imageUrl}
+                  key={image.fileId || index}
+                  src={image.url}
                   alt={`스냅 이미지 ${index + 1}`}
                   className={styles.scrollImage}
                 />
               ))}
             </div>
-            {postDetail.imageUrls.length > 1 && (
+            {postDetail.images.length > 1 && (
               <div className={styles.imageCounter}>
                 <span className={styles.currentImage}>{currentImageIndex + 1}</span>
                 <span className={styles.imageSeparator}>/</span>
-                <span className={styles.totalImages}>{postDetail.imageUrls.length}</span>
+                <span className={styles.totalImages}>{postDetail.images.length}</span>
               </div>
             )}
           </div>

@@ -4,6 +4,7 @@ import clsx from "clsx";
 import styles from "../ClosetPage/ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
 import ClothesServiceSample from "./clothesServiceSample";
+import CheckIcon from "@/assets/images/checkicon.png";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();

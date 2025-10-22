@@ -19,7 +19,6 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 14px;
   border: 1px solid #ffffff;
   border-radius: 14px;
   background: #ffffff;
@@ -43,8 +42,8 @@
 
 .toggleIcon {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   border: 1.5px solid #131214;
   border-radius: 50%;
 }
@@ -321,6 +320,10 @@
   border-radius: 50%;
   border: 1.5px solid #131214;
   background: #fff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: all 0.2s ease;
 }
 
 .checkbox::after {
@@ -335,12 +338,16 @@
 }
 
 .checkboxChecked {
-  background: #131214;
+  border-color: #131214;
+  background-color: #fff;
+  background-image: url("@/assets/images/checkicon.png");
+  background-size: 15px 15px;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .checkboxChecked::after {
-  border-right-color: #fff;
-  border-bottom-color: #fff;
+  content: none;
 }
 
 .cardContent {

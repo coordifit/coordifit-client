@@ -124,7 +124,7 @@ const CoordiEditor = () => {
         clearCoordiItems();
 
         setTimeout(() => {
-          navigate("/closet", { replace: true });
+          navigate("/closet-sample", { replace: true });
         }, 0);
 
         queryClient.invalidateQueries(["coordis"]);

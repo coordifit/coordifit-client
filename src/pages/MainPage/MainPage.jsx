@@ -1,14 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  WiDaySunny,
-  WiCloud,
-  WiDayFog,
-  WiRain,
-  WiStormShowers,
-  WiSnowflakeCold,
-} from "react-icons/wi";
-
 import styles from "./MainPage.module.css";
 
 import userIcon from "@/assets/images/mainpage/usericon.png";
@@ -52,7 +43,7 @@ import clothesService from "@/services/clothesService";
 import postService from "@/services/postService";
 import commonCodeService from "@/services/commonCodeService";
 import { getDailyLooksByMonth } from "@/services/dailyLookApi";
-import { getCurrentWeather, getPastWeather } from "@/services/weatherApi";
+import { getCurrentWeatherRange, getPastWeatherRange } from "../../services/weatherApi";
 import { useUserStore } from "@/stores/userStore";
 
 const HERO_CARDS = [
@@ -408,15 +399,24 @@ const MainPage = () => {
       const today = new Date().toISOString().slice(0, 10);
 
       try {
-        const weatherResult = await getCurrentWeather({
+        // getCurrentWeatherRange로 오늘 하루만 가져오기
+        const weatherResult = await getCurrentWeatherRange({
           lat,
           lng,
-          dateString: today,
+          startDate: today,
+          endDate: today,
         });
 
         if (cancelled) return;
 
-        setTodayWeather(weatherResult);
+        // 첫 번째 (오늘) 데이터 추출
+        const todayData = {
+          tmax: Math.round(weatherResult.temperature_2m_max[0]),
+          tmin: Math.round(weatherResult.temperature_2m_min[0]),
+          wcode: weatherResult.weathercode[0],
+        };
+
+        setTodayWeather(todayData);
       } catch (error) {
         if (!cancelled) {
           console.error("오늘 날씨 데이터 조회 실패:", error);
@@ -436,7 +436,7 @@ const MainPage = () => {
     };
   }, []);
 
-  // 이번 달 날씨 데이터 로드 (개별 호출)
+  // 이번 달 날씨 데이터 로드 (archive API 사용)
   useEffect(() => {
     let cancelled = false;
 
@@ -456,29 +456,92 @@ const MainPage = () => {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
 
+        const firstDayStr = firstDay.toISOString().slice(0, 10);
+        const lastDayStr = lastDay.toISOString().slice(0, 10);
+
         const weatherMap = {};
         const todayStr = today.toISOString().slice(0, 10);
 
-        // 이번 달의 모든 날짜에 대해 개별 API 호출
-        for (let date = new Date(firstDay); date <= lastDay; date.setDate(date.getDate() + 1)) {
-          if (cancelled) break;
+        try {
+          // 과거 날씨 데이터 (이번 달 첫날부터 어제까지)
+          if (firstDayStr < todayStr) {
+            const pastEndDate = new Date(today);
+            pastEndDate.setDate(pastEndDate.getDate() - 1);
+            const pastEndStr = pastEndDate.toISOString().slice(0, 10);
 
-          const dateString = date.toISOString().slice(0, 10);
+            // 과거 데이터 범위가 이번 달 범위와 겹치는 경우만 요청
+            // 10월 1일 데이터 누락 방지를 위해 firstDayStr부터 시작
+            if (firstDayStr <= pastEndStr) {
+              console.log("getPastWeatherRange 호출 파라미터:", {
+                lat,
+                lng,
+                startDate: firstDayStr, // 10월 1일부터
+                endDate: pastEndStr,
+              });
 
-          try {
-            let weatherResult;
+              const pastWeatherData = await getPastWeatherRange({
+                lat,
+                lng,
+                startDate: firstDayStr, // 10월 1일부터
+                endDate: pastEndStr, // 어제까지
+              });
 
-            // 오늘 이후는 getCurrentWeather, 과거는 getPastWeather
-            if (dateString >= todayStr) {
-              weatherResult = await getCurrentWeather({ lat, lng, dateString });
-            } else {
-              weatherResult = await getPastWeather({ lat, lng, dateString });
+              // 과거 데이터 매핑 (이번 달에 속하는 날짜만)
+              pastWeatherData.time.forEach((dateStr, index) => {
+                // 이번 달에 속하는 날짜인지 확인
+                if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
+                  weatherMap[dateStr] = {
+                    tmax: Math.round(pastWeatherData.temperature_2m_max[index]),
+                    tmin: Math.round(pastWeatherData.temperature_2m_min[index]),
+                    wcode: pastWeatherData.weathercode[index],
+                  };
+                }
+              });
             }
+          }
 
-            weatherMap[dateString] = weatherResult;
-          } catch (error) {
-            console.warn(`${dateString} 날씨 데이터 조회 실패:`, error);
-            // 실패 시 기본값 설정
+          // 현재/미래 날씨 데이터 (오늘부터 이번 달 마지막까지)
+          if (todayStr <= lastDayStr) {
+            console.log("getCurrentWeatherRange 호출 파라미터:", {
+              lat,
+              lng,
+              startDate: todayStr,
+              endDate: lastDayStr,
+            });
+
+            const currentWeatherData = await getCurrentWeatherRange({
+              lat,
+              lng,
+              startDate: todayStr,
+              endDate: lastDayStr,
+            });
+
+            console.log("getCurrentWeatherRange 응답 데이터:", currentWeatherData);
+
+            // 현재/미래 데이터 매핑 (이번 달에 속하는 날짜만)
+            currentWeatherData.time.forEach((dateStr, index) => {
+              // 이번 달에 속하는 날짜인지 확인
+              if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
+                console.log(`날짜 ${dateStr} 매핑:`, {
+                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
+                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
+                  wcode: currentWeatherData.weathercode[index],
+                });
+
+                weatherMap[dateStr] = {
+                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
+                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
+                  wcode: currentWeatherData.weathercode[index],
+                };
+              }
+            });
+          }
+        } catch (error) {
+          console.warn("날씨 데이터 조회 실패, 기본값 사용:", error);
+
+          // 실패 시 이번 달 모든 날짜에 기본값 설정
+          for (let date = new Date(firstDay); date <= lastDay; date.setDate(date.getDate() + 1)) {
+            const dateString = date.toISOString().slice(0, 10);
             weatherMap[dateString] = {
               tmax: 20,
               tmin: 15,
@@ -801,6 +864,23 @@ const MainPage = () => {
 
       // 날씨 데이터 가져오기
       const weather = weatherData[day.id];
+
+      // 10월 1일 디버깅
+      if (day.id === "2025-10-01") {
+        const testIcon = getWeatherIcon(weather?.wcode);
+        console.log("🔍 10월 1일 날씨 데이터 디버깅:", {
+          dayId: day.id,
+          weatherData: weather,
+          wcode: weather?.wcode,
+          returnedIcon: testIcon,
+          rainyIconPath: rainyIcon,
+          sunnyIconPath: sunnyIcon,
+          iconComparison:
+            testIcon === rainyIcon ? "rainyIcon" : testIcon === sunnyIcon ? "sunnyIcon" : "other",
+          allWeatherData: Object.keys(weatherData),
+        });
+      }
+
       const weatherIcon = weather ? getWeatherIcon(weather.wcode) : sunnyIcon;
       const weatherLabel = weather ? getWeatherLabel(weather.wcode) : "맑음";
       const temperature = weather ? `${weather.tmax}°` : "20°";

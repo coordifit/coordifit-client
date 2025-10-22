@@ -121,7 +121,11 @@ const ClosetPageSample = () => {
     );
   };
 
-  const handleCardClick = (item) => {
+  const handleClothesAddClick = () => {
+    navigate("/closet/register-sample");
+  };
+
+  const handleClothesClick = (item) => {
     if (isSelecting) {
       toggleItemSelection(item.clothesId);
       return;
@@ -130,14 +134,9 @@ const ClosetPageSample = () => {
     navigate(`/closet/item-sample/${item.clothesId}`);
   };
 
-  const handleAddClick = () => {
-    // TODO: 등록 페이지로 이동
-    navigate("/closet/register-sample");
-  };
-
-  const handleClickCoordi = (item) => {
+  const handleCoordiClick = (item) => {
     if (isSelecting) {
-      toggleItemSelection(item.id);
+      toggleItemSelection(item.coordiId);
       return;
     }
 
@@ -331,11 +330,13 @@ const ClosetPageSample = () => {
         <div className={styles.grid}>
           {isCoordiTab ? (
             <>
+              {console.log("coordi.data", coordi.data)}
+              {console.log("selectedItems", selectedItems)}
               {coordi.data.map((item) => (
                 <article
                   key={item.coordiId}
                   className={clsx(styles.card, isSelecting && styles.cardSelectable)}
-                  onClick={() => handleClickCoordi(item)}
+                  onClick={() => handleCoordiClick(item)}
                 >
                   <div className={styles.cardImageWrapper}>
                     <img src={item.thumbImageUrl} alt={item.title} className={styles.cardImage} />
@@ -343,7 +344,7 @@ const ClosetPageSample = () => {
                       <span
                         className={clsx(
                           styles.checkbox,
-                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                          selectedItems.includes(item.coordiId) && styles.checkboxChecked,
                         )}
                       />
                     )}
@@ -356,11 +357,13 @@ const ClosetPageSample = () => {
             </>
           ) : (
             <>
+              {console.log("selectedItems", selectedItems)}
+              {console.log("filteredItems", filteredItems)}
               {filteredItems.map((item) => (
                 <article
                   key={item.id}
                   className={clsx(styles.card, isSelecting && styles.cardSelectable)}
-                  onClick={() => handleCardClick(item)}
+                  onClick={() => handleClothesClick(item)}
                 >
                   <div className={styles.cardImageWrapper}>
                     <img
@@ -372,7 +375,7 @@ const ClosetPageSample = () => {
                       <span
                         className={clsx(
                           styles.checkbox,
-                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                          selectedItems.includes(item.clothesId) && styles.checkboxChecked,
                         )}
                       />
                     )}
@@ -386,7 +389,7 @@ const ClosetPageSample = () => {
             </>
           )}
           {!isCoordiTab && (
-            <button type="button" className={styles.addCard} onClick={handleAddClick}>
+            <button type="button" className={styles.addCard} onClick={handleClothesAddClick}>
               <span className={styles.addIcon}>＋</span>
               <span className={styles.addLabel}>아이템 추가</span>
             </button>

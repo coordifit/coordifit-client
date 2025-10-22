@@ -4,6 +4,7 @@ import Tabs from "@/components/Tabs/Tabs";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import userService from "@/services/userService";
 import { useUserStore } from "@/stores/userStore";
+import { useSnapStore } from "@/stores/snapStore";
 import profileImage from "@/assets/images/profile.png";
 import styles from "./MyPage.module.css";
 
@@ -15,6 +16,7 @@ const MyPage = () => {
   const navigate = useNavigate();
   const { userId: urlUserId } = useParams();
   const { user } = useUserStore();
+  const { clearSnapData } = useSnapStore();
   const [activeTab, setActiveTab] = useState("closet");
   const [myPageData, setMyPageData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -256,9 +258,14 @@ const MyPage = () => {
           ))}
         </div>
       </section>
-      {/* 현재 로그인한 사용자의 페이지일 때만 FAB 버튼 표시 */}
       {user?.userId === currentUserId && (
-        <button className={styles["fab-button"]} onClick={() => navigate("/snap/add")}>
+        <button
+          className={styles["fab-button"]}
+          onClick={() => {
+            clearSnapData();
+            navigate("/snap/add");
+          }}
+        >
           <span>+</span>
         </button>
       )}

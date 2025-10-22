@@ -19,11 +19,11 @@ import DatePicker from "react-datepicker";
 const MAX_PHOTOS = 5;
 
 const CATEGORY_ICON_MAP = {
-  top: TopIcon,
-  bottom: BottomIcon,
-  shoes: ShoesIcon,
-  outer: OuterIcon,
-  "fashion-item": AccessoriesIcon,
+  상의: TopIcon,
+  하의: BottomIcon,
+  신발: ShoesIcon,
+  아우터: OuterIcon,
+  패션소품: AccessoriesIcon,
 };
 
 const ClosetRegisterPageSample = () => {
@@ -352,7 +352,7 @@ const ClosetRegisterPageSample = () => {
                     onClick={() => setActiveMainCategory(category.codeId)}
                   >
                     <img
-                      src={CATEGORY_ICON_MAP[category.codeId.toLowerCase()] || AccessoriesIcon}
+                      src={CATEGORY_ICON_MAP[category.codeName] || AccessoriesIcon}
                       alt={category.codeName}
                       className={styles.sheetMainIcon}
                     />

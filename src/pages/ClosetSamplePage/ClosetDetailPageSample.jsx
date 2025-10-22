@@ -5,6 +5,11 @@ import styles from "../ClosetDetailPage/ClosetDetailPage.module.css";
 import ChevronDown from "@/assets/images/chevron-down.svg";
 import ClothesServiceSample from "./clothesServiceSample";
 import CommonCodeService from "@/services/commonCodeService";
+import TopIcon from "@/assets/images/topicon.png";
+import BottomIcon from "@/assets/images/bottomicon.png";
+import ShoesIcon from "@/assets/images/shoesicon.png";
+import OuterIcon from "@/assets/images/outericon.png";
+import AccessoriesIcon from "@/assets/images/accessoriesicon.png";
 
 const ClosetDetailPageSample = () => {
   const navigate = useNavigate();
@@ -22,6 +27,14 @@ const ClosetDetailPageSample = () => {
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [deletedFileIds, setDeletedFileIds] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
+
+  const CATEGORY_ICON_MAP = {
+    상의: TopIcon,
+    하의: BottomIcon,
+    신발: ShoesIcon,
+    아우터: OuterIcon,
+    패션소품: AccessoriesIcon,
+  };
 
   // 카테고리 데이터 로드
   useEffect(() => {
@@ -395,8 +408,12 @@ const ClosetDetailPageSample = () => {
                                   }));
                                 }}
                               >
-                                <span className={styles.sheetMainIcon}>👕</span>
-                                {main.codeName}
+                                <img
+                                  src={CATEGORY_ICON_MAP[main.codeName] || AccessoriesIcon}
+                                  alt={main.codeName}
+                                  className={styles.sheetMainIcon}
+                                />
+                                <span>{main.codeName}</span>
                               </button>
                             ))}
                         </div>

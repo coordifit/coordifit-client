@@ -16,7 +16,7 @@ class PostService {
       const formData = new FormData();
 
       if (postData.content) formData.append("content", postData.content);
-      formData.append("isPublic", postData.isPublic !== undefined ? postData.isPublic : true);
+      formData.append("isPublic", postData.isPublic);
 
       if (postData.clothesIds && postData.clothesIds.length > 0) {
         postData.clothesIds.forEach((clothesId) => {
@@ -99,6 +99,39 @@ class PostService {
       return response.data;
     } catch (error) {
       console.error("좋아요 목록 조회 오류:", error);
+      throw error;
+    }
+  }
+
+  async updatePost(postId, postData) {
+    try {
+      const formData = new FormData();
+
+      if (postData.content) formData.append("content", postData.content);
+      formData.append("isPublic", postData.isPublic);
+
+      if (postData.clothesIds && postData.clothesIds.length > 0) {
+        postData.clothesIds.forEach((clothesId) => {
+          formData.append("clothesIds", clothesId);
+        });
+      }
+
+      if (postData.deletedFileIds && postData.deletedFileIds.length > 0) {
+        postData.deletedFileIds.forEach((fileId) => {
+          formData.append("deletedFileIds", fileId);
+        });
+      }
+
+      if (postData.files && postData.files.length > 0) {
+        postData.files.forEach((file) => {
+          formData.append("files", file);
+        });
+      }
+
+      const response = await api.put(`/posts/${postId}`, formData);
+      return response.data;
+    } catch (error) {
+      console.error("게시물 수정 오류:", error);
       throw error;
     }
   }

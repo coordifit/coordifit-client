@@ -36,6 +36,9 @@ import MyPage from "@/pages/MyPage/MyPage";
 import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 
+import CoordiEditor from "./pages/Closet/CoordiEditor/CoordiEditor";
+import CoordiDetail from "./pages/Closet/CoordiDetail/CoordiDetail";
+
 import { TokenManager } from "./services/axiosInstance";
 import { formatYearMonth } from "./utils/calendarUtils";
 
@@ -150,7 +153,48 @@ const router = createBrowserRouter([
           showTabbar: true,
         },
       },
-
+      {
+        path: "/closet/coordi/editor",
+        element: (
+          <ProtectedRoute>
+            <CoordiEditor />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "코디 만들기",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/closet/coordi/editor/:coordiId",
+        element: (
+          <ProtectedRoute>
+            <CoordiEditor />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "코디 수정하기",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/closet/coordi/:coordiId",
+        element: (
+          <ProtectedRoute>
+            <CoordiDetail />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "코디 상세정보",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
       {
         path: "/closet/register",
         element: (

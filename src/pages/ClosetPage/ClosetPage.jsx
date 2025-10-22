@@ -5,6 +5,7 @@ import styles from "./ClosetPage.module.css";
 import { CLOSET_TABS, CLOTHING_ITEMS, COORDI_ITEMS, ITEMS_PER_BATCH } from "./closetData";
 import ClothesService from "@/services/clothesService";
 import CommonCodeService from "@/services/commonCodeService";
+import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 
 const ClosetPage = () => {
   const navigate = useNavigate();
@@ -12,16 +13,17 @@ const ClosetPage = () => {
   const [mainCategory, setMainCategory] = useState("all");
   const [subCategory, setSubCategory] = useState("all");
 
-  const [items, setItems] = useState([]); // 실제 서버 데이터
+  const [items, setItems] = useState([]);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_BATCH);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false);
   const observer = useRef(null);
 
-  // ✅ DB 기반 카테고리
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategoriesMap, setSubCategoriesMap] = useState({});
+
+  const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   // ==================== 1️⃣ 카테고리 로드 ====================
   useEffect(() => {
@@ -145,6 +147,20 @@ const ClosetPage = () => {
 
   const handleAddClick = () => navigate("/closet/register");
 
+  const handleClickCoordi = (item) => {
+    if (isSelecting) {
+      toggleItemSelection(item.id);
+      return;
+    }
+
+    console.log("item click", item);
+    navigate(`/closet/coordi/${item.coordiId}`);
+  };
+
+  const handleClickCoordiEditor = () => {
+    navigate("/closet/coordi/editor");
+  };
+
   // ==================== 8️⃣ 카테고리 변경 ====================
   const handleCategoryChange = (id) => {
     setMainCategory(id);
@@ -242,33 +258,62 @@ const ClosetPage = () => {
       {/* 목록 */}
       <section className={styles.gridSection}>
         <div className={styles.grid}>
-          {visibleItems.map((item) => (
-            <article
-              key={item.id}
-              className={clsx(styles.card, isSelecting && styles.cardSelectable)}
-              onClick={() => handleCardClick(item)}
-            >
-              <div className={styles.cardImageWrapper}>
-                <img
-                  src={item.images?.[0] || "/noimage.png"}
-                  alt={item.name}
-                  className={styles.cardImage}
-                />
-                {isSelecting && (
-                  <span
-                    className={clsx(
-                      styles.checkbox,
-                      selectedItems.includes(item.id) && styles.checkboxChecked,
+          {isCoordiTab ? (
+            <>
+              {coordi.data.map((item) => (
+                <article
+                  key={item.coordiId}
+                  className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+                  onClick={() => handleClickCoordi(item)}
+                >
+                  <div className={styles.cardImageWrapper}>
+                    <img src={item.thumbImageUrl} alt={item.title} className={styles.cardImage} />
+                    {isSelecting && (
+                      <span
+                        className={clsx(
+                          styles.checkbox,
+                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                        )}
+                      />
                     )}
-                  />
-                )}
-              </div>
-              <div className={styles.cardContent}>
-                <p className={styles.cardName}>{item.name}</p>
-                {item.purchaseDate && <p className={styles.cardMeta}>{item.purchaseDate}</p>}
-              </div>
-            </article>
-          ))}
+                  </div>
+                  <div className={styles.cardContent}>
+                    <p className={styles.cardName}>{item.title}</p>
+                  </div>
+                </article>
+              ))}
+            </>
+          ) : (
+            <>
+              {visibleItems.map((item) => (
+                <article
+                  key={item.id}
+                  className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+                  onClick={() => handleCardClick(item)}
+                >
+                  <div className={styles.cardImageWrapper}>
+                    <img
+                      src={item.images?.[0] || "/noimage.png"}
+                      alt={item.name}
+                      className={styles.cardImage}
+                    />
+                    {isSelecting && (
+                      <span
+                        className={clsx(
+                          styles.checkbox,
+                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                        )}
+                      />
+                    )}
+                  </div>
+                  <div className={styles.cardContent}>
+                    <p className={styles.cardName}>{item.name}</p>
+                    {item.purchaseDate && <p className={styles.cardMeta}>{item.purchaseDate}</p>}
+                  </div>
+                </article>
+              ))}
+            </>
+          )}
 
           {!isCoordiTab && (
             <button type="button" className={styles.addCard} onClick={handleAddClick}>
@@ -280,7 +325,11 @@ const ClosetPage = () => {
 
         <div ref={sentinelRef} className={styles.observerTarget} aria-hidden />
       </section>
-
+      {isCoordiTab && (
+        <>
+          <button onClick={handleClickCoordiEditor}>코디 추가하기</button>
+        </>
+      )}
       {/* 카테고리 패널 */}
       {isCategoryPanelOpen && !isCoordiTab && (
         <aside className={styles.categoryPanel}>

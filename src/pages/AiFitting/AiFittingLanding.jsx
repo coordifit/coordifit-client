@@ -3,10 +3,17 @@ import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 import styles from "./AiFittingLanding.module.css";
-import { clothingTypes, closetCategoryMap } from "./data.js";
+import {
+  clothingTypes,
+  closetCategoryMap,
+  CLOTHING_CATEGORIES,
+  transformClothesApiData,
+  groupClothesByCategory,
+} from "./data.js";
 import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 import { useUserStore } from "@/stores/userStore.js";
+import clothesService from "@/services/clothesService.js";
 import chevronDown from "@/assets/images/chevron-down.svg";
 import userIcon from "@/assets/images/usericon.png"; // 교체
 import { requestAiFitting } from "@/services/avatars.js";
@@ -26,6 +33,9 @@ const AiFittingLanding = () => {
   const [activeSubCategory, setActiveSubCategory] = useState("all");
   const [highlightedItem, setHighlightedItem] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [myClothes, setMyClothes] = useState([]);
+  const [groupedClothes, setGroupedClothes] = useState({ top: [], bottom: [], shoes: [] });
+  const [isLoadingClothes, setIsLoadingClothes] = useState(false);
   const requestAbortControllerRef = useRef(null);
   const isMountedRef = useRef(true);
   const prefetchedAvatarIdsRef = useRef(new Set());
@@ -53,6 +63,37 @@ const AiFittingLanding = () => {
       });
     }
   }, [hasLoadedAvatars, loadAvatars, userId]);
+
+  // 옷 데이터 로드
+  useEffect(() => {
+    const loadClothes = async () => {
+      if (!userId) return;
+
+      setIsLoadingClothes(true);
+      try {
+        const response = await clothesService.getMyClothes();
+        console.log("API 응답 데이터:", response);
+
+        const transformedClothes = transformClothesApiData(response);
+        console.log("변환된 옷 데이터:", transformedClothes);
+
+        const grouped = groupClothesByCategory(transformedClothes);
+        console.log("카테고리별 그룹화된 데이터:", grouped);
+
+        setMyClothes(transformedClothes);
+        setGroupedClothes(grouped);
+      } catch (error) {
+        console.error("옷 데이터 로드 실패:", error);
+        // 에러가 발생해도 빈 배열로 설정
+        setMyClothes([]);
+        setGroupedClothes({ top: [], bottom: [], shoes: [] });
+      } finally {
+        setIsLoadingClothes(false);
+      }
+    };
+
+    loadClothes();
+  }, [userId]);
   useEffect(() => {
     if (!avatars.length) return;
 
@@ -77,15 +118,13 @@ const AiFittingLanding = () => {
   }, [avatars]);
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
-    const categoryId = closetCategoryMap[activeClothingType];
-    return MAIN_CATEGORIES.find((category) => category.id === categoryId) ?? null;
+    return CLOTHING_CATEGORIES[activeClothingType] || null;
   }, [activeClothingType]);
 
   const availableClosetItems = useMemo(() => {
     if (!activeClothingType) return [];
-    const categoryId = closetCategoryMap[activeClothingType];
-    return CLOTHING_ITEMS.filter((item) => item.category === categoryId);
-  }, [activeClothingType]);
+    return groupedClothes[activeClothingType] || [];
+  }, [activeClothingType, groupedClothes]);
 
   const filteredClosetItems = useMemo(() => {
     if (!activeClothingType) return [];
@@ -192,164 +231,187 @@ const AiFittingLanding = () => {
 
   return (
     <div className={styles.page}>
-      <section className={styles.avatarSection}>
-        {selectedAvatar ? (
-          // ✅ 아바타 선택된 경우 → 큰 이미지
-          <button
-            type="button"
-            className={styles.avatarPreviewButton}
-            onClick={handleAvatarClick}
-            aria-label="아바타 변경"
-          >
-            <img
-              src={selectedAvatar.imageUrl}
-              alt={selectedAvatar.name}
-              className={styles.avatarPreviewImage}
-            />
-          </button>
-        ) : (
-          // ✅ 선택 안 된 경우 → placeholder + 텍스트 + 버튼 (피그마 스타일)
-          <div className={styles.avatarPanel}>
-            <div className={styles.avatarPlaceholderWrapper}>
-              <img
-                src={userIcon}
-                alt="avatar placeholder"
-                className={styles.avatarPlaceholderIcon}
-              />
-            </div>
-            <h2 className={styles.avatarHeading}>
-              아바타를 선택하거나
-              <br />
-              만들어보세요
-            </h2>
+      <div className={styles.pageContent}>
+        <section className={styles.avatarSection}>
+          {selectedAvatar ? (
+            // ✅ 아바타 선택된 경우 → 큰 이미지
             <button
               type="button"
-              className={styles.avatarAction}
-              onClick={() => navigate("/ai-fitting/avatars")}
+              className={styles.avatarPreviewButton}
+              onClick={handleAvatarClick}
+              aria-label="아바타 변경"
             >
-              아바타 선택
+              <img
+                src={selectedAvatar.imageUrl}
+                alt={selectedAvatar.name}
+                className={styles.avatarPreviewImage}
+              />
             </button>
+          ) : (
+            // ✅ 선택 안 된 경우 → placeholder + 텍스트 + 버튼 (피그마 스타일)
+            <div className={styles.avatarPanel}>
+              <div className={styles.avatarPlaceholderWrapper}>
+                <img
+                  src={userIcon}
+                  alt="avatar placeholder"
+                  className={styles.avatarPlaceholderIcon}
+                />
+              </div>
+              <h2 className={styles.avatarHeading}>
+                아바타를 선택하거나
+                <br />
+                만들어보세요
+              </h2>
+              <button
+                type="button"
+                className={styles.avatarAction}
+                onClick={() => navigate("/ai-fitting/avatars")}
+              >
+                아바타 선택
+              </button>
+            </div>
+          )}
+        </section>
+
+        <section className={styles.selectionSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>의류 선택</h2>
+            {showClosetPanel && (
+              <button
+                type="button"
+                className={styles.backToSelectionButton}
+                onClick={() => {
+                  setActiveClothingType(null);
+                  setActiveSubCategory("all");
+                  setHighlightedItem(null);
+                }}
+              >
+                다시 선택
+              </button>
+            )}
           </div>
-        )}
-      </section>
 
-      <section className={styles.selectionSection}>
-        <h2 className={styles.sectionTitle}>의류 선택</h2>
+          {!showClosetPanel && (
+            <div className={styles.selectionList}>
+              {clothingTypes.map((type) => {
+                const selection = clothingSelection[type.id];
+                const isActive = activeClothingType === type.id;
 
-        {!showClosetPanel && (
-          <div className={styles.selectionList}>
-            {clothingTypes.map((type) => {
-              const selection = clothingSelection[type.id];
-              const isActive = activeClothingType === type.id;
-
-              return (
-                <button
-                  key={type.id}
-                  type="button"
-                  className={clsx(styles.selectionCard, isActive && styles.selectionCardActive)}
-                  onClick={() => handleTypeCardClick(type.id)}
-                >
-                  {selection ? (
-                    <div className={styles.selectionThumbnailWrapper}>
-                      <img
-                        src={selection.images?.[0]}
-                        alt={selection.name}
-                        className={styles.selectionThumbnail}
-                      />
-                    </div>
-                  ) : (
-                    <div className={styles.selectionIconWrapper}>
-                      <img src={type.icon} alt="" className={styles.selectionIcon} />
-                    </div>
-                  )}
-                  <div className={styles.selectionInfo}>
-                    <span className={styles.selectionLabel}>{type.label}</span>
-                    <span className={styles.selectionSummary}>
-                      {selection ? selection.name : "선택된 아이템: 없음"}
-                    </span>
-                  </div>
-                  <img
-                    src={chevronDown}
-                    alt=""
-                    className={clsx(
-                      styles.selectionChevronIcon,
-                      isActive && styles.selectionChevronIconActive,
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    className={clsx(styles.selectionCard, isActive && styles.selectionCardActive)}
+                    onClick={() => handleTypeCardClick(type.id)}
+                  >
+                    {selection ? (
+                      <div className={styles.selectionThumbnailWrapper}>
+                        <img
+                          src={selection.images?.[0]}
+                          alt={selection.name}
+                          className={styles.selectionThumbnail}
+                        />
+                      </div>
+                    ) : (
+                      <div className={styles.selectionIconWrapper}>
+                        <img src={type.icon} alt="" className={styles.selectionIcon} />
+                      </div>
                     )}
-                  />
-                </button>
-              );
-            })}
-          </div>
+                    <div className={styles.selectionInfo}>
+                      <span className={styles.selectionLabel}>{type.label}</span>
+                      <span className={styles.selectionSummary}>
+                        {selection ? selection.name : "선택된 아이템: 없음"}
+                      </span>
+                    </div>
+                    <img
+                      src={chevronDown}
+                      alt=""
+                      className={clsx(
+                        styles.selectionChevronIcon,
+                        isActive && styles.selectionChevronIconActive,
+                      )}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {showClosetPanel && (
+            <div className={styles.closetPanel}>
+              <div className={styles.categoryTabs}>
+                <div className={styles.subCategoryTabs}>
+                  {currentClosetMainCategory.subcategories.map((sub) => (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      className={clsx(
+                        styles.subCategoryButton,
+                        activeSubCategory === sub.id && styles.subCategoryButtonActive,
+                      )}
+                      onClick={() => setActiveSubCategory(sub.id)}
+                    >
+                      {sub.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {isLoadingClothes ? (
+                <p className={styles.emptyState}>옷을 불러오는 중...</p>
+              ) : filteredClosetItems.length > 0 ? (
+                <div className={styles.closetGrid}>
+                  {filteredClosetItems.map((item) => {
+                    const isSelected = highlightedItem?.id === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={clsx(styles.closetCard, isSelected && styles.closetCardSelected)}
+                        onClick={() => handleClosetItemClick(item)}
+                      >
+                        <div className={styles.closetThumbnail}>
+                          <img
+                            src={item.images?.[0]}
+                            alt={item.name}
+                            className={styles.closetImage}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className={styles.emptyState}>선택 가능한 아이템이 없습니다.</p>
+              )}
+            </div>
+          )}
+        </section>
+      </div>
+
+      <div className={styles.bottomArea}>
+        {!showClosetPanel && (
+          <button
+            type="button"
+            className={styles.footerButton}
+            onClick={handleStartAi}
+            disabled={!isReadyForAi || isGenerating}
+          >
+            {isGenerating ? "AI 분석 중…" : "AI 옷입히기"}
+          </button>
         )}
 
         {showClosetPanel && (
-          <div className={styles.closetPanel}>
-            <div className={styles.categoryTabs}>
-              <div className={styles.subCategoryTabs}>
-                {currentClosetMainCategory.subcategories.map((sub) => (
-                  <button
-                    key={sub.id}
-                    type="button"
-                    className={clsx(
-                      styles.subCategoryButton,
-                      activeSubCategory === sub.id && styles.subCategoryButtonActive,
-                    )}
-                    onClick={() => setActiveSubCategory(sub.id)}
-                  >
-                    {sub.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {filteredClosetItems.length > 0 ? (
-              <div className={styles.closetGrid}>
-                {filteredClosetItems.map((item) => {
-                  const isSelected = highlightedItem?.id === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={clsx(styles.closetCard, isSelected && styles.closetCardSelected)}
-                      onClick={() => handleClosetItemClick(item)}
-                    >
-                      <div className={styles.closetThumbnail}>
-                        <img
-                          src={item.images?.[0]}
-                          alt={item.name}
-                          className={styles.closetImage}
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className={styles.emptyState}>선택 가능한 아이템이 없습니다.</p>
-            )}
-
-            <button
-              type="button"
-              className={styles.confirmButton}
-              onClick={handleConfirmSelection}
-              disabled={!highlightedItem || !activeClothingType}
-            >
-              옷 고르기
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.confirmButtonBottom}
+            onClick={handleConfirmSelection}
+            disabled={!highlightedItem || !activeClothingType}
+          >
+            옷 고르기
+          </button>
         )}
-      </section>
-
-      {!showClosetPanel && (
-        <button
-          type="button"
-          className={styles.footerButton}
-          onClick={handleStartAi}
-          disabled={!isReadyForAi || isGenerating}
-        >
-          {isGenerating ? "AI 분석 중…" : "AI 옷입히기"}
-        </button>
-      )}
+      </div>
 
       {isGenerating && (
         <div className={styles.loadingOverlay} role="status" aria-live="polite">

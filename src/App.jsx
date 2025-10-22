@@ -358,7 +358,7 @@ const router = createBrowserRouter([
           title: "아바타 선택",
           showBack: true,
           showHeader: true,
-          showTabbar: false,
+          showTabbar: true,
         },
       },
       {

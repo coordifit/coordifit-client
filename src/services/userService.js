@@ -51,7 +51,7 @@ class UserService {
 
   async getMyPageInfo(userId) {
     try {
-      const response = await api.get(`/user/${userId}/mypage`);
+      const response = await api.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
       console.error("마이페이지 정보 조회 오류:", error);

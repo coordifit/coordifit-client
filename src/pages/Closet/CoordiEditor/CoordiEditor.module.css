@@ -11,11 +11,6 @@
   justify-content: space-between;
 }
 
-.title {
-  font-size: 18px;
-  font-weight: 700;
-}
-
 .editorRow {
   position: relative;
   display: flex;
@@ -95,45 +90,4 @@
   text-align: center;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-}
-
-.sheetOverlayOpen {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.input {
-  width: 100%;
-  box-sizing: border-box;
-
-  padding: 5px 12px;
-  border: 1px solid #e5e7eb; /* gray-200 */
-  border-radius: 10px;
-  background: #fff;
-  margin: 0;
-
-  font-size: 12px;
-  line-height: 1.4;
-  color: #111827; /* gray-900 */
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.input::placeholder {
-  color: #9ca3af; /* gray-400 */
-}
-
-.input:focus {
-  outline: none;
-  border-color: #111827; /* 포커스 보더 */
-  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08); /* 얕은 포커스 링 */
-}
-
-.input:disabled {
-  background: #f9fafb; /* gray-50 */
-  color: #9ca3af;
-  cursor: not-allowed;
 }

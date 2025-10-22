@@ -4,6 +4,7 @@ import clsx from "clsx";
 import styles from "../ClosetPage/ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
 import ClothesServiceSample from "./clothesServiceSample";
+import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 import CheckIcon from "@/assets/images/checkicon.png";
 
 const ClosetPageSample = () => {
@@ -13,7 +14,6 @@ const ClosetPageSample = () => {
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState("clothes");
 
-  // ✅ 카테고리 데이터
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategoriesMap, setSubCategoriesMap] = useState({});
   const [mainCategory, setMainCategory] = useState("all");
@@ -26,6 +26,8 @@ const ClosetPageSample = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortType, setSortType] = useState("purchase");
   const [isSortOpen, setIsSortOpen] = useState(false);
+
+  const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   useEffect(() => {
     const fetchTabs = async () => {
@@ -133,6 +135,20 @@ const ClosetPageSample = () => {
     navigate("/closet/register-sample");
   };
 
+  const handleClickCoordi = (item) => {
+    if (isSelecting) {
+      toggleItemSelection(item.id);
+      return;
+    }
+
+    console.log("item click", item);
+    navigate(`/closet/coordi/${item.coordiId}`);
+  };
+
+  const handleClickCoordiEditor = () => {
+    navigate("/closet/coordi/editor");
+  };
+
   const handleDelete = async () => {
     if (!selectedItems.length) return;
     if (!window.confirm(`선택한 ${selectedItems.length}개의 옷을 삭제하시겠습니까?`)) return;
@@ -178,18 +194,9 @@ const ClosetPageSample = () => {
       const subCategoryCodes = subCategoriesForMain.map((sub) => sub.codeId);
       return subCategoryCodes.includes(item.categoryCode);
     });
-
-    if (sortType === "purchase") {
-      result.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate));
-    } else if (sortType === "wear") {
-      result.sort((a, b) => (b.wearCount || 0) - (a.wearCount || 0));
-    } else if (sortType === "recent") {
-      result.sort((a, b) => new Date(b.lastWornDate || 0) - new Date(a.lastWornDate || 0));
-    }
-    return result;
   }, [clothesItems, mainCategory, subCategory, subCategoriesMap]);
 
-  const isCoordiTab = activeTab === "coordi";
+  const isCoordiTab = activeTab === "B20006";
 
   if (loading) {
     return (
@@ -210,7 +217,9 @@ const ClosetPageSample = () => {
             key={tab.id}
             type="button"
             className={clsx(styles.tabButton, activeTab === tab.id && styles.activeTab)}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+            }}
           >
             {tab.label}
           </button>
@@ -320,34 +329,62 @@ const ClosetPageSample = () => {
 
       <section className={styles.gridSection}>
         <div className={styles.grid}>
-          {filteredItems.map((item) => (
-            <article
-              key={item.clothesId}
-              className={clsx(styles.card, isSelecting && styles.cardSelectable)}
-              onClick={() => handleCardClick(item)}
-            >
-              <div className={styles.cardImageWrapper}>
-                <img
-                  src={item.imageUrl || "/noimage.png"}
-                  alt={item.name}
-                  className={styles.cardImage}
-                />
-                {isSelecting && (
-                  <span
-                    className={clsx(
-                      styles.checkbox,
-                      selectedItems.includes(item.clothesId) && styles.checkboxChecked,
+          {isCoordiTab ? (
+            <>
+              {coordi.data.map((item) => (
+                <article
+                  key={item.coordiId}
+                  className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+                  onClick={() => handleClickCoordi(item)}
+                >
+                  <div className={styles.cardImageWrapper}>
+                    <img src={item.thumbImageUrl} alt={item.title} className={styles.cardImage} />
+                    {isSelecting && (
+                      <span
+                        className={clsx(
+                          styles.checkbox,
+                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                        )}
+                      />
                     )}
-                  />
-                )}
-              </div>
-              <div className={styles.cardContent}>
-                <p className={styles.cardName}>{item.name}</p>
-                {item.purchaseDate && <p className={styles.cardMeta}>{item.purchaseDate}</p>}
-              </div>
-            </article>
-          ))}
-
+                  </div>
+                  <div className={styles.cardContent}>
+                    <p className={styles.cardName}>{item.title}</p>
+                  </div>
+                </article>
+              ))}
+            </>
+          ) : (
+            <>
+              {filteredItems.map((item) => (
+                <article
+                  key={item.id}
+                  className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+                  onClick={() => handleCardClick(item)}
+                >
+                  <div className={styles.cardImageWrapper}>
+                    <img
+                      src={item.imageUrl || "/noimage.png"}
+                      alt={item.name}
+                      className={styles.cardImage}
+                    />
+                    {isSelecting && (
+                      <span
+                        className={clsx(
+                          styles.checkbox,
+                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                        )}
+                      />
+                    )}
+                  </div>
+                  <div className={styles.cardContent}>
+                    <p className={styles.cardName}>{item.name}</p>
+                    {item.purchaseDate && <p className={styles.cardMeta}>{item.purchaseDate}</p>}
+                  </div>
+                </article>
+              ))}
+            </>
+          )}
           {!isCoordiTab && (
             <button type="button" className={styles.addCard} onClick={handleAddClick}>
               <span className={styles.addIcon}>＋</span>
@@ -356,7 +393,7 @@ const ClosetPageSample = () => {
           )}
         </div>
       </section>
-
+      {isCoordiTab && <button onClick={handleClickCoordiEditor}>코디 추가하기</button>}
       {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>

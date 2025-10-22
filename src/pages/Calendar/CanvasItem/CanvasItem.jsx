@@ -4,8 +4,6 @@ import useImage from "use-image";
 import { Image, Transformer } from "react-konva";
 
 const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
-  console.log("obj", obj);
-
   const bustRef = useRef(Date.now());
 
   const stableSrc = useMemo(() => {
@@ -37,10 +35,35 @@ const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
     onSelect(obj.id);
   };
 
-  if (!image) {
+  if (!image && status === "loaded") {
     console.error("image 없음");
     return null;
   }
+
+  const handleObjectChange = () => {
+    if (!isSelected) return;
+
+    const node = shapeRef.current;
+
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+
+    const newAttrs = {
+      ...obj,
+      x: node.x(),
+      y: node.y(),
+      width: node.width() * scaleX,
+      height: node.height() * scaleY,
+      rotation: node.rotation(),
+      scaleX: 1,
+      scaleY: 1,
+    };
+
+    node.scaleX(1);
+    node.scaleY(1);
+
+    onChange(newAttrs);
+  };
 
   return (
     <>
@@ -57,31 +80,8 @@ const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
         draggable={isSelected}
         onClick={handleSelect}
         onTap={handleSelect}
-        onDragEnd={(e) => {
-          if (!isSelected) return;
-          onChange({ ...obj, x: e.target.x(), y: e.target.y() });
-        }}
-        onTransformEnd={() => {
-          if (!isSelected) return;
-          const node = shapeRef.current;
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-
-          const newWidth = node.width() * scaleX;
-          const newHeight = node.height() * scaleY;
-
-          node.scaleX(1);
-          node.scaleY(1);
-
-          onChange({
-            ...obj,
-            width: newWidth,
-            height: newHeight,
-            x: node.x(),
-            y: node.y(),
-            rotation: node.rotation(),
-          });
-        }}
+        onDragEnd={handleObjectChange}
+        onTransformEnd={handleObjectChange}
       />
       {isSelected && (
         <Transformer

@@ -1,42 +1,47 @@
-import { useEffect, useRef, useState } from "react";
-import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
+import ClosetModal from "@/pages/Calendar/ClosetModal/ClosetModal";
+import styles from "./CoordiEditor.module.css";
+import classNames from "classnames/bind";
+import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
+import Modal from "@/components/Modal/Modal";
 
 import { Layer, Rect, Stage } from "react-konva";
+import { useCoordiStore } from "@/stores/coordiStore";
+import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
+import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import cn from "classnames";
-
-import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
+import { useCoordiByIdQuery } from "@/hooks/useCoordiQuery";
+import { CANVAS_CONFIG } from "@/constants/calendar";
+import { getDefaultPlacement } from "@/utils/canvasUtils";
+import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
 import { api } from "@/services/axiosInstance";
 
-import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
-import CanvasItem from "../CanvasItem/CanvasItem";
-import ClosetModal from "../ClosetModal/ClosetModal";
+const cn = classNames.bind(styles);
 
-import styles from "./CalendarEditor.module.css";
-import { CANVAS_CONFIG } from "@/constants/calendar";
-import { useClothesStore } from "@/stores/clothesStore";
-import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
-import Modal from "@/components/Modal/Modal";
-import { getDefaultPlacement } from "@/utils/canvasUtils";
-
-const CalendarEditor = () => {
+const CoordiEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
-  const [selectedId, setSelectedId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
   const [description, setDescription] = useState("");
-
-  const { clothes, setClothes, updateClothes, addClothes, removeClothes, clearClothes } =
-    useClothesStore();
-
-  const isSavingRef = useRef(false);
-  const stageRef = useRef(null);
-
-  const navigate = useNavigate();
-  const { date } = useParams();
+  const [title, setTitle] = useState("");
 
   const queryClient = useQueryClient();
+  const isSavingRef = useRef(false);
+  const stageRef = useRef(null);
+  const navigate = useNavigate();
+  const { coordiId } = useParams();
 
-  const isDirty = clothes.length > 0;
+  const {
+    coordiItems,
+    setCoordiItems,
+    addCoordiItem,
+    removeCooridItem,
+    updateCoordiItem,
+    clearCoordiItems,
+  } = useCoordiStore();
+
+  const isDirty = coordiItems.length > 0;
 
   const { open, confirm, cancel } = useLeaveConfirm(!isSavingRef.current && isDirty);
 
@@ -47,23 +52,30 @@ const CalendarEditor = () => {
     }
   });
 
-  const { data: dailyLook = { data: {} } } = useDailyLookByDateQuery(date);
+  const { data: coordi = { data: {} } } = useCoordiByIdQuery(coordiId);
 
   useEffect(() => {
-    if (dailyLook?.data?.canvasJson) {
-      const initial = JSON.parse(dailyLook.data.canvasJson);
-      setClothes(initial);
-      setDescription(dailyLook.data.description || "");
+    if (coordi?.data?.canvasJson) {
+      const initial = JSON.parse(coordi.data.canvasJson);
+
+      setCoordiItems(initial);
+      setDescription(coordi.data.description || "");
+      setTitle(coordi.data.title || "");
     }
-  }, [dailyLook]);
+  }, [coordi]);
+
+  const handleClickSave = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleClickCancel = () => {
+    setIsModalOpen(false);
+  };
 
   const addToCanvas = (item) => {
-    const pos =
-      item?.x != null && item?.y != null
-        ? { x: item.x, y: item.y, scale: item.scaleX ?? 0.5 }
-        : getDefaultPlacement(item.categoryCode);
+    const pos = getDefaultPlacement(item.categoryCode);
 
-    const obj = {
+    const konvaObject = {
       instanceId: `${item.clothesId}-${Date.now()}`,
       clothesId: item.clothesId,
       imageUrl: item.thumbnailUrl,
@@ -73,16 +85,17 @@ const CalendarEditor = () => {
       y: pos.y,
       scaleX: pos.scale,
       scaleY: pos.scale,
-      rotation: item.roation || 0,
+      rotation: item.roation,
     };
 
-    addClothes(obj);
-    setSelectedId(obj.clothesId);
+    addCoordiItem(konvaObject);
+
+    setSelectedId(konvaObject.clothesId);
   };
 
   const removeSelected = () => {
     if (!selectedId) return;
-    removeClothes(selectedId);
+    removeCooridItem(selectedId);
     setSelectedId(null);
   };
 
@@ -96,26 +109,25 @@ const CalendarEditor = () => {
         const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
         const blob = await (await fetch(uri)).blob();
         const formData = new FormData();
-        const fileName = `look-${date}-${Date.now()}.png`;
+        const fileName = `look-${Date.now()}.png`;
 
         formData.append("image", blob, fileName);
         formData.append("description", description);
-        formData.append(
-          "items",
-          JSON.stringify(clothes.map((item) => ({ ...item, scaleX: 1, scaleY: 1 }))),
-        );
+        formData.append("title", title);
+        formData.append("canvasJson", JSON.stringify(coordiItems));
 
-        await api.post(`/daily-look/date/${date}`, formData);
-
-        clearClothes();
-
-        setTimeout(() => {
-          navigate(`/calendar/${date}`);
-        }, 0);
+        if (coordiId) {
+          await api.post(`/coordi/${coordiId}`, formData);
+        } else {
+          await api.post(`/coordi`, formData);
+        }
+        clearCoordiItems();
 
         setTimeout(() => {
-          queryClient.invalidateQueries(["dailyLook", date]);
+          navigate("/closet-sample", { replace: true });
         }, 0);
+
+        queryClient.invalidateQueries(["coordis"]);
 
         // 다운로드는 그대로
         const link = document.createElement("a");
@@ -133,21 +145,15 @@ const CalendarEditor = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <header className={styles.header}></header>
-      <div className={styles.editorRow}>
-        <input
-          className={styles.input}
-          placeholder="오늘의 데일리룩에 대한 코멘트를 남겨주세요."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <div className={styles.canvasCard}>
+    <div className={cn("wrapper")}>
+      <header className={cn("header")}></header>
+      <div className={cn("editorRow")}>
+        <div className={cn("canvasCard")}>
           <Stage
             ref={stageRef}
             width={CANVAS_CONFIG.WIDTH}
             height={CANVAS_CONFIG.HEIGHT}
-            className={styles.stage}
+            className={cn("stage")}
           >
             <Layer>
               <Rect
@@ -159,40 +165,40 @@ const CalendarEditor = () => {
               />
             </Layer>
             <Layer>
-              {clothes.map((item) => (
+              {coordiItems.map((item) => (
                 <CanvasItem
                   key={item.clothesId}
                   obj={item}
                   isSelected={item.clothesId === selectedId}
                   onSelect={() => setSelectedId(item.clothesId)}
-                  onChange={(next) => updateClothes(item.clothesId, next)}
+                  onChange={(next) => updateCoordiItem(item.clothesId, next)}
                 />
               ))}
             </Layer>
           </Stage>
-          <div className={styles.toolbar}>
-            <div className={styles.colors}>
+          <div className={cn("toolbar")}>
+            <div className={cn("colors")}>
               {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
                 <button
                   key={hexColor}
-                  className={cn(styles.colorDot, bgColor === hexColor && styles.activeDot)}
+                  className={cn("colorDot", { activeDot: bgColor === hexColor })}
                   onClick={() => setBgColor(hexColor)}
                   title={hexColor}
                 />
               ))}
             </div>
-            <div className={styles.actions}>
-              <button className={styles.btnDanger} onClick={removeSelected}>
+            <div className={cn("actions")}>
+              <button className={cn("btnDanger")} onClick={removeSelected}>
                 삭제
               </button>
-              <button className={styles.btnPrimary} onClick={saveImage}>
-                이미지 저장
+              <button className={cn("btnPrimary")} onClick={handleClickSave}>
+                저장
               </button>
             </div>
           </div>
         </div>
         <button
-          className={styles.fab}
+          className={cn("fab")}
           onClick={(e) => {
             e.stopPropagation();
             setSheetOpen(true);
@@ -201,14 +207,37 @@ const CalendarEditor = () => {
           +
         </button>
       </div>
-      <ItemCarousel items={clothes} selectedId={selectedId} onClick={setSelectedId} />
+      <ItemCarousel items={coordiItems} selectedId={selectedId} onClick={setSelectedId} />
       <ClosetModal
         isOpen={sheetOpen}
         onClose={setSheetOpen}
         onAdd={addToCanvas}
-        clothes={clothes}
-        onRemove={removeClothes}
+        clothes={coordiItems}
+        onRemove={removeCooridItem}
       />
+      {isModalOpen && (
+        <Modal
+          title="코디 상세정보 입력"
+          children={
+            <>
+              <button onClick={handleClickCancel}>닫기</button>
+              <input
+                className={cn("input")}
+                placeholder="코디의 제목을 입력해주세요."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <input
+                className={cn("input")}
+                placeholder="코디 상세 설명을 입력해주세요"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <button onClick={saveImage}>저장하기</button>
+            </>
+          }
+        ></Modal>
+      )}
       {open && (
         <Modal
           title="뒤로 가기"
@@ -221,7 +250,7 @@ const CalendarEditor = () => {
               <button
                 type="button"
                 onClick={() => {
-                  clearClothes();
+                  clearCoordiItems();
                   confirm();
                 }}
               >
@@ -236,4 +265,4 @@ const CalendarEditor = () => {
   );
 };
 
-export default CalendarEditor;
+export default CoordiEditor;

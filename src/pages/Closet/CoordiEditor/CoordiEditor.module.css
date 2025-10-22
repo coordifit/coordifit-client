@@ -1,0 +1,93 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editorRow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.canvasCard {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stage {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.colors {
+  display: flex;
+  gap: 8px;
+}
+
+.colorDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.activeDot {
+  outline: 2px solid #222;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnPrimary {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+  word-break: keep-all;
+}
+
+.btnDanger {
+  background: #ffefef;
+  border-color: #f88;
+  word-break: keep-all;
+}
+
+.fab {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  bottom: -44px;
+  right: calc(50% - 26px);
+  border-radius: 50%;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-size: 24px;
+  line-height: 56px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}

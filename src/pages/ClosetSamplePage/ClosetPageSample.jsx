@@ -6,6 +6,7 @@ import CommonCodeService from "@/services/commonCodeService";
 import ClothesServiceSample from "./clothesServiceSample";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 import CheckIcon from "@/assets/images/checkicon.png";
+import { deleteCoordis } from "@/services/coordiService";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
@@ -140,7 +141,6 @@ const ClosetPageSample = () => {
       return;
     }
 
-    console.log("item click", item);
     navigate(`/closet/coordi/${item.coordiId}`);
   };
 
@@ -150,13 +150,18 @@ const ClosetPageSample = () => {
 
   const handleDelete = async () => {
     if (!selectedItems.length) return;
-    if (!window.confirm(`선택한 ${selectedItems.length}개의 옷을 삭제하시겠습니까?`)) return;
+    if (!window.confirm(`선택한 ${selectedItems.length}개 아이템을 삭제하시겠습니까?`)) return;
 
     try {
-      const response = await ClothesServiceSample.bulkDeleteClothes(selectedItems);
+      let response;
+      if (isCoordiTab) {
+        response = deleteCoordis(selectedItems);
+      } else {
+        response = await ClothesServiceSample.bulkDeleteClothes(selectedItems);
+      }
 
       if (response.success) {
-        alert("선택한 옷이 삭제되었습니다.");
+        alert("선택한 아이템이 삭제되었습니다.");
         // 삭제된 아이템 제거
         setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.clothesId)));
         setSelectedItems([]);
@@ -224,7 +229,6 @@ const ClosetPageSample = () => {
           </button>
         ))}
       </section>
-
       {/* TODO: 카테고리 데이터 연결 */}
       {!isCoordiTab && (
         <section className={styles.categories}>
@@ -265,7 +269,6 @@ const ClosetPageSample = () => {
           )}
         </section>
       )}
-
       {/* 유틸리티 바 */}
       <div className={styles.utilityRow}>
         <button
@@ -330,8 +333,6 @@ const ClosetPageSample = () => {
         <div className={styles.grid}>
           {isCoordiTab ? (
             <>
-              {console.log("coordi.data", coordi.data)}
-              {console.log("selectedItems", selectedItems)}
               {coordi.data.map((item) => (
                 <article
                   key={item.coordiId}
@@ -357,11 +358,9 @@ const ClosetPageSample = () => {
             </>
           ) : (
             <>
-              {console.log("selectedItems", selectedItems)}
-              {console.log("filteredItems", filteredItems)}
               {filteredItems.map((item) => (
                 <article
-                  key={item.id}
+                  key={item.clothesId}
                   className={clsx(styles.card, isSelecting && styles.cardSelectable)}
                   onClick={() => handleClothesClick(item)}
                 >

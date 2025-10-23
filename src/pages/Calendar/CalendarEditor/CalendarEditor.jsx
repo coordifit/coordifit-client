@@ -58,10 +58,7 @@ const CalendarEditor = () => {
   }, [dailyLook]);
 
   const addToCanvas = (item) => {
-    const pos =
-      item?.x != null && item?.y != null
-        ? { x: item.x, y: item.y, scale: item.scaleX ?? 0.5 }
-        : getDefaultPlacement(item.categoryCode);
+    const pos = getDefaultPlacement(item.categoryCode);
 
     const obj = {
       instanceId: `${item.clothesId}-${Date.now()}`,
@@ -73,7 +70,7 @@ const CalendarEditor = () => {
       y: pos.y,
       scaleX: pos.scale,
       scaleY: pos.scale,
-      rotation: item.roation || 0,
+      rotation: item.roation,
     };
 
     addClothes(obj);
@@ -100,10 +97,7 @@ const CalendarEditor = () => {
 
         formData.append("image", blob, fileName);
         formData.append("description", description);
-        formData.append(
-          "items",
-          JSON.stringify(clothes.map((item) => ({ ...item, scaleX: 1, scaleY: 1 }))),
-        );
+        formData.append("items", JSON.stringify(clothes));
 
         await api.post(`/daily-look/date/${date}`, formData);
 
@@ -117,7 +111,6 @@ const CalendarEditor = () => {
           queryClient.invalidateQueries(["dailyLook", date]);
         }, 0);
 
-        // 다운로드는 그대로
         const link = document.createElement("a");
         link.download = fileName;
         link.href = uri;

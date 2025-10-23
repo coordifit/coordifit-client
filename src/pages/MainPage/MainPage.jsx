@@ -52,7 +52,7 @@ const HERO_CARDS = [
     title: "옷장 관리의 시작, 새 옷을 사는 순간부터.",
     subtitle: "나만의 스타일을 완성하는 가장 쉬운 방법",
     image: heroCloset,
-    destination: "/closet",
+    destination: "/closet-sample",
   },
   {
     id: "calendar",

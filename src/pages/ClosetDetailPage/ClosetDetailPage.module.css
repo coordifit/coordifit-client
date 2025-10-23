@@ -285,7 +285,6 @@
   justify-content: center;
   align-items: flex-end;
   z-index: 999;
-  backdrop-filter: blur(4px);
 }
 
 .sheet {
@@ -527,4 +526,32 @@
   padding: 3px 8px;
   border-radius: 8px;
   z-index: 2;
+}
+
+.categoryButton {
+  all: unset;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  background: rgba(120, 164, 209, 0.12);
+  padding: 6px 12px;
+  border-radius: 10px;
+  display: inline-block;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.categoryButton:hover {
+  background: rgba(120, 164, 209, 0.22);
+}
+
+.page .statRow.statRowEditing {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.categoryCardWide {
+  width: 100% !important; /* 💥 부모의 flex에 맞춰 확장 */
 }

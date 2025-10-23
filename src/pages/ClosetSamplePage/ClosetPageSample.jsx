@@ -25,8 +25,15 @@ const ClosetPageSample = () => {
 
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [sortType, setSortType] = useState("purchase");
   const [isSortOpen, setIsSortOpen] = useState(false);
+
+  const [sortType, setSortType] = useState(() => {
+    return localStorage.getItem("closet_sortType") || "purchase";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("closet_sortType", sortType);
+  }, [sortType]);
 
   const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
@@ -185,21 +192,31 @@ const ClosetPageSample = () => {
   };
 
   const filteredItems = useMemo(() => {
-    return clothesItems.filter((item) => {
-      if (mainCategory === "all") {
-        return true;
-      }
+    let result = clothesItems.filter((item) => {
+      if (mainCategory === "all") return true;
 
-      if (subCategory !== "all") {
-        return item.categoryCode === subCategory;
-      }
+      if (subCategory !== "all") return item.categoryCode === subCategory;
 
       const subCategoriesForMain = subCategoriesMap[mainCategory] || [];
       const subCategoryCodes = subCategoriesForMain.map((sub) => sub.codeId);
       return subCategoryCodes.includes(item.categoryCode);
     });
-  }, [clothesItems, mainCategory, subCategory, subCategoriesMap]);
 
+    result = [...result].sort((a, b) => {
+      if (sortType === "purchase") {
+        return new Date(b.purchaseDate) - new Date(a.purchaseDate);
+      }
+      if (sortType === "recent") {
+        return new Date(b.lastWornDate) - new Date(a.lastWornDate);
+      }
+      if (sortType === "wear") {
+        return (b.wearCount || 0) - (a.wearCount || 0);
+      }
+      return 0;
+    });
+
+    return result;
+  }, [clothesItems, mainCategory, subCategory, subCategoriesMap, sortType]);
   const isCoordiTab = activeTab === "B20006";
 
   if (loading) {

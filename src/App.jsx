@@ -232,7 +232,7 @@ const router = createBrowserRouter([
         ),
         handle: {
           title: "옷장 (샘플)",
-          showBack: false,
+          showBack: true,
           showHeader: true,
           showTabbar: true,
         },

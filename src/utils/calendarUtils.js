@@ -1,6 +1,12 @@
 const formatDate = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
+const getWeekdayLabel = (dateString) => {
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  const date = new Date(dateString);
+  return `${weekdays[date.getDay()]}요일`;
+};
+
 const formatYearMonth = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 
 const daysDiffFromToday = (date) => {
@@ -52,4 +58,11 @@ const clampFutureLimit = (startDate, endDate, limitDays = 16) => {
 
   return { start, end };
 };
-export { formatDate, formatYearMonth, addDays, clampFutureLimit, daysDiffFromToday };
+export {
+  formatDate,
+  formatYearMonth,
+  addDays,
+  clampFutureLimit,
+  daysDiffFromToday,
+  getWeekdayLabel,
+};

@@ -1,0 +1,39 @@
+.descriptionBox {
+  width: 100%;
+  border-radius: 14px;
+  background-color: #fcfcfc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.2s ease;
+}
+
+.descriptionText {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+.placeholderBox {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  color: #b3b3b3;
+  font-size: 12px;
+  font-style: italic;
+  padding: 8px 0 8px 12px;
+  border-bottom: 1px solid #333333;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, #fafafa 0%, #fdfdfd 100%);
+}
+
+.placeholderIcon {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.placeholderText {
+  color: #aaa;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}

@@ -37,6 +37,8 @@ const ClosetPageSample = () => {
   const [modalPosition, setModalPosition] = useState("bottom");
   const sortRef = useRef(null);
 
+  const { data: coordi = { data: [] } } = useAllCoordisQuery();
+
   const [sortType, setSortType] = useState(() => {
     return localStorage.getItem("closet_sortType") || "purchase";
   });
@@ -58,8 +60,6 @@ const ClosetPageSample = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isAddModalOpen]);
-
-  const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   useEffect(() => {
     const fetchTabs = async () => {
@@ -540,8 +540,11 @@ const ClosetPageSample = () => {
           )}
         </div>
       </section>
-      {isCoordiTab && <button onClick={handleClickCoordiEditor}>코디 추가하기</button>}
-
+      {isCoordiTab && (
+        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
+          + 코디 추가하기
+        </button>
+      )}
       {/* Floating Action Button */}
       {!isCoordiTab && !isSelecting && (
         <button
@@ -553,13 +556,6 @@ const ClosetPageSample = () => {
           ＋
         </button>
       )}
-
-      {isCoordiTab && (
-        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
-          + 코디 추가하기
-        </button>
-      )}
-
       {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>

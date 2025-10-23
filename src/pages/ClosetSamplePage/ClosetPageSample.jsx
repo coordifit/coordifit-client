@@ -372,7 +372,7 @@ const ClosetPageSample = () => {
                       <span
                         className={clsx(
                           styles.checkbox,
-                          selectedItems.includes(item.id) && styles.checkboxChecked,
+                          selectedItems.includes(item.clothesId) && styles.checkboxChecked,
                         )}
                       />
                     )}

@@ -368,8 +368,8 @@ const ClosetDetailPageSample = () => {
             <h2 className={styles.itemName}>{item.name || "이름 없는 아이템"}</h2>
           )}
 
-          <div className={styles.statRow}>
-            <div className={styles.statCard}>
+          <div className={clsx(styles.statRow, isEditing && styles.statRowEditing)}>
+            <div className={clsx(styles.statCard, isEditing && styles.categoryCardWide)}>
               <span className={styles.statLabel}>카테고리</span>
               {isEditing ? (
                 <>
@@ -452,14 +452,18 @@ const ClosetDetailPageSample = () => {
               )}
             </div>
 
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>착용횟수</span>
-              <span className={styles.statValue}>{`${item.wearCount || 0}회`}</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>최근착용</span>
-              <span className={styles.statValue}>{item.lastWornDate || "-"}</span>
-            </div>
+            {!isEditing && (
+              <>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>착용횟수</span>
+                  <span className={styles.statValue}>{`${item.wearCount || 0}회`}</span>
+                </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>최근착용</span>
+                  <span className={styles.statValue}>{item.lastWornDate || "-"}</span>
+                </div>
+              </>
+            )}
           </div>
         </section>
 

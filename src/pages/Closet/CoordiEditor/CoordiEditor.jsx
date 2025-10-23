@@ -89,7 +89,6 @@ const CoordiEditor = () => {
     };
 
     addCoordiItem(konvaObject);
-
     setSelectedId(konvaObject.clothesId);
   };
 

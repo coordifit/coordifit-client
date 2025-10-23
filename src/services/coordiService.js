@@ -25,4 +25,10 @@ const deleteCoordi = async (coordiId) => {
   return response.data;
 };
 
-export { getAllCoordis, getCoordiById, createCoordi, deleteCoordi };
+const deleteCoordis = async (coordiIds) => {
+  const response = await api.delete("/coordi", { data: { coordiIds } });
+
+  return response.data;
+};
+
+export { getAllCoordis, getCoordiById, createCoordi, deleteCoordi, deleteCoordis };

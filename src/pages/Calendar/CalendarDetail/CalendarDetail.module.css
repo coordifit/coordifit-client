@@ -29,7 +29,7 @@
   display: flex;
   width: 100%;
   flex-direction: column;
-  gap: 20px;
+  gap: 5px;
   padding: 20px;
   padding-top: 0;
 }
@@ -133,4 +133,39 @@
     filter: grayscale(20%);
     opacity: 0.95;
   }
+}
+
+.description-box {
+  width: 100%;
+  margin: 16px 0;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: #fafafa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.description-text {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+.placeholder-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 14px;
+  font-style: italic;
+  height: 30px;
+  background: linear-gradient(135deg, #f8f8f8, #fdfdfd);
+  border: 1px dashed #ddd;
+  border-radius: 10px;
+}
+
+.placeholder-box i {
+  font-size: 12px;
+  opacity: 0.7;
 }

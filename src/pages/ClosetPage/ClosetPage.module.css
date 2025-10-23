@@ -622,3 +622,33 @@
     transform: translateY(0);
   }
 }
+
+.addButton {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 12px 24px;
+  border: none;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #222, #444);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateX(-50%) scale(1.05);
+    background: linear-gradient(135deg, #111, #333);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: translateX(-50%) scale(0.97);
+  }
+}

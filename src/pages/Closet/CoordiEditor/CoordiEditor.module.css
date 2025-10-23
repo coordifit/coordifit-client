@@ -67,19 +67,23 @@
   color: #fff;
   border-color: #111;
   word-break: keep-all;
+  border-radius: 5px;
+  padding: 2px 5px;
 }
 
 .btnDanger {
   background: #ffefef;
   border-color: #f88;
   word-break: keep-all;
+  border-radius: 5px;
+  padding: 2px 5px;
 }
 
 .fab {
   position: absolute;
-  width: 56px;
-  height: 56px;
-  bottom: -44px;
+  width: 45px;
+  height: 45px;
+  bottom: -30px;
   right: calc(50% - 26px);
   border-radius: 50%;
   border: none;
@@ -88,6 +92,60 @@
   font-size: 24px;
   line-height: 56px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+
+  background-color: #fafafa;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #aaa;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #333;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.saveButton {
+  width: 100%;
+  padding: 12px 0;
+  margin-top: 8px;
+
+  background: linear-gradient(135deg, #222, #444);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #111, #333);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }

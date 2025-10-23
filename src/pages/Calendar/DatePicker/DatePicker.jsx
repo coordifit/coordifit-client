@@ -43,35 +43,27 @@ const DatePicker = ({ onConfirm }) => {
           {Array.from({ length: 100 }, (_, i) => `${1926 + i}`).map((year) => (
             <Picker.Item key={year} value={year}>
               {({ selected }) => (
-                <div className={cx("pickerItem", { pickerItemSelected: selected })}>
-                  {year}
-                </div>
+                <div className={cx("pickerItem", { pickerItemSelected: selected })}>{year}</div>
               )}
             </Picker.Item>
           ))}
         </Picker.Column>
 
         <Picker.Column name="month">
-          {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map(
-            (month) => (
-              <Picker.Item key={month} value={month}>
-                {({ selected }) => (
-                  <div className={cx("pickerItem", { pickerItemSelected: selected })}>
-                    {month}
-                  </div>
-                )}
-              </Picker.Item>
-            )
-          )}
+          {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")).map((month) => (
+            <Picker.Item key={month} value={month}>
+              {({ selected }) => (
+                <div className={cx("pickerItem", { pickerItemSelected: selected })}>{month}</div>
+              )}
+            </Picker.Item>
+          ))}
         </Picker.Column>
 
         <Picker.Column name="day">
           {getDayArray(Number(pickerValue.year), Number(pickerValue.month)).map((day) => (
             <Picker.Item key={day} value={day}>
               {({ selected }) => (
-                <div className={cx("pickerItem", { pickerItemSelected: selected })}>
-                  {day}
-                </div>
+                <div className={cx("pickerItem", { pickerItemSelected: selected })}>{day}</div>
               )}
             </Picker.Item>
           ))}
@@ -79,11 +71,7 @@ const DatePicker = ({ onConfirm }) => {
       </Picker>
 
       <div className={cx("okButtonWrapper")}>
-        <button
-          type="button"
-          className={cx("okButton")}
-          onClick={() => onConfirm?.(pickerValue)}
-        >
+        <button type="button" className={cx("okButton")} onClick={() => onConfirm?.(pickerValue)}>
           OK
         </button>
       </div>

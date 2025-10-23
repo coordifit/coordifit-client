@@ -49,6 +49,33 @@
   color: #2196f3;
 }
 
+.moreButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-left: auto;
+  transition: opacity 0.2s;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.moreButton:hover {
+  opacity: 0.7;
+}
+
+.moreButton:focus {
+  outline: none;
+}
+
+.moreIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 .profileImage {
   width: 40px;
   height: 40px;
@@ -768,4 +795,42 @@
   font-size: 14px;
   font-weight: 500;
   color: #333;
+}
+
+/* 옵션 바텀시트 */
+.optionsModalContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.optionButton {
+  width: 100%;
+  padding: 16px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333333;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.optionButton:last-child {
+  border-bottom: none;
+}
+
+.optionButton:hover {
+  background-color: #f8f9fa;
+}
+
+.optionButton:active {
+  background-color: #f0f0f0;
+}
+
+.deleteButton {
+  color: #ff3b30 !important;
 }

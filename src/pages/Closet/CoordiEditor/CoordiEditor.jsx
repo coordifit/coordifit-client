@@ -24,7 +24,7 @@ const CoordiEditor = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [description, setDescription] = useState("");
-  const [title, setTitle] = useState("");
+  const [coordiName, setCoordiName] = useState("");
 
   const queryClient = useQueryClient();
   const isSavingRef = useRef(false);
@@ -60,7 +60,7 @@ const CoordiEditor = () => {
 
       setCoordiItems(initial);
       setDescription(coordi.data.description || "");
-      setTitle(coordi.data.title || "");
+      setCoordiName(coordi.data.coordiName || "");
     }
   }, [coordi]);
 
@@ -113,11 +113,11 @@ const CoordiEditor = () => {
 
         formData.append("image", blob, fileName);
         formData.append("description", description);
-        formData.append("title", title);
+        formData.append("coordiName", coordiName);
         formData.append("canvasJson", JSON.stringify(coordiItems));
 
         if (coordiId) {
-          await api.post(`/coordi/${coordiId}`, formData);
+          await api.put(`/coordi/${coordiId}`, formData);
         } else {
           await api.post(`/coordi`, formData);
         }
@@ -224,8 +224,8 @@ const CoordiEditor = () => {
               <input
                 className={cn("input")}
                 placeholder="코디의 제목을 입력해주세요."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={coordiName}
+                onChange={(e) => setCoordiName(e.target.value)}
               />
               <input
                 className={cn("input")}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import clothesService from "../../services/clothesService";
+import ClothesServiceSample from "../ClosetSamplePage/clothesServiceSample";
 import postService from "../../services/postService";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapUploadCompletePage.module.css";
@@ -11,11 +11,14 @@ const SnapUploadCompletePage = () => {
     imageFiles: snapImageFiles,
     uploadedImages: snapUploadedImages,
     selectedItems: snapSelectedItems,
+    deletedFileIds: snapDeletedFileIds,
+    editPostData,
     clearSnapData,
   } = useSnapStore();
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
+  const [deletedFileIds, setDeletedFileIds] = useState([]);
   const [postContent, setPostContent] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [clothesItems, setClothesItems] = useState([]);
@@ -26,27 +29,24 @@ const SnapUploadCompletePage = () => {
     setUploadedImages(snapUploadedImages);
     setSelectedItems(snapSelectedItems);
     setImageFiles(snapImageFiles);
-  }, [snapImageFiles, snapUploadedImages, snapSelectedItems]);
+    setDeletedFileIds(snapDeletedFileIds);
+
+    if (editPostData) {
+      setPostContent(editPostData.content || "");
+      setIsPublic(editPostData.isPublic ?? true);
+    }
+  }, [snapImageFiles, snapUploadedImages, snapSelectedItems, snapDeletedFileIds, editPostData]);
 
   // 옷 정보 로드
   useEffect(() => {
     const loadClothes = async () => {
       try {
-        const clothes = await clothesService.getClothes();
-
-        const transformedClothes = clothes.data.content.map((item) => ({
-          id: item.clothesId,
-          name: item.name,
-          brand: item.brand,
-          price: item.price,
-          category: item.categoryCode,
-          images: [
-            item.images[0].url ||
-              "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
-          ],
-        }));
-
-        setClothesItems(transformedClothes);
+        const response = await ClothesServiceSample.getUserClothes();
+        if (response.success && response.data) {
+          setClothesItems(response.data);
+        } else {
+          setClothesItems([]);
+        }
       } catch (error) {
         console.error("옷 정보 로드 오류:", error);
         setClothesItems([]);
@@ -70,23 +70,39 @@ const SnapUploadCompletePage = () => {
     setUploading(true);
 
     try {
-      const postData = {
-        content: postContent,
-        isPublic: isPublic,
-        clothesIds: selectedItems,
-        files: imageFiles,
-      };
+      if (editPostData) {
+        const result = await postService.updatePost(editPostData.postId, {
+          content: postContent,
+          isPublic: isPublic,
+          clothesIds: selectedItems,
+          deletedFileIds: deletedFileIds,
+          files: imageFiles,
+        });
 
-      const result = await postService.createPost(postData);
+        console.log("게시물 수정 성공:", result);
+        alert("게시물이 성공적으로 수정되었습니다.");
+        clearSnapData();
+        navigate("/main");
+      } else {
+        // 게시물 등록
+        const result = await postService.createPost({
+          content: postContent,
+          isPublic: isPublic,
+          clothesIds: selectedItems,
+          files: imageFiles,
+        });
 
-      console.log("게시물 등록 성공:", result);
-
-      clearSnapData();
-
-      navigate("/main");
+        console.log("게시물 등록 성공:", result);
+        clearSnapData();
+        navigate("/main");
+      }
     } catch (error) {
-      console.error("게시물 등록 실패:", error);
-      alert("게시물 등록에 실패했습니다. 다시 시도해주세요.");
+      console.error(editPostData ? "게시물 수정 실패:" : "게시물 등록 실패:", error);
+      alert(
+        editPostData
+          ? "게시물 수정에 실패했습니다. 다시 시도해주세요."
+          : "게시물 등록에 실패했습니다. 다시 시도해주세요.",
+      );
     } finally {
       setUploading(false);
     }
@@ -97,9 +113,8 @@ const SnapUploadCompletePage = () => {
   };
 
   const getSelectedProducts = () => {
-    // clothesItems에서 선택된 아이템들의 정보 가져오기
     return selectedItems
-      .map((itemId) => clothesItems.find((item) => item.id === itemId))
+      .map((itemId) => clothesItems.find((item) => item.clothesId === itemId))
       .filter(Boolean);
   };
 
@@ -110,7 +125,7 @@ const SnapUploadCompletePage = () => {
         <div className={styles.snapImages}>
           {uploadedImages.map((image, index) => (
             <div key={index} className={styles.snapImage}>
-              <img src={image} alt={`스냅 이미지 ${index + 1}`} />
+              <img src={image.url || image} alt={`스냅 이미지 ${index + 1}`} />
             </div>
           ))}
         </div>
@@ -131,10 +146,9 @@ const SnapUploadCompletePage = () => {
           <h3>착용 상품 정보</h3>
           <div className={styles.selectedProductsScroll}>
             {getSelectedProducts().map((product) => (
-              <div key={product.id} className={styles.productCard}>
-                <img src={product.images[0]} alt={product.name} className={styles.productImage} />
+              <div key={product.clothesId} className={styles.productCard}>
+                <img src={product.imageUrl} alt={product.name} className={styles.productImage} />
                 <div className={styles.productText}>
-                  {" "}
                   <div className={styles.brandName}>{product.brand}</div>
                   <div className={styles.productName}>{product.name}</div>
                   <div className={styles.price}>{product.price.toLocaleString()}원</div>
@@ -156,10 +170,10 @@ const SnapUploadCompletePage = () => {
         </div>
       </div>
 
-      {/* 업로드 버튼 */}
+      {/* 업로드/수정 버튼 */}
       <div className={styles.actionButtonWrapper}>
         <button className={styles.actionButton} onClick={handleUpload} disabled={uploading}>
-          {uploading ? "업로드 중..." : "업로드"}
+          {uploading ? "처리 중..." : editPostData ? "수정 완료" : "업로드"}
         </button>
       </div>
     </div>

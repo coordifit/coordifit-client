@@ -4,17 +4,23 @@ import Tabs from "@/components/Tabs/Tabs";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import userService from "@/services/userService";
 import { useUserStore } from "@/stores/userStore";
+import { useSnapStore } from "@/stores/snapStore";
 import profileImage from "@/assets/images/profile.png";
 import styles from "./MyPage.module.css";
 
 const TAB_ITEMS = [
-  { id: "closet", label: "코디", icon: "grid" },
-  { id: "snap", label: "스냅", icon: "heart" },
+  { id: "snap", label: "스냅", icon: "grid" },
+  { id: "liked", label: "좋아요", icon: "heart" },
 ];
+
+const getTabItems = (isMyPage) => {
+  return isMyPage ? TAB_ITEMS : TAB_ITEMS.filter((item) => item.id !== "liked");
+};
 const MyPage = () => {
   const navigate = useNavigate();
   const { userId: urlUserId } = useParams();
   const { user } = useUserStore();
+  const { clearSnapData } = useSnapStore();
   const [activeTab, setActiveTab] = useState("closet");
   const [myPageData, setMyPageData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -147,16 +153,28 @@ const MyPage = () => {
     if (!myPageData?.posts) return [];
     return myPageData.posts.map((post) => ({
       id: post.postId,
-      imageUrl: post.imageUrl || "https://via.placeholder.com/200x240",
+      imageUrl: post.imageUrl,
     }));
   }, [myPageData?.posts]);
 
-  const snaps = useMemo(() => {
-    // 스냅은 현재는 코디와 동일하게 처리 (추후 별도 로직 구현 가능)
-    return posts;
-  }, [posts]);
+  const likedPosts = useMemo(() => {
+    if (!myPageData?.likedPosts) return [];
+    return myPageData.likedPosts.map((post) => ({
+      id: post.postId,
+      imageUrl: post.imageUrl,
+    }));
+  }, [myPageData?.likedPosts]);
 
-  const renderItems = activeTab === "closet" ? posts : snaps;
+  const renderItems = useMemo(() => {
+    switch (activeTab) {
+      case "snap":
+        return posts;
+      case "liked":
+        return likedPosts;
+      default:
+        return posts;
+    }
+  }, [activeTab, posts, likedPosts]);
 
   // 로딩 상태 처리
   if (loading) {
@@ -242,7 +260,7 @@ const MyPage = () => {
         </div>
       </section>
       <section ref={tabSectionRef} className={styles.gallery}>
-        <Tabs tabs={TAB_ITEMS} activeTab={activeTab} onChange={setActiveTab} />
+        <Tabs tabs={getTabItems(isMyPage)} activeTab={activeTab} onChange={setActiveTab} />
         <div className={styles["image-grid"]}>
           {renderItems.map((item) => (
             <div
@@ -256,9 +274,14 @@ const MyPage = () => {
           ))}
         </div>
       </section>
-      {/* 현재 로그인한 사용자의 페이지일 때만 FAB 버튼 표시 */}
       {user?.userId === currentUserId && (
-        <button className={styles["fab-button"]} onClick={() => navigate("/snap/add")}>
+        <button
+          className={styles["fab-button"]}
+          onClick={() => {
+            clearSnapData();
+            navigate("/snap/add");
+          }}
+        >
           <span>+</span>
         </button>
       )}

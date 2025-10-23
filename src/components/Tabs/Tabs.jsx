@@ -9,10 +9,10 @@ import heartGray from "@/assets/images/hearticon_gray2.png";
 const Tabs = ({ tabs, activeTab, onChange }) => {
   const getIconSrc = (id) => {
     switch (id) {
-      case "closet":
-        return activeTab === "closet" ? gridBlack : gridGray;
       case "snap":
-        return activeTab === "snap" ? heartBlack : heartGray;
+        return activeTab === "snap" ? gridBlack : gridGray;
+      case "liked":
+        return activeTab === "liked" ? heartBlack : heartGray;
       default:
         return null;
     }

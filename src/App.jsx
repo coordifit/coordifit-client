@@ -33,7 +33,7 @@ import SnapUploadCompletePage from "@/pages/SnapPage/SnapUploadCompletePage";
 import SnapDetailPage from "@/pages/SnapPage/SnapDetailPage";
 import Start from "@/pages/Start/Start";
 import MyPage from "@/pages/MyPage/MyPage";
-import ProfileEditPage from "@/pages/ProfileEditPage.jsx/ProfileEditPage";
+import ProfileEditPage from "@/pages/ProfileEditPage/ProfileEditPage";
 import CommonCodePage from "@/pages/CommonCodePage/CommonCodePage";
 
 import CoordiEditor from "./pages/Closet/CoordiEditor/CoordiEditor";

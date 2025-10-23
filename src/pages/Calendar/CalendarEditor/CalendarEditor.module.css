@@ -145,3 +145,8 @@
   color: #9ca3af;
   cursor: not-allowed;
 }
+
+.button-wrapper {
+  display: flex;
+  gap: 10px;
+}

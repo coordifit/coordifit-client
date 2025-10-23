@@ -9,6 +9,7 @@ import CheckIcon from "@/assets/images/checkicon.png";
 import AddItemModal from "@/components/AddItemModal/AddItemModal";
 import clothsenrollIcon from "@/assets/images/clothsenroll.png";
 import paymentIcon from "@/assets/images/payment.png";
+import { deleteCoordis } from "@/services/coordiService";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const ClosetPageSample = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState("bottom");
+  const sortRef = useRef(null);
 
   const [sortType, setSortType] = useState(() => {
     return localStorage.getItem("closet_sortType") || "purchase";
@@ -137,6 +139,25 @@ const ClosetPageSample = () => {
     fetchClothes();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // sortRef.current가 존재하고, 클릭한 요소가 내부에 없다면 닫기
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    // 드롭다운이 열릴 때만 이벤트 추가
+    if (isSortOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSortOpen]);
+
   const handleSelectMode = () => {
     setIsSelecting((prev) => !prev);
     setSelectedItems([]);
@@ -183,7 +204,6 @@ const ClosetPageSample = () => {
       return;
     }
 
-    console.log("item click", item);
     navigate(`/closet/coordi/${item.coordiId}`);
   };
 
@@ -193,13 +213,18 @@ const ClosetPageSample = () => {
 
   const handleDelete = async () => {
     if (!selectedItems.length) return;
-    if (!window.confirm(`선택한 ${selectedItems.length}개의 옷을 삭제하시겠습니까?`)) return;
+    if (!window.confirm(`선택한 ${selectedItems.length}개 아이템을 삭제하시겠습니까?`)) return;
 
     try {
-      const response = await ClothesServiceSample.bulkDeleteClothes(selectedItems);
+      let response;
+      if (isCoordiTab) {
+        response = deleteCoordis(selectedItems);
+      } else {
+        response = await ClothesServiceSample.bulkDeleteClothes(selectedItems);
+      }
 
       if (response.success) {
-        alert("선택한 옷이 삭제되었습니다.");
+        alert("선택한 아이템이 삭제되었습니다.");
         // 삭제된 아이템 제거
         setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.clothesId)));
         setSelectedItems([]);
@@ -277,7 +302,6 @@ const ClosetPageSample = () => {
           </button>
         ))}
       </section>
-
       {/* TODO: 카테고리 데이터 연결 */}
       {!isCoordiTab && (
         <section className={styles.categories}>
@@ -318,7 +342,6 @@ const ClosetPageSample = () => {
           )}
         </section>
       )}
-
       {/* 유틸리티 바 */}
       <div className={styles.utilityRow}>
         <button
@@ -337,54 +360,58 @@ const ClosetPageSample = () => {
         ) : (
           <div className={styles.selectionPlaceholder} />
         )}
-        <button
-          type="button"
-          className={styles.sortButton}
-          onClick={() => setIsSortOpen((prev) => !prev)}
-        >
-          {sortType === "purchase" ? "구매일순" : sortType === "wear" ? "입은횟수순" : "최근착용순"}
-          <span className={styles.sortArrow} aria-hidden />
-        </button>
+        <div ref={sortRef} className={styles.sortWrapper}>
+          <button
+            type="button"
+            className={styles.sortButton}
+            onClick={() => setIsSortOpen((prev) => !prev)}
+          >
+            {sortType === "purchase"
+              ? "구매일순"
+              : sortType === "wear"
+                ? "입은횟수순"
+                : "최근착용순"}
+            <span className={styles.sortArrow} aria-hidden />
+          </button>
 
-        {isSortOpen && (
-          <ul className={styles.sortDropdown}>
-            <li
-              className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
-              onClick={() => {
-                setSortType("recent");
-                setIsSortOpen(false);
-              }}
-            >
-              최근착용순
-            </li>
-            <li
-              className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
-              onClick={() => {
-                setSortType("wear");
-                setIsSortOpen(false);
-              }}
-            >
-              입은횟수순
-            </li>
-            <li
-              className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
-              onClick={() => {
-                setSortType("purchase");
-                setIsSortOpen(false);
-              }}
-            >
-              구매일순
-            </li>
-          </ul>
-        )}
+          {isSortOpen && (
+            <ul className={styles.sortDropdown}>
+              <li
+                className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
+                onClick={() => {
+                  setSortType("recent");
+                  setIsSortOpen(false);
+                }}
+              >
+                최근착용순
+              </li>
+              <li
+                className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
+                onClick={() => {
+                  setSortType("wear");
+                  setIsSortOpen(false);
+                }}
+              >
+                입은횟수순
+              </li>
+              <li
+                className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
+                onClick={() => {
+                  setSortType("purchase");
+                  setIsSortOpen(false);
+                }}
+              >
+                구매일순
+              </li>
+            </ul>
+          )}
+        </div>
       </div>
 
       <section className={styles.gridSection}>
         <div className={styles.grid}>
           {isCoordiTab ? (
             <>
-              {console.log("coordi.data", coordi.data)}
-              {console.log("selectedItems", selectedItems)}
               {coordi.data.map((item) => (
                 <article
                   key={item.coordiId}
@@ -392,7 +419,11 @@ const ClosetPageSample = () => {
                   onClick={() => handleCoordiClick(item)}
                 >
                   <div className={styles.cardImageWrapper}>
-                    <img src={item.thumbImageUrl} alt={item.title} className={styles.cardImage} />
+                    <img
+                      src={item.thumbImageUrl}
+                      alt={item.coordiName}
+                      className={styles.cardImage}
+                    />
                     {isSelecting && (
                       <span
                         className={clsx(
@@ -403,18 +434,16 @@ const ClosetPageSample = () => {
                     )}
                   </div>
                   <div className={styles.cardContent}>
-                    <p className={styles.cardName}>{item.title}</p>
+                    <p className={styles.cardName}>{item.coordiName}</p>
                   </div>
                 </article>
               ))}
             </>
           ) : (
             <>
-              {console.log("selectedItems", selectedItems)}
-              {console.log("filteredItems", filteredItems)}
               {filteredItems.map((item) => (
                 <article
-                  key={item.id}
+                  key={item.clothesId}
                   className={clsx(styles.card, isSelecting && styles.cardSelectable)}
                   onClick={() => handleClothesClick(item)}
                 >
@@ -491,6 +520,12 @@ const ClosetPageSample = () => {
           aria-label="아이템 추가"
         >
           ＋
+        </button>
+      )}
+
+      {isCoordiTab && (
+        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
+          + 코디 추가하기
         </button>
       )}
 

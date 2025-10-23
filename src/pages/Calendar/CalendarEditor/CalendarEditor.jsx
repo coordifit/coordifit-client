@@ -3,7 +3,6 @@ import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
 
 import { Layer, Rect, Stage } from "react-konva";
 import { useQueryClient } from "@tanstack/react-query";
-import cn from "classnames";
 
 import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
 import { api } from "@/services/axiosInstance";
@@ -58,10 +57,7 @@ const CalendarEditor = () => {
   }, [dailyLook]);
 
   const addToCanvas = (item) => {
-    const pos =
-      item?.x != null && item?.y != null
-        ? { x: item.x, y: item.y, scale: item.scaleX ?? 0.5 }
-        : getDefaultPlacement(item.categoryCode);
+    const pos = getDefaultPlacement(item.categoryCode);
 
     const obj = {
       instanceId: `${item.clothesId}-${Date.now()}`,
@@ -73,7 +69,7 @@ const CalendarEditor = () => {
       y: pos.y,
       scaleX: pos.scale,
       scaleY: pos.scale,
-      rotation: item.roation || 0,
+      rotation: item.roation,
     };
 
     addClothes(obj);
@@ -100,10 +96,7 @@ const CalendarEditor = () => {
 
         formData.append("image", blob, fileName);
         formData.append("description", description);
-        formData.append(
-          "items",
-          JSON.stringify(clothes.map((item) => ({ ...item, scaleX: 1, scaleY: 1 }))),
-        );
+        formData.append("items", JSON.stringify(clothes));
 
         await api.post(`/daily-look/date/${date}`, formData);
 
@@ -117,7 +110,6 @@ const CalendarEditor = () => {
           queryClient.invalidateQueries(["dailyLook", date]);
         }, 0);
 
-        // 다운로드는 그대로
         const link = document.createElement("a");
         link.download = fileName;
         link.href = uri;
@@ -175,18 +167,19 @@ const CalendarEditor = () => {
               {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
                 <button
                   key={hexColor}
-                  className={cn(styles.colorDot, bgColor === hexColor && styles.activeDot)}
+                  className={`${styles.colorDot} ${bgColor === hexColor ? styles.activeDot : ""}`}
                   onClick={() => setBgColor(hexColor)}
                   title={hexColor}
+                  style={{ backgroundColor: hexColor }}
                 />
               ))}
             </div>
             <div className={styles.actions}>
               <button className={styles.btnDanger} onClick={removeSelected}>
-                삭제
+                삭제하기
               </button>
               <button className={styles.btnPrimary} onClick={saveImage}>
-                이미지 저장
+                저장하기
               </button>
             </div>
           </div>

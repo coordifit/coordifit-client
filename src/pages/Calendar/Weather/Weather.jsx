@@ -24,7 +24,6 @@ const Weather = ({ targetDate }) => {
   const [geoTried, setGeoTried] = useState(false);
   const [coords, setCoords] = useState(null);
 
-  console.log("targetDate", targetDate);
   useEffect(() => {
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
       setGeoTried(true);

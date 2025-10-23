@@ -18,10 +18,15 @@
   transform: scale(1.1);
 }
 
+:global(.react-calendar) {
+  border: none;
+}
+
 /* react-calendar style override */
 :global(.react-calendar__month-view__weekdays__weekday abbr[title="일요일"]) {
   color: red;
 }
+
 :global(.react-calendar__month-view__weekdays__weekday abbr[title="토요일"]) {
   color: blue;
 }
@@ -68,5 +73,5 @@
   flex-direction: column;
   align-items: center;
   max-width: none;
-  height: 80px;
+  height: 100px;
 }

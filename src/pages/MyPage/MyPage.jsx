@@ -21,7 +21,7 @@ const MyPage = () => {
   const { userId: urlUserId } = useParams();
   const { user } = useUserStore();
   const { clearSnapData } = useSnapStore();
-  const [activeTab, setActiveTab] = useState("closet");
+  const [activeTab, setActiveTab] = useState("snap");
   const [myPageData, setMyPageData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,6 +31,8 @@ const MyPage = () => {
   const [followListType, setFollowListType] = useState(null);
   const [followListData, setFollowListData] = useState([]);
   const [followListLoading, setFollowListLoading] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const tabSectionRef = useRef(null);
 
   const currentUserId = urlUserId || user?.userId;
@@ -82,7 +84,7 @@ const MyPage = () => {
   const handleMetricClick = (type) => {
     if (type === "posts") {
       tabSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-      setActiveTab("closet");
+      setActiveTab("snap");
     } else if (type === "followers") {
       openFollowListModal("followers");
     } else if (type === "followings") {
@@ -147,6 +149,17 @@ const MyPage = () => {
 
   const handlePostClick = (postId) => {
     navigate(`/snap/${postId}`);
+  };
+
+  const handleProfileImageClick = () => {
+    const profileImageUrl = myPageData?.profileImageUrl || profileImage;
+    setSelectedImage(profileImageUrl);
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setIsImageModalOpen(false);
+    setSelectedImage(null);
   };
 
   const posts = useMemo(() => {
@@ -215,7 +228,7 @@ const MyPage = () => {
       <section className={styles.hero}>
         <div className={styles["profile-section-container"]}>
           <div className={styles["profile-section"]}>
-            <div className={styles["profile-image"]}>
+            <div className={styles["profile-image"]} onClick={handleProfileImageClick}>
               <img src={myPageData.profileImageUrl || profileImage} alt="프로필" />
             </div>
             <div className={styles.summary}>
@@ -328,6 +341,18 @@ const MyPage = () => {
             )}
           </div>
         </BottomSheet>
+      )}
+
+      {/* 이미지 확대 모달 */}
+      {isImageModalOpen && (
+        <div className={styles.imageModalOverlay} onClick={closeImageModal}>
+          <div className={styles.imageModalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.imageModalClose} onClick={closeImageModal}>
+              ×
+            </button>
+            <img src={selectedImage} alt="확대 이미지" className={styles.imageModalImage} />
+          </div>
+        </div>
       )}
     </div>
   );

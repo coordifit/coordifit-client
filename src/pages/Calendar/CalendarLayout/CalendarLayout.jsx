@@ -8,7 +8,7 @@ import CalendarHeader from "@calendar/CalendarHeader/CalendarHeader";
 import DatePicker from "@calendar/DatePicker/DatePicker";
 import ViewMode from "@calendar/ViewMode/ViewMode";
 
-import { formatDate, formatYearMonth } from "@/utils/calendarUtils";
+import { formatDate, formatYearMonth, getWeekdayLabel } from "@/utils/calendarUtils";
 import styles from "./CalendarLayout.module.css";
 import "react-calendar/dist/Calendar.css";
 import { IoMdArrowDropdown } from "react-icons/io";
@@ -137,10 +137,14 @@ const CalendarLayout = () => {
           </CalendarHeader>
         </>
       )}
-      <ViewMode viewMode={viewMode} onClick={handleViewMode} />
-      <Outlet context={outletContext} />
+      <div className={cx("content-box")}>
+        <div className={cx("view-box")}>
+          <ViewMode viewMode={viewMode} onClick={handleViewMode} />
+        </div>
+        <Outlet context={outletContext} />
+      </div>
       {isDateModalOpen && (
-        <Modal title="날짜선택" onClose={() => handleModal("close")} children={ModalContent}>
+        <Modal title="착용일 선택" onClose={() => handleModal("close")} children={ModalContent}>
           <DatePicker onConfirm={handleDatePicker} />
         </Modal>
       )}

@@ -357,7 +357,11 @@ const ClosetPageSample = () => {
                   onClick={() => handleCoordiClick(item)}
                 >
                   <div className={styles.cardImageWrapper}>
-                    <img src={item.thumbImageUrl} alt={item.title} className={styles.cardImage} />
+                    <img
+                      src={item.thumbImageUrl}
+                      alt={item.coordiName}
+                      className={styles.cardImage}
+                    />
                     {isSelecting && (
                       <span
                         className={clsx(
@@ -368,7 +372,7 @@ const ClosetPageSample = () => {
                     )}
                   </div>
                   <div className={styles.cardContent}>
-                    <p className={styles.cardName}>{item.title}</p>
+                    <p className={styles.cardName}>{item.coordiName}</p>
                   </div>
                 </article>
               ))}
@@ -412,7 +416,12 @@ const ClosetPageSample = () => {
           )}
         </div>
       </section>
-      {isCoordiTab && <button onClick={handleClickCoordiEditor}>코디 추가하기</button>}
+      {isCoordiTab && (
+        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
+          + 코디 추가하기
+        </button>
+      )}
+
       {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>

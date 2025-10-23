@@ -9,6 +9,7 @@ import classNames from "classnames/bind";
 import { deleteDailyLookByDate } from "@/services/dailyLookApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/utils/calendarUtils";
+import DescriptionBox from "../DescriptionBox/DescriptionBox";
 
 const cx = classNames.bind(styles);
 
@@ -45,6 +46,7 @@ const CalendarDetail = () => {
     <div className={cx("container")}>
       {dailyLook?.data?.canvasJson ? (
         <>
+          <DescriptionBox description={dailyLook.data.description} />
           <div className={cx("wrapper")}>
             <img
               className={cx("image")}
@@ -65,7 +67,6 @@ const CalendarDetail = () => {
         </>
       ) : (
         <>
-          {/* 콘텐츠 */}
           <div className={cx("content")}>
             <img
               src={emptyImage}

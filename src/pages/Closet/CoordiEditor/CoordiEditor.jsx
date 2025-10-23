@@ -183,15 +183,16 @@ const CoordiEditor = () => {
                   className={cn("colorDot", { activeDot: bgColor === hexColor })}
                   onClick={() => setBgColor(hexColor)}
                   title={hexColor}
+                  style={{ backgroundColor: hexColor }}
                 />
               ))}
             </div>
             <div className={cn("actions")}>
               <button className={cn("btnDanger")} onClick={removeSelected}>
-                삭제
+                삭제하기
               </button>
               <button className={cn("btnPrimary")} onClick={handleClickSave}>
-                저장
+                저장하기
               </button>
             </div>
           </div>
@@ -217,22 +218,24 @@ const CoordiEditor = () => {
       {isModalOpen && (
         <Modal
           title="코디 상세정보 입력"
+          onClose={handleClickCancel}
           children={
             <>
-              <button onClick={handleClickCancel}>닫기</button>
               <input
-                className={cn("input")}
+                className={styles.input}
                 placeholder="코디의 제목을 입력해주세요."
                 value={coordiName}
                 onChange={(e) => setCoordiName(e.target.value)}
               />
               <input
-                className={cn("input")}
+                className={styles.input}
                 placeholder="코디 상세 설명을 입력해주세요"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <button onClick={saveImage}>저장하기</button>
+              <button className={styles.saveButton} onClick={saveImage}>
+                저장하기
+              </button>
             </>
           }
         ></Modal>

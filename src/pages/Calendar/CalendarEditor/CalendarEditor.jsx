@@ -3,7 +3,6 @@ import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
 
 import { Layer, Rect, Stage } from "react-konva";
 import { useQueryClient } from "@tanstack/react-query";
-import cn from "classnames";
 
 import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
 import { api } from "@/services/axiosInstance";
@@ -168,18 +167,19 @@ const CalendarEditor = () => {
               {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
                 <button
                   key={hexColor}
-                  className={cn(styles.colorDot, bgColor === hexColor && styles.activeDot)}
+                  className={`${styles.colorDot} ${bgColor === hexColor ? styles.activeDot : ""}`}
                   onClick={() => setBgColor(hexColor)}
                   title={hexColor}
+                  style={{ backgroundColor: hexColor }}
                 />
               ))}
             </div>
             <div className={styles.actions}>
               <button className={styles.btnDanger} onClick={removeSelected}>
-                삭제
+                삭제하기
               </button>
               <button className={styles.btnPrimary} onClick={saveImage}>
-                이미지 저장
+                저장하기
               </button>
             </div>
           </div>

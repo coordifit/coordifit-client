@@ -6,6 +6,7 @@
   min-height: 100%;
   height: 160px;
   background: #fff;
+  overflow: hidden;
 }
 
 .topActions {
@@ -116,7 +117,7 @@
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: transparent;
+  background: #e6eaec;
 }
 
 .activeTab {
@@ -275,17 +276,18 @@
 }
 
 .grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0; /* 카드 사이 간격 제거 */
-  justify-content: flex-start; /* 왼쪽 정렬 */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  justify-items: stretch;
+  width: 100%;
+  max-width: 100%;
 }
 
 .card {
   position: relative;
-  width: 112px;
+  width: 100%;
   height: 160px;
-  flex: 0 0 auto; /* 크기 고정 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -365,6 +367,12 @@
   font-weight: 600;
   color: #a6a6a6;
   line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .cardMeta {
@@ -374,9 +382,8 @@
 }
 
 .addCard {
-  width: 110px;
+  width: 100%;
   height: 160px;
-  flex: 0 0 auto; /* 크기 고정 */
   position: relative;
   border: 1px solid rgba(170, 178, 200, 0.2);
   background: #f4f6f7;
@@ -413,10 +420,10 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  padding: 5px 8px;
   gap: 6px;
-  width: 78px;
+  width: 90px;
   height: 31px;
+  padding: 5px 2px;
   background: #d5d5d5;
   border-radius: 15px;
   border: none;
@@ -613,7 +620,8 @@
 }
 @media (max-width: 768px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
   }
 
   .deletePill {
@@ -629,6 +637,22 @@
 @media (max-width: 480px) {
   .container {
     padding: 0px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+
+  .addButton {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .fab {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
   }
 }
 
@@ -692,17 +716,17 @@
 
 /* Floating Action Button */
 .fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 40px;
+  height: 40px;
   border: none;
   border-radius: 50%;
   background: #333;
   color: white;
   font-size: 24px;
-  font-weight: 300;
+  font-weight: 400;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -723,10 +747,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .addButton {
-  position: absolute;
+  position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+  max-width: calc(100vw - 40px);
 
   padding: 12px 24px;
   border: none;

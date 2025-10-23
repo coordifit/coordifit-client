@@ -66,7 +66,13 @@ const ClosetPageSample = () => {
           id: tab.codeId,
           label: tab.codeName,
         }));
+
         setTabs(tabsData);
+
+        // 첫 번째 탭을 기본 활성 탭으로 설정
+        if (tabsData.length > 0) {
+          setActiveTab(tabsData[0].id);
+        }
       } catch (err) {
         console.error("탭 데이터 로드 실패:", err);
       }

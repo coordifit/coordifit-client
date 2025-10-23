@@ -1,8 +1,9 @@
 import axios from "axios";
 
-import { API_URL } from "../config/config";
+import { API_URL, FASTAPI_URL } from "../config/config";
 
 const api = axios.create({ baseURL: API_URL });
+const fastApi = axios.create({ baseURL: FASTAPI_URL });
 const weatherApi = axios.create({
   baseURL: "https://api.open-meteo.com",
   timeout: 8000,
@@ -110,4 +111,4 @@ api.interceptors.response.use(
 );
 
 // 토큰 관리 함수들도 export
-export { api, weatherApi, pastWeatherApi, TokenManager };
+export { api, fastApi, weatherApi, pastWeatherApi, TokenManager };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./OcrPage.module.css";
+import uploadIcon from "@/assets/images/snapupload.png";
 
 const OcrPage = () => {
   const navigate = useNavigate();
@@ -32,29 +33,37 @@ const OcrPage = () => {
     setIsDragOver(false);
   };
 
-  const handleUpload = () => {
-    if (selectedFile) {
-      // TODO: OCR API 호출 로직 구현
-      console.log("OCR 처리:", selectedFile);
-    }
+  const handleAnalyze = async () => {
+    if (!selectedFile) return;
+
+    // 분석 페이지로 이동하면서 선택된 파일 전달
+    navigate("/closet/ocr/analyzing", {
+      state: {
+        selectedFile: selectedFile,
+      },
+    });
+  };
+
+  const handleBack = () => {
+    navigate(-1);
   };
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <button type="button" className={styles.backButton} onClick={() => navigate(-1)}>
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={handleBack}>
           ←
         </button>
-        <h1 className={styles.title}>구매내역 등록하기</h1>
-      </header>
+        <h1 className={styles.title}>구매내역 사진 업로드</h1>
+      </div>
 
       <div className={styles.content}>
         <div className={styles.uploadSection}>
-          <div className={styles.uploadImage}>
-            <img src="/images/mask.png" alt="업로드 이미지" />
+          <div className={styles.uploadImageWrapper}>
+            <img src={uploadIcon} alt="업로드" className={styles.uploadImage} />
           </div>
 
-          <h2 className={styles.uploadTitle}>구매내역 캡처를 앨범에서 선택해주세요</h2>
+          <h2 className={styles.uploadTitle}>구매내역 캡처를 앨범에서 선택하세요</h2>
 
           <div className={styles.uploadInfo}>
             <div className={styles.infoItem}>
@@ -88,7 +97,7 @@ const OcrPage = () => {
               </div>
             ) : (
               <div className={styles.dropContent}>
-                <div className={styles.uploadIcon}>📁</div>
+                <div className={styles.uploadIconLarge}>📁</div>
                 <p>이미지를 드래그하거나 클릭하여 업로드</p>
               </div>
             )}
@@ -103,11 +112,11 @@ const OcrPage = () => {
 
         <button
           type="button"
-          className={styles.uploadButton}
-          onClick={handleUpload}
+          className={styles.analyzeButton}
+          onClick={handleAnalyze}
           disabled={!selectedFile}
         >
-          앨범에서 선택하기
+          분석 시작하기
         </button>
       </div>
     </div>

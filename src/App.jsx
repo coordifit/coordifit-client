@@ -22,6 +22,8 @@ import ClosetPageSample from "@/pages/ClosetSamplePage/ClosetPageSample";
 import ClosetDetailPageSample from "@/pages/ClosetSamplePage/ClosetDetailPageSample";
 import ClosetRegisterPageSample from "@/pages/ClosetSamplePage/ClosetRegisterPageSample";
 import OcrPage from "@/pages/OcrPage/OcrPage";
+import OcrAnalyzingPage from "@/pages/OcrAnalyzingPage/OcrAnalyzingPage";
+import OcrResultPage from "@/pages/OcrResultPage/OcrResultPage";
 
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import MainPage from "@/pages/MainPage/MainPage";
@@ -275,6 +277,34 @@ const router = createBrowserRouter([
         ),
         handle: {
           title: "구매 내역 스캔",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/closet/ocr/analyzing",
+        element: (
+          <ProtectedRoute>
+            <OcrAnalyzingPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "구매 내역 분석",
+          showBack: true,
+          showHeader: true,
+          showTabbar: false,
+        },
+      },
+      {
+        path: "/closet/ocr/result",
+        element: (
+          <ProtectedRoute>
+            <OcrResultPage />
+          </ProtectedRoute>
+        ),
+        handle: {
+          title: "분석 결과",
           showBack: true,
           showHeader: true,
           showTabbar: false,

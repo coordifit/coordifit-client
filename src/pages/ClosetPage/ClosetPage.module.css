@@ -271,6 +271,7 @@
 .gridSection {
   position: relative;
   overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .grid {
@@ -570,7 +571,7 @@
 
 .sortDropdown {
   position: absolute;
-  top: 85px;
+  top: 100%;
   right: 0;
   width: 120px;
   background: #fff;

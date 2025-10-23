@@ -553,5 +553,55 @@
 }
 
 .categoryCardWide {
-  width: 100% !important; /* 💥 부모의 flex에 맞춰 확장 */
+  width: 100% !important;
+}
+
+.page .statRow.statRowEditing .statCard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 10px;
+  height: 32px;
+  justify-content: space-between;
+}
+
+.page .statRow.statRowEditing .categoryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px 0 16px;
+  border-radius: 8px;
+  background: #ebebf1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  min-width: 140px;
+  text-align: right;
+  cursor: pointer;
+  position: relative;
+}
+.page .statRow.statRowEditing .statLabel {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.page .statRow.statRowEditing .categoryButton:hover {
+  background: rgba(120, 164, 209, 0.25);
+}
+
+.page .statRow.statRowEditing .categoryButton::after {
+  content: "▾";
+  font-size: 14px;
+  color: #333;
+  margin-left: 4px;
 }

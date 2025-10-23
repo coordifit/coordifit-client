@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import styles from "../ClosetPage/ClosetPage.module.css";
@@ -25,6 +25,7 @@ const ClosetPageSample = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortRef = useRef(null);
 
   const [sortType, setSortType] = useState(() => {
     return localStorage.getItem("closet_sortType") || "purchase";
@@ -116,6 +117,25 @@ const ClosetPageSample = () => {
     };
     fetchClothes();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // sortRef.current가 존재하고, 클릭한 요소가 내부에 없다면 닫기
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    // 드롭다운이 열릴 때만 이벤트 추가
+    if (isSortOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSortOpen]);
 
   const handleSelectMode = () => {
     setIsSelecting((prev) => !prev);
@@ -301,46 +321,52 @@ const ClosetPageSample = () => {
         ) : (
           <div className={styles.selectionPlaceholder} />
         )}
-        <button
-          type="button"
-          className={styles.sortButton}
-          onClick={() => setIsSortOpen((prev) => !prev)}
-        >
-          {sortType === "purchase" ? "구매일순" : sortType === "wear" ? "입은횟수순" : "최근착용순"}
-          <span className={styles.sortArrow} aria-hidden />
-        </button>
+        <div ref={sortRef} className={styles.sortWrapper}>
+          <button
+            type="button"
+            className={styles.sortButton}
+            onClick={() => setIsSortOpen((prev) => !prev)}
+          >
+            {sortType === "purchase"
+              ? "구매일순"
+              : sortType === "wear"
+                ? "입은횟수순"
+                : "최근착용순"}
+            <span className={styles.sortArrow} aria-hidden />
+          </button>
 
-        {isSortOpen && (
-          <ul className={styles.sortDropdown}>
-            <li
-              className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
-              onClick={() => {
-                setSortType("recent");
-                setIsSortOpen(false);
-              }}
-            >
-              최근착용순
-            </li>
-            <li
-              className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
-              onClick={() => {
-                setSortType("wear");
-                setIsSortOpen(false);
-              }}
-            >
-              입은횟수순
-            </li>
-            <li
-              className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
-              onClick={() => {
-                setSortType("purchase");
-                setIsSortOpen(false);
-              }}
-            >
-              구매일순
-            </li>
-          </ul>
-        )}
+          {isSortOpen && (
+            <ul className={styles.sortDropdown}>
+              <li
+                className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
+                onClick={() => {
+                  setSortType("recent");
+                  setIsSortOpen(false);
+                }}
+              >
+                최근착용순
+              </li>
+              <li
+                className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
+                onClick={() => {
+                  setSortType("wear");
+                  setIsSortOpen(false);
+                }}
+              >
+                입은횟수순
+              </li>
+              <li
+                className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
+                onClick={() => {
+                  setSortType("purchase");
+                  setIsSortOpen(false);
+                }}
+              >
+                구매일순
+              </li>
+            </ul>
+          )}
+        </div>
       </div>
 
       <section className={styles.gridSection}>

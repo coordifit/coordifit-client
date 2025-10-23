@@ -12,6 +12,7 @@ import heartBlack from "@/assets/images/hearticon_black.png";
 import heartGray from "@/assets/images/hearticon_gray.png";
 import messageCircle from "@/assets/images/message-circle.png";
 import edit from "@/assets/images/edit.png";
+import moreHorizontal from "@/assets/images/more-horizontal.png";
 const SnapDetailPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const SnapDetailPage = () => {
   const [loadingLikes, setLoadingLikes] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [expandedReplies, setExpandedReplies] = useState(new Set());
+  const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
 
   useEffect(() => {
     const loadPostDetail = async () => {
@@ -242,6 +244,34 @@ const SnapDetailPage = () => {
     });
 
     navigate("/snap/add");
+    setIsOptionsModalOpen(false);
+  };
+
+  const handleOpenOptionsModal = () => {
+    setIsOptionsModalOpen(true);
+  };
+
+  const handleCloseOptionsModal = () => {
+    setIsOptionsModalOpen(false);
+  };
+
+  const handleMoreButtonClick = (e) => {
+    e.stopPropagation(); // 부모 요소로의 이벤트 전파 방지
+    handleOpenOptionsModal();
+  };
+
+  const handleDeletePost = async () => {
+    if (window.confirm("게시글을 삭제하시겠습니까?")) {
+      try {
+        await postService.deletePost(postDetail.postId);
+        alert("게시글이 삭제되었습니다.");
+        navigate(-1);
+      } catch (error) {
+        console.error("게시글 삭제 오류:", error);
+        alert("게시글 삭제에 실패했습니다.");
+      }
+      setIsOptionsModalOpen(false);
+    }
   };
 
   if (loading) {
@@ -287,10 +317,10 @@ const SnapDetailPage = () => {
             className={styles.profileImage}
           />
           <span className={styles.username}>{postDetail.nickname}</span>
-          {/* 수정 버튼 - 내 게시물일 때만 표시 */}
+          {/* 더보기 버튼 - 내 게시물일 때만 표시 */}
           {user?.userId === postDetail.userId && (
-            <button className={styles.editButton} onClick={handleEditPost}>
-              수정
+            <button className={styles.moreButton} onClick={handleMoreButtonClick}>
+              <img src={moreHorizontal} alt="더보기" className={styles.moreIcon} />
             </button>
           )}
         </div>
@@ -691,6 +721,23 @@ const SnapDetailPage = () => {
                 <p>아직 좋아요가 없습니다.</p>
               </div>
             )}
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* 옵션 바텀시트 */}
+      {isOptionsModalOpen && (
+        <BottomSheet title="옵션" onClose={handleCloseOptionsModal} height="auto">
+          <div className={styles.optionsModalContent}>
+            <button className={styles.optionButton} onClick={handleEditPost}>
+              게시글 수정
+            </button>
+            <button
+              className={`${styles.optionButton} ${styles.deleteButton}`}
+              onClick={handleDeletePost}
+            >
+              게시글 삭제
+            </button>
           </div>
         </BottomSheet>
       )}

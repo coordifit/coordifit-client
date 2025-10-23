@@ -376,15 +376,82 @@
   width: 110px;
   height: 160px;
   flex: 0 0 auto; /* 크기 고정 */
+  position: relative;
+  border: 1px solid rgba(170, 178, 200, 0.2);
+  background: #f4f6f7;
+}
+
+.addCardButton {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 12px;
   padding: 12px 5px;
-  border: 1px solid rgba(170, 178, 200, 0.2);
-  background: #f4f6f7;
+  border: none;
+  background: transparent;
   color: #6b7280;
+  cursor: pointer;
+}
+
+.addCardOptions {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+}
+
+.addCardOption {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5px 8px;
+  gap: 6px;
+  width: 78px;
+  height: 31px;
+  background: #d5d5d5;
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addCardOption:hover {
+  background: #bfbfbf;
+}
+
+.addCardOptionIcon {
+  width: 21px;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.addCardOptionIcon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.addCardOptionText {
+  font-family: "Pretendard", sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 1;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .addIcon {
@@ -620,4 +687,37 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: #333;
+  color: white;
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all 0.2s ease;
+}
+
+.fab:hover {
+  background: #555;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.fab:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }

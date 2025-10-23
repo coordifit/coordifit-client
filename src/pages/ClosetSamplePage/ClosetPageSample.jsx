@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import styles from "../ClosetPage/ClosetPage.module.css";
@@ -6,10 +6,14 @@ import CommonCodeService from "@/services/commonCodeService";
 import ClothesServiceSample from "./clothesServiceSample";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 import CheckIcon from "@/assets/images/checkicon.png";
+import AddItemModal from "@/components/AddItemModal/AddItemModal";
+import clothsenrollIcon from "@/assets/images/clothsenroll.png";
+import paymentIcon from "@/assets/images/payment.png";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const addCardRef = useRef(null);
 
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState("clothes");
@@ -25,6 +29,8 @@ const ClosetPageSample = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modalPosition, setModalPosition] = useState("bottom");
 
   const [sortType, setSortType] = useState(() => {
     return localStorage.getItem("closet_sortType") || "purchase";
@@ -33,6 +39,20 @@ const ClosetPageSample = () => {
   useEffect(() => {
     localStorage.setItem("closet_sortType", sortType);
   }, [sortType]);
+
+  // Handle clicks outside addCard to close modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isAddModalOpen && addCardRef.current && !addCardRef.current.contains(event.target)) {
+        setIsAddModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAddModalOpen]);
 
   const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
@@ -129,7 +149,23 @@ const ClosetPageSample = () => {
   };
 
   const handleClothesAddClick = () => {
+    setModalPosition("card");
+    setIsAddModalOpen(true);
+  };
+
+  const handleFabClick = () => {
+    setModalPosition("fab");
+    setIsAddModalOpen(true);
+  };
+
+  const handleManualRegister = () => {
     navigate("/closet/register-sample");
+    setIsAddModalOpen(false);
+  };
+
+  const handleOcrRegister = () => {
+    navigate("/closet/ocr");
+    setIsAddModalOpen(false);
   };
 
   const handleClothesClick = (item) => {
@@ -406,20 +442,69 @@ const ClosetPageSample = () => {
             </>
           )}
           {!isCoordiTab && (
-            <button type="button" className={styles.addCard} onClick={handleClothesAddClick}>
-              <span className={styles.addIcon}>＋</span>
-              <span className={styles.addLabel}>아이템 추가</span>
-            </button>
+            <div className={styles.addCard} ref={addCardRef}>
+              {isAddModalOpen && modalPosition === "card" ? (
+                <div className={styles.addCardOptions}>
+                  <button
+                    type="button"
+                    className={styles.addCardOption}
+                    onClick={handleManualRegister}
+                  >
+                    <div className={styles.addCardOptionIcon}>
+                      <img src={clothsenrollIcon} alt="옷 수기등록" />
+                    </div>
+                    <span className={styles.addCardOptionText}>옷 수기등록</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.addCardOption}
+                    onClick={handleOcrRegister}
+                  >
+                    <div className={styles.addCardOptionIcon}>
+                      <img src={paymentIcon} alt="결제내역 등록" />
+                    </div>
+                    <span className={styles.addCardOptionText}>결제내역 등록</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.addCardButton}
+                  onClick={handleClothesAddClick}
+                >
+                  <span className={styles.addIcon}>＋</span>
+                  <span className={styles.addLabel}>아이템 추가</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
       </section>
       {isCoordiTab && <button onClick={handleClickCoordiEditor}>코디 추가하기</button>}
+
+      {/* Floating Action Button */}
+      {!isCoordiTab && !isSelecting && (
+        <button
+          type="button"
+          className={styles.fab}
+          onClick={handleFabClick}
+          aria-label="아이템 추가"
+        >
+          ＋
+        </button>
+      )}
+
       {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>
           <span className={styles.deleteIcon} aria-hidden />
           삭제
         </button>
+      )}
+
+      {/* Add Item Modal for FAB */}
+      {isAddModalOpen && modalPosition === "fab" && (
+        <AddItemModal onClose={() => setIsAddModalOpen(false)} position={modalPosition} />
       )}
     </div>
   );

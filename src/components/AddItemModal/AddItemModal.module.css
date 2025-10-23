@@ -1,0 +1,80 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: transparent;
+  pointer-events: all;
+}
+
+.popup {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1001;
+  pointer-events: all;
+}
+
+.cardPosition {
+  /* addCard 위치에 맞춰서 인라인 표시 */
+  position: relative;
+  right: auto;
+  bottom: auto;
+}
+
+.fabPosition {
+  /* FAB 위에 표시 */
+  right: 24px;
+  bottom: 90px;
+}
+
+.option {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5px 8px;
+  gap: 6px;
+  width: 78px;
+  height: 31px;
+  background: #d5d5d5;
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option:hover {
+  background: #bfbfbf;
+}
+
+.optionIcon {
+  width: 21px;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.optionIcon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.optionText {
+  font-family: "Pretendard", sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 1;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

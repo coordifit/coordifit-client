@@ -135,6 +135,16 @@ class PostService {
       throw error;
     }
   }
+
+  async deletePost(postId) {
+    try {
+      const response = await api.delete(`/posts/${postId}`);
+      return response.data;
+    } catch (error) {
+      console.error("게시물 삭제 오류:", error);
+      throw error;
+    }
+  }
 }
 
 export default new PostService();

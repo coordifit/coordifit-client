@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Outlet, useMatch, useNavigate } from "react-router-dom";
 
 import classNames from "classnames/bind";
 
@@ -24,6 +24,22 @@ const CalendarLayout = () => {
   const navigate = useNavigate();
   const { clothes } = useClothesStore();
 
+  const match = useMatch("/calendar/:date");
+  const dateParam = match?.params?.date;
+
+  const isValidYearMonth = (s) => /^\d{4}-\d{2}$/.test(s);
+
+  useEffect(() => {
+    if (!dateParam) return;
+
+    if (isValidYearMonth(dateParam)) {
+      setViewMode("monthly");
+    } else {
+      setViewMode("daily");
+    }
+  }, [dateParam]);
+
+  useEffect(() => {}, []);
   const handleClickDay = (date) => {
     const dateString = formatDate(new Date(date));
 

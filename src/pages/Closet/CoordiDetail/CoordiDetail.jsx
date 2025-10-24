@@ -1,11 +1,20 @@
 import { useNavigate, useParams } from "react-router-dom";
-import styles from "./CoordiDetail.module.css";
+import { useState } from "react";
+
+import { TbShirt } from "react-icons/tb";
 import classNames from "classnames/bind";
-import { useCoordiByIdQuery } from "@/hooks/useCoordiQuery";
+import { useQueryClient } from "@tanstack/react-query";
+
 import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
 import Button from "@/components/Button/Button";
+import DescriptionBox from "@/pages/Calendar/DescriptionBox/DescriptionBox";
+import TitleBox from "@/pages/Closet/TitleBox/TitleBox";
+
+import { useCoordiByIdQuery } from "@/hooks/useCoordiQuery";
 import { deleteCoordi } from "@/services/coordiService";
-import { useQueryClient } from "@tanstack/react-query";
+
+import styles from "./CoordiDetail.module.css";
+import aiIcon from "@/assets/icons/samsung_ai.webp";
 
 const cx = classNames.bind(styles);
 
@@ -13,6 +22,7 @@ const CoordiDetail = () => {
   const navigate = useNavigate();
   const { coordiId } = useParams();
   const queryClient = useQueryClient();
+  const [viewMode, setViewMode] = useState("coordi");
 
   const { data: coordi = { data: [] }, isLoading } = useCoordiByIdQuery(coordiId);
 
@@ -22,6 +32,10 @@ const CoordiDetail = () => {
 
   const handleEditClick = () => {
     navigate(`/closet/coordi/editor/${coordiId}`);
+  };
+
+  const handleAIFitClick = () => {
+    navigate("/ai-fitting", { state: { coordi } });
   };
 
   const handleDeleteClick = async () => {
@@ -39,19 +53,108 @@ const CoordiDetail = () => {
     }
   };
 
+  const aiExists = Boolean(coordi.data?.aiImageUrl);
+
   return (
     <div className={cx("container")}>
-      <div className={cx("wrapper")}>
-        <img className={cx("image")} src={coordi.data?.originImageUrl} alt="Daily Look Thumbnail" />
+      <div className={cx("content-header")}>
+        <div className={cx("header-left")}>
+          <TitleBox title={coordi?.data?.coordiName} />
+          <DescriptionBox description={coordi?.data?.description} />
+        </div>
+
+        <div className={cx("view-toggle")} role="tablist" aria-label="보기 전환">
+          <button
+            role="tab"
+            aria-selected={viewMode === "coordi"}
+            className={cx("toggle-option", viewMode === "coordi" && "active")}
+            onClick={() => setViewMode("coordi")}
+            title="코디 아이템 보기"
+          >
+            <TbShirt className={cx("toggle-icon")} />
+            <span className={cx("span")}>코디</span>
+          </button>
+
+          <button
+            role="tab"
+            aria-selected={viewMode === "ai"}
+            className={cx(
+              "toggle-option",
+              "toggle-ai",
+              viewMode === "ai" && "active",
+              !aiExists && "empty", // 시각적으로 '없음' 상태 표시
+            )}
+            onClick={() => setViewMode("ai")}
+            title={aiExists ? "AI 피팅 이미지 보기" : "AI 피팅하러 가기"}
+          >
+            <img src={aiIcon} className={cx("toggle-icon")} />
+            <span className={cx("span")}>AI 피팅</span>
+
+            {aiExists ? (
+              <span className={cx("ai-badge", "ok")}>완료</span>
+            ) : (
+              <span className={cx("ai-badge", "none")}>없음</span>
+            )}
+          </button>
+        </div>
       </div>
-      <ItemCarousel items={JSON.parse(coordi.data?.canvasJson)} />
+
+      {viewMode === "coordi" ? (
+        <>
+          <div className={cx("wrapper")}>
+            <img
+              className={cx("image")}
+              src={coordi?.data?.originImageUrl}
+              alt="코디 원본 이미지"
+            />
+          </div>
+          <ItemCarousel
+            items={(() => {
+              try {
+                return JSON.parse(coordi?.data?.canvasJson || "[]");
+              } catch {
+                return [];
+              }
+            })()}
+          />
+        </>
+      ) : (
+        <>
+          <div className={cx("wrapper", !aiExists && "empty-ai")}>
+            {aiExists ? (
+              <img className={cx("image")} src={coordi?.data?.aiImageUrl} alt="AI 피팅 결과" />
+            ) : (
+              <button className={cx("cta-button")} onClick={handleAIFitClick}>
+                <img src={aiIcon} className={cx("cta-icon")} />
+                <span>AI 이미지 생성하러 가기</span>
+              </button>
+            )}
+          </div>
+          {/* 캐러셀 자리 고정 */}
+          <div className={cx("carousel-slot")} />
+        </>
+      )}
+
       <div className={cx("button-wrapper")}>
-        <Button onClick={handleEditClick} style="default">
-          수정하기
-        </Button>
-        <Button onClick={handleDeleteClick} style="secondary">
-          삭제하기
-        </Button>
+        {viewMode === "coordi" ? (
+          <>
+            <Button onClick={handleEditClick} style="default">
+              수정하기
+            </Button>
+            <Button onClick={handleDeleteClick} style="secondary">
+              삭제하기
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button onClick={() => setViewMode("coordi")} style="secondary">
+              아이템 보기
+            </Button>
+            <Button onClick={handleAIFitClick} style="default">
+              다시 피팅하기
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

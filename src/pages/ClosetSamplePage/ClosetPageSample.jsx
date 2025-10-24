@@ -6,11 +6,17 @@ import CommonCodeService from "@/services/commonCodeService";
 import ClothesServiceSample from "./clothesServiceSample";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 import CheckIcon from "@/assets/images/checkicon.png";
+import AddItemModal from "@/components/AddItemModal/AddItemModal";
+import clothsenrollIcon from "@/assets/images/clothsenroll.png";
+import paymentIcon from "@/assets/images/payment.png";
 import { deleteCoordis } from "@/services/coordiService";
+import noAiImage from "@/assets/icons/ai_default.png";
+import CoordiViewMode from "../Closet/CoordiViewMode/CoordiViewMode";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const addCardRef = useRef(null);
 
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState("clothes");
@@ -26,7 +32,12 @@ const ClosetPageSample = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("my");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modalPosition, setModalPosition] = useState("bottom");
   const sortRef = useRef(null);
+
+  const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   const [sortType, setSortType] = useState(() => {
     return localStorage.getItem("closet_sortType") || "purchase";
@@ -36,7 +47,19 @@ const ClosetPageSample = () => {
     localStorage.setItem("closet_sortType", sortType);
   }, [sortType]);
 
-  const { data: coordi = { data: [] } } = useAllCoordisQuery();
+  // Handle clicks outside addCard to close modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isAddModalOpen && addCardRef.current && !addCardRef.current.contains(event.target)) {
+        setIsAddModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAddModalOpen]);
 
   useEffect(() => {
     const fetchTabs = async () => {
@@ -46,7 +69,13 @@ const ClosetPageSample = () => {
           id: tab.codeId,
           label: tab.codeName,
         }));
+
         setTabs(tabsData);
+
+        // 첫 번째 탭을 기본 활성 탭으로 설정
+        if (tabsData.length > 0) {
+          setActiveTab(tabsData[0].id);
+        }
       } catch (err) {
         console.error("탭 데이터 로드 실패:", err);
       }
@@ -150,7 +179,23 @@ const ClosetPageSample = () => {
   };
 
   const handleClothesAddClick = () => {
+    setModalPosition("card");
+    setIsAddModalOpen(true);
+  };
+
+  const handleFabClick = () => {
+    setModalPosition("fab");
+    setIsAddModalOpen(true);
+  };
+
+  const handleManualRegister = () => {
     navigate("/closet/register-sample");
+    setIsAddModalOpen(false);
+  };
+
+  const handleOcrRegister = () => {
+    navigate("/closet/ocr");
+    setIsAddModalOpen(false);
   };
 
   const handleClothesClick = (item) => {
@@ -168,7 +213,11 @@ const ClosetPageSample = () => {
       return;
     }
 
-    navigate(`/closet/coordi/${item.coordiId}`);
+    if (viewMode === "ai") {
+      navigate("/ai-fitting");
+    } else {
+      navigate(`/closet/coordi/${item.coordiId}`);
+    }
   };
 
   const handleClickCoordiEditor = () => {
@@ -373,35 +422,53 @@ const ClosetPageSample = () => {
       </div>
 
       <section className={styles.gridSection}>
+        {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
+
         <div className={styles.grid}>
           {isCoordiTab ? (
             <>
-              {coordi.data.map((item) => (
-                <article
-                  key={item.coordiId}
-                  className={clsx(styles.card, isSelecting && styles.cardSelectable)}
-                  onClick={() => handleCoordiClick(item)}
-                >
-                  <div className={styles.cardImageWrapper}>
-                    <img
-                      src={item.thumbImageUrl}
-                      alt={item.coordiName}
-                      className={styles.cardImage}
-                    />
-                    {isSelecting && (
-                      <span
-                        className={clsx(
-                          styles.checkbox,
-                          selectedItems.includes(item.coordiId) && styles.checkboxChecked,
-                        )}
+              {coordi.data.map((item) => {
+                const imageSrc =
+                  viewMode === "ai"
+                    ? item.aiImageUrl || noAiImage
+                    : item.thumbImageUrl || noAiImage;
+
+                return (
+                  <article
+                    key={item.coordiId}
+                    className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+                    onClick={() => handleCoordiClick(item)}
+                  >
+                    <div className={styles.cardImageWrapper}>
+                      <img
+                        src={imageSrc}
+                        alt={item.coordiName}
+                        className={viewMode === "ai" ? styles.cardImageAi : styles.cardImage}
                       />
-                    )}
-                  </div>
-                  <div className={styles.cardContent}>
-                    <p className={styles.cardName}>{item.coordiName}</p>
-                  </div>
-                </article>
-              ))}
+                      {viewMode === "ai" && !item.aiImageUrl && (
+                        <button
+                          type="button"
+                          className={styles.addAiButton}
+                          onClick={() => handleCoordiClick(item)}
+                        >
+                          AI 피팅 추가하기
+                        </button>
+                      )}
+                      {isSelecting && (
+                        <span
+                          className={clsx(
+                            styles.checkbox,
+                            selectedItems.includes(item.coordiId) && styles.checkboxChecked,
+                          )}
+                        />
+                      )}
+                    </div>
+                    <div className={styles.cardContent}>
+                      <p className={styles.cardName}>{item.coordiName}</p>
+                    </div>
+                  </article>
+                );
+              })}
             </>
           ) : (
             <>
@@ -435,10 +502,41 @@ const ClosetPageSample = () => {
             </>
           )}
           {!isCoordiTab && (
-            <button type="button" className={styles.addCard} onClick={handleClothesAddClick}>
-              <span className={styles.addIcon}>＋</span>
-              <span className={styles.addLabel}>아이템 추가</span>
-            </button>
+            <div className={styles.addCard} ref={addCardRef}>
+              {isAddModalOpen && modalPosition === "card" ? (
+                <div className={styles.addCardOptions}>
+                  <button
+                    type="button"
+                    className={styles.addCardOption}
+                    onClick={handleManualRegister}
+                  >
+                    <div className={styles.addCardOptionIcon}>
+                      <img src={clothsenrollIcon} alt="옷 수기등록" />
+                    </div>
+                    <span className={styles.addCardOptionText}>옷 수기등록</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.addCardOption}
+                    onClick={handleOcrRegister}
+                  >
+                    <div className={styles.addCardOptionIcon}>
+                      <img src={paymentIcon} alt="결제내역 등록" />
+                    </div>
+                    <span className={styles.addCardOptionText}>결제내역 등록</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.addCardButton}
+                  onClick={handleClothesAddClick}
+                >
+                  <span className={styles.addIcon}>＋</span>
+                  <span className={styles.addLabel}>아이템 추가</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
       </section>
@@ -447,13 +545,28 @@ const ClosetPageSample = () => {
           + 코디 추가하기
         </button>
       )}
-
+      {/* Floating Action Button */}
+      {!isCoordiTab && !isSelecting && (
+        <button
+          type="button"
+          className={styles.fab}
+          onClick={handleFabClick}
+          aria-label="아이템 추가"
+        >
+          ＋
+        </button>
+      )}
       {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>
           <span className={styles.deleteIcon} aria-hidden />
           삭제
         </button>
+      )}
+
+      {/* Add Item Modal for FAB */}
+      {isAddModalOpen && modalPosition === "fab" && (
+        <AddItemModal onClose={() => setIsAddModalOpen(false)} position={modalPosition} />
       )}
     </div>
   );

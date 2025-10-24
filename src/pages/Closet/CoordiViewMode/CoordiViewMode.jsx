@@ -2,7 +2,7 @@ import styles from "./CoordiViewMode.module.css";
 import classNames from "classnames/bind";
 
 import aiIcon from "@/assets/icons/samsung_ai.webp";
-import coordiIcon from "@/assets/icons/coordi_icon.png";
+import { IoShirtSharp } from "react-icons/io5";
 
 const cx = classNames.bind(styles);
 
@@ -13,7 +13,7 @@ const CoordiViewMode = ({ viewMode, onClickViewMode }) => {
         className={cx("tabCard", { active: viewMode === "my" })}
         onClick={() => onClickViewMode("my")}
       >
-        <img src={coordiIcon} alt="내 코디" className={cx("tabImage")} />
+        <IoShirtSharp className={cx(styles.tabIcon, { [styles.activeIcon]: viewMode === "my" })} />
         <span className={cx("tabLabel")}>내 코디</span>
       </button>
 

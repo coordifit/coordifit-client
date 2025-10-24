@@ -17,6 +17,7 @@ import { useClothesStore } from "@/stores/clothesStore";
 import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
 import Modal from "@/components/Modal/Modal";
 import { getDefaultPlacement } from "@/utils/canvasUtils";
+import Button from "@/components/Button/Button";
 
 const CalendarEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -110,13 +111,6 @@ const CalendarEditor = () => {
           queryClient.invalidateQueries(["dailyLook", date]);
         }, 0);
 
-        const link = document.createElement("a");
-        link.download = fileName;
-        link.href = uri;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
         setSelectedId(prev);
       } finally {
         setTimeout(() => (isSavingRef.current = false), 0);
@@ -178,9 +172,6 @@ const CalendarEditor = () => {
               <button className={styles.btnDanger} onClick={removeSelected}>
                 삭제하기
               </button>
-              <button className={styles.btnPrimary} onClick={saveImage}>
-                저장하기
-              </button>
             </div>
           </div>
         </div>
@@ -202,6 +193,22 @@ const CalendarEditor = () => {
         clothes={clothes}
         onRemove={removeClothes}
       />
+      <div className={styles["button-wrapper"]}>
+        <>
+          <Button onClick={saveImage} style="default">
+            저장하기
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(-1);
+            }}
+            style="secondary"
+          >
+            뒤로가기
+          </Button>
+        </>
+      </div>
       {open && (
         <Modal
           title="뒤로 가기"

@@ -65,10 +65,12 @@ const ClosetPageSample = () => {
     const fetchTabs = async () => {
       try {
         const response = await CommonCodeService.getCommonCodesByParentCodeId("B10002");
-        const tabsData = Object.values(response).map((tab) => ({
-          id: tab.codeId,
-          label: tab.codeName,
-        }));
+        const tabsData = Object.values(response)
+          .map((tab) => ({
+            id: tab.codeId,
+            label: tab.codeName,
+          }))
+          .reverse();
 
         setTabs(tabsData);
 

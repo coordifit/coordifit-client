@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 
-import clothesService from "@/services/clothesService";
+import clothesServiceSample from "@/pages/ClosetSamplePage/clothesServiceSample";
 
 export const useClothesQuery = (options = {}, categoryId = null, subCategoryId = null) => {
   return useQuery({
     queryKey: ["clothes", categoryId, subCategoryId],
-    queryFn: () => clothesService.getClothes(categoryId, subCategoryId),
+    queryFn: () => clothesServiceSample.getUserClothes(),
     staleTime: 1000 * 60 * 5,
     onError: (error) => {
       console.error("❌ 옷 목록 조회 에러:", error);

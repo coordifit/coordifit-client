@@ -12,9 +12,10 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCoordiByIdQuery } from "@/hooks/useCoordiQuery";
 import { CANVAS_CONFIG } from "@/constants/calendar";
-import { getDefaultPlacement } from "@/utils/canvasUtils";
+import { getCanvasPosition } from "@/utils/canvasUtils";
 import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
 import { api } from "@/services/axiosInstance";
+import Button from "@/components/Button/Button";
 
 const cn = classNames.bind(styles);
 
@@ -26,8 +27,10 @@ const CoordiEditor = () => {
   const [description, setDescription] = useState("");
   const [coordiName, setCoordiName] = useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+
   const queryClient = useQueryClient();
-  const isSavingRef = useRef(false);
   const stageRef = useRef(null);
   const navigate = useNavigate();
   const { coordiId } = useParams();
@@ -41,12 +44,10 @@ const CoordiEditor = () => {
     clearCoordiItems,
   } = useCoordiStore();
 
-  const isDirty = coordiItems.length > 0;
-
-  const { open, confirm, cancel } = useLeaveConfirm(!isSavingRef.current && isDirty);
+  const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
 
   useBeforeUnload((e) => {
-    if (!isSavingRef.current && isDirty) {
+    if (!isSaving && isDirty) {
       e.preventDefault();
       e.returnValue = "";
     }
@@ -56,9 +57,9 @@ const CoordiEditor = () => {
 
   useEffect(() => {
     if (coordi?.data?.canvasJson) {
-      const initial = JSON.parse(coordi.data.canvasJson);
+      const pastClothes = JSON.parse(coordi.data.canvasJson);
 
-      setCoordiItems(initial);
+      setCoordiItems(pastClothes);
       setDescription(coordi.data.description || "");
       setCoordiName(coordi.data.coordiName || "");
     }
@@ -73,12 +74,12 @@ const CoordiEditor = () => {
   };
 
   const addToCanvas = (item) => {
-    const pos = getDefaultPlacement(item.categoryCode);
+    const pos = getCanvasPosition(item.categoryCode);
 
     const konvaObject = {
       instanceId: `${item.clothesId}-${Date.now()}`,
       clothesId: item.clothesId,
-      imageUrl: item.thumbnailUrl,
+      imageUrl: item.imageUrl,
       name: item.name,
       categoryCode: item.categoryCode,
       x: pos.x,
@@ -100,9 +101,11 @@ const CoordiEditor = () => {
 
   const saveImage = async () => {
     if (!stageRef.current) return;
-    isSavingRef.current = true;
+
+    setIsSaving(true);
     const prev = selectedId;
     setSelectedId(null);
+
     requestAnimationFrame(async () => {
       try {
         const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
@@ -120,6 +123,8 @@ const CoordiEditor = () => {
         } else {
           await api.post(`/coordi`, formData);
         }
+
+        setIsDirty(false);
         clearCoordiItems();
 
         setTimeout(() => {
@@ -130,7 +135,7 @@ const CoordiEditor = () => {
 
         setSelectedId(prev);
       } finally {
-        setTimeout(() => (isSavingRef.current = false), 0);
+        setIsSaving(false);
       }
     });
   };
@@ -183,9 +188,6 @@ const CoordiEditor = () => {
               <button className={cn("btnDanger")} onClick={removeSelected}>
                 삭제하기
               </button>
-              <button className={cn("btnPrimary")} onClick={handleClickSave}>
-                저장하기
-              </button>
             </div>
           </div>
         </div>
@@ -207,30 +209,58 @@ const CoordiEditor = () => {
         clothes={coordiItems}
         onRemove={removeCooridItem}
       />
+      <div className={styles["button-wrapper"]}>
+        <>
+          <Button onClick={handleClickSave} style="default" disabled={coordiItems.length === 0}>
+            저장하기
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(-1);
+            }}
+            style="secondary"
+          >
+            뒤로가기
+          </Button>
+        </>
+      </div>
       {isModalOpen && (
         <Modal
           title="코디 상세정보 입력"
           onClose={handleClickCancel}
           children={
             <>
-              <input
-                className={styles.input}
-                placeholder="코디의 제목을 입력해주세요."
-                value={coordiName}
-                onChange={(e) => setCoordiName(e.target.value)}
-              />
-              <input
-                className={styles.input}
-                placeholder="코디 상세 설명을 입력해주세요"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <button className={styles.saveButton} onClick={saveImage}>
-                저장하기
+              <div className={styles.field}>
+                <label className={styles.label}>제목</label>
+                <input
+                  className={styles.input}
+                  placeholder="코디의 제목을 입력해주세요."
+                  value={coordiName}
+                  onChange={(e) => setCoordiName(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>설명</label>
+                <input
+                  className={styles.input}
+                  placeholder="코디 상세 설명을 입력해주세요"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+
+              <button
+                className={styles.saveButton}
+                onClick={saveImage}
+                disabled={isSaving || !coordiName.trim() || !description.trim()}
+              >
+                {isSaving ? "저장 중..." : "저장하기"}
               </button>
             </>
           }
-        ></Modal>
+        />
       )}
       {open && (
         <Modal

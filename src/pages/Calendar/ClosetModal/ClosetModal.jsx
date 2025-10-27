@@ -32,16 +32,13 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
     error: clothesError,
   } = useClothesQuery({
     select: (res) =>
-      res?.data?.content?.map((item) => ({
+      res?.data?.map((item) => ({
         name: item.name,
         brand: item.brand,
         categoryCode: item.categoryCode,
-        categoryName: item.categoryName,
+        categoryName: CATEGORIES[item.categoryCode]?.ko ?? "기타",
         clothesId: item.clothesId,
-        clothesSize: item.clothesSize,
-        id: item.clothesId,
-        images: item.images,
-        thumbnailUrl: item.thumbnailUrl,
+        imageUrl: item.imageUrl,
       })) ?? [],
   });
 
@@ -166,7 +163,7 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                             clothesId: clothes.clothesId,
                             categoryCode: clothes.categoryCode,
                             categoryName: CATEGORIES[clothes.categoryCode].ko,
-                            thumbnailUrl: clothes.imageUrl,
+                            imageUrl: clothes.imageUrl,
                             name: clothes.name,
                           };
 
@@ -199,12 +196,10 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                       onClick={() => onAdd(item)}
                       disabled={isAdded}
                     >
-                      <img src={item.thumbnailUrl} alt={item.name} className={cn("closetImg")} />
+                      <img src={item.imageUrl} alt={item.name} className={cn("closetImg")} />
                       <div className={cn("closetInfo")}>
                         <div className={cn("closetName")}>{item.name}</div>
-                        <div className={cn("closetCat")}>
-                          {CATEGORIES[item.categoryCode]?.ko ?? "기타"}
-                        </div>
+                        <div className={cn("closetCat")}>{item.categoryName}</div>
                       </div>
                       {isAdded && <div className={cn("badge")}>추가됨</div>}
                     </button>

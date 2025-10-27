@@ -20,4 +20,12 @@ const deleteDailyLookByDate = async (wearDate) => {
   return res.data;
 };
 
-export { getDailyLooksByMonth, getDailyLookByDate, deleteDailyLookByDate };
+const fetchDailylookSummary = async (yearMonth) => {
+  const res = await api.get("/daily-look/summary", {
+    params: { yearMonth },
+  });
+
+  return res;
+};
+
+export { getDailyLooksByMonth, getDailyLookByDate, deleteDailyLookByDate, fetchDailylookSummary };

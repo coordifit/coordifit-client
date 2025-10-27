@@ -1,7 +1,7 @@
 import { CANVAS_CONFIG } from "@/constants/calendar";
 import { CATEGORIES } from "@/constants/category";
 
-const getDefaultPlacement = (categoryCode) => {
+const getCanvasPosition = (categoryCode) => {
   const centerX = CANVAS_CONFIG.WIDTH / 2;
   const centerY = CANVAS_CONFIG.HEIGHT / 2;
   const parentCategory = CATEGORIES[categoryCode].parent;
@@ -17,4 +17,4 @@ const getDefaultPlacement = (categoryCode) => {
   return map[parentCategory] ?? map.B20005;
 };
 
-export { getDefaultPlacement };
+export { getCanvasPosition };

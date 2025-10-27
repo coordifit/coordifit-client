@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import styles from "./ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
-import ClothesServiceSample from "@/services/clothesServiceSample";
+import ClothesServiceSample from "@/services/clothesService";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 import CheckIcon from "@/assets/images/checkicon.png";
 import AddItemModal from "@/components/AddItemModal/AddItemModal";

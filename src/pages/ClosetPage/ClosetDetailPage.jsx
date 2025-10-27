@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
 import styles from "./ClosetDetailPage.module.css";
 import ChevronDown from "@/assets/images/chevron-down.svg";
-import ClothesServiceSample from "@/services/clothesServiceSample";
+import ClothesServiceSample from "@/services/clothesService";
 import CommonCodeService from "@/services/commonCodeService";
 import TopIcon from "@/assets/images/topicon.png";
 import BottomIcon from "@/assets/images/bottomicon.png";

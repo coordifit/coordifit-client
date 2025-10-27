@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
-import clothesServiceSample from "@/services/clothesServiceSample";
+import clothesServiceSample from "@/services/clothesService";
 import styles from "./ClosetRegisterPage.module.css";
 
 import TopIcon from "@/assets/images/topicon.png";

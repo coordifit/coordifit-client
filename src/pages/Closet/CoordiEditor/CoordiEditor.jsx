@@ -27,8 +27,10 @@ const CoordiEditor = () => {
   const [description, setDescription] = useState("");
   const [coordiName, setCoordiName] = useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+
   const queryClient = useQueryClient();
-  const isSavingRef = useRef(false);
   const stageRef = useRef(null);
   const navigate = useNavigate();
   const { coordiId } = useParams();
@@ -42,12 +44,10 @@ const CoordiEditor = () => {
     clearCoordiItems,
   } = useCoordiStore();
 
-  const isDirty = coordiItems.length > 0;
-
-  const { open, confirm, cancel } = useLeaveConfirm(!isSavingRef.current && isDirty);
+  const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
 
   useBeforeUnload((e) => {
-    if (!isSavingRef.current && isDirty) {
+    if (!isSaving && isDirty) {
       e.preventDefault();
       e.returnValue = "";
     }
@@ -57,9 +57,9 @@ const CoordiEditor = () => {
 
   useEffect(() => {
     if (coordi?.data?.canvasJson) {
-      const initial = JSON.parse(coordi.data.canvasJson);
+      const pastClothes = JSON.parse(coordi.data.canvasJson);
 
-      setCoordiItems(initial);
+      setCoordiItems(pastClothes);
       setDescription(coordi.data.description || "");
       setCoordiName(coordi.data.coordiName || "");
     }
@@ -101,9 +101,11 @@ const CoordiEditor = () => {
 
   const saveImage = async () => {
     if (!stageRef.current) return;
-    isSavingRef.current = true;
+
+    setIsSaving(true);
     const prev = selectedId;
     setSelectedId(null);
+
     requestAnimationFrame(async () => {
       try {
         const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
@@ -121,6 +123,8 @@ const CoordiEditor = () => {
         } else {
           await api.post(`/coordi`, formData);
         }
+
+        setIsDirty(false);
         clearCoordiItems();
 
         setTimeout(() => {
@@ -131,7 +135,7 @@ const CoordiEditor = () => {
 
         setSelectedId(prev);
       } finally {
-        setTimeout(() => (isSavingRef.current = false), 0);
+        setIsSaving(false);
       }
     });
   };
@@ -207,7 +211,7 @@ const CoordiEditor = () => {
       />
       <div className={styles["button-wrapper"]}>
         <>
-          <Button onClick={handleClickSave} style="default">
+          <Button onClick={handleClickSave} style="default" disabled={coordiItems.length === 0}>
             저장하기
           </Button>
           <Button
@@ -250,9 +254,9 @@ const CoordiEditor = () => {
               <button
                 className={styles.saveButton}
                 onClick={saveImage}
-                disabled={!coordiName.trim() || !description.trim()}
+                disabled={isSaving || !coordiName.trim() || !description.trim()}
               >
-                저장하기
+                {isSaving ? "저장 중..." : "저장하기"}
               </button>
             </>
           }

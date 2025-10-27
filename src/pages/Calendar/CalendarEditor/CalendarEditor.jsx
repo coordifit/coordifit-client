@@ -35,6 +35,7 @@ const CalendarEditor = () => {
   const { date } = useParams();
 
   const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
+
   const { clothes, setClothes, updateClothes, addClothes, removeClothes, clearClothes } =
     useClothesStore();
   const { data: dailyLook = { data: {} } } = useDailyLookByDateQuery(date);
@@ -53,11 +54,6 @@ const CalendarEditor = () => {
       pastClothesRef.current = pastClothes;
       setClothes(pastClothes);
       setDescription(dailyLook.data.description);
-    } else {
-      pastClothesRef.current = [];
-
-      setClothes([]);
-      setDescription("");
     }
   }, [dailyLook]);
 
@@ -67,7 +63,6 @@ const CalendarEditor = () => {
 
     const dirtyNow = !(sameClothes && sameDesc);
 
-    // 이전 상태와 다를 때만 setState 실행
     setIsDirty((prev) => (prev !== dirtyNow ? dirtyNow : prev));
   }, [clothes, description, dailyLook?.data?.description]);
 
@@ -213,8 +208,8 @@ const CalendarEditor = () => {
       />
       <div className={styles["button-wrapper"]}>
         <>
-          <Button onClick={saveImage} style="default">
-            저장하기
+          <Button onClick={saveImage} style="default" disabled={isSaving || clothes.length === 0}>
+            {isSaving ? "저장 중..." : "저장하기"}
           </Button>
           <Button
             onClick={(e) => {

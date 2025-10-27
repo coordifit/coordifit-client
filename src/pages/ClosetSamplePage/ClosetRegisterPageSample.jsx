@@ -294,6 +294,7 @@ const ClosetRegisterPageSample = () => {
                 dateFormat="yyyy-MM-dd"
                 placeholderText="날짜를 선택하세요"
                 className={clsx(styles.input, !formData.purchaseDate && styles.placeholder)}
+                maxDate={new Date()}
               />
             </div>
           </label>
@@ -319,7 +320,8 @@ const ClosetRegisterPageSample = () => {
             />
           </label>
         </section>
-
+      </form>
+      <div className={styles.bottomBar}>
         <button
           type="submit"
           className={clsx(
@@ -327,11 +329,11 @@ const ClosetRegisterPageSample = () => {
             (!isFormValid || isSubmitting) && styles.submitButtonDisabled,
           )}
           disabled={!isFormValid || isSubmitting}
+          onClick={handleSubmit} // ✅ 직접 실행 (form 밖이므로)
         >
           {isSubmitting ? "등록 중..." : "등록하기"}
         </button>
-      </form>
-
+      </div>
       {isCategorySheetOpen && (
         <div className={styles.sheetOverlay} onClick={() => setIsCategorySheetOpen(false)}>
           <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>

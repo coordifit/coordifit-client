@@ -543,6 +543,7 @@ const ClosetDetailPage = () => {
                       type="date"
                       value={item.purchaseDate || ""}
                       onChange={(e) => handleFieldChange("purchaseDate", e.target.value)}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   ) : (
                     <span className={clsx(styles.fieldValue, styles.textRight)}>

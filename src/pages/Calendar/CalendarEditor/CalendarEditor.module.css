@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  padding: 0 20px 20px 20px;
 }
 
 .header {
@@ -27,7 +28,6 @@
   background: #fff;
   border: 1px solid #eee;
   border-radius: 16px;
-  padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -42,7 +42,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12px;
+  margin: 10px;
 }
 
 .colors {
@@ -147,6 +147,7 @@
 }
 
 .button-wrapper {
+  margin-top: 10px;
   display: flex;
   gap: 10px;
 }

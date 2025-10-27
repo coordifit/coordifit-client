@@ -8,69 +8,78 @@ import { useDailyLookByDateQuery } from "@/hooks/useDailyLookQuery";
 import { api } from "@/services/axiosInstance";
 
 import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
-import CanvasItem from "../CanvasItem/CanvasItem";
-import ClosetModal from "../ClosetModal/ClosetModal";
+import ClosetModal from "@calendar/ClosetModal/ClosetModal";
+import CanvasItem from "@calendar/CanvasItem/CanvasItem";
+import Button from "@/components/Button/Button";
+import Modal from "@/components/Modal/Modal";
 
 import styles from "./CalendarEditor.module.css";
 import { CANVAS_CONFIG } from "@/constants/calendar";
 import { useClothesStore } from "@/stores/clothesStore";
 import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
-import Modal from "@/components/Modal/Modal";
-import { getDefaultPlacement } from "@/utils/canvasUtils";
-import Button from "@/components/Button/Button";
+import { getCanvasPosition } from "@/utils/canvasUtils";
 
 const CalendarEditor = () => {
+  const [closetModal, setClosetModal] = useState(false);
   const [bgColor, setBgColor] = useState("#ffffff");
   const [selectedId, setSelectedId] = useState(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [description, setDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
-  const { clothes, setClothes, updateClothes, addClothes, removeClothes, clearClothes } =
-    useClothesStore();
-
-  const isSavingRef = useRef(false);
+  const pastClothesRef = useRef([]);
   const stageRef = useRef(null);
 
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { date } = useParams();
 
-  const queryClient = useQueryClient();
+  const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
 
-  const isDirty = clothes.length > 0;
-
-  const { open, confirm, cancel } = useLeaveConfirm(!isSavingRef.current && isDirty);
+  const { clothes, setClothes, updateClothes, addClothes, removeClothes, clearClothes } =
+    useClothesStore();
+  const { data: dailyLook = { data: {} } } = useDailyLookByDateQuery(date);
 
   useBeforeUnload((e) => {
-    if (!isSavingRef.current && isDirty) {
+    if (!isSaving && isDirty) {
       e.preventDefault();
       e.returnValue = "";
     }
   });
 
-  const { data: dailyLook = { data: {} } } = useDailyLookByDateQuery(date);
-
   useEffect(() => {
     if (dailyLook?.data?.canvasJson) {
-      const initial = JSON.parse(dailyLook.data.canvasJson);
-      setClothes(initial);
-      setDescription(dailyLook.data.description || "");
+      const pastClothes = JSON.parse(dailyLook.data.canvasJson);
+
+      pastClothesRef.current = pastClothes;
+      setClothes(pastClothes);
+      setDescription(dailyLook.data.description);
     }
   }, [dailyLook]);
 
+  useEffect(() => {
+    const sameClothes = JSON.stringify(pastClothesRef.current) === JSON.stringify(clothes);
+    const sameDesc = (dailyLook?.data?.description || "") === description;
+
+    const dirtyNow = !(sameClothes && sameDesc);
+
+    setIsDirty((prev) => (prev !== dirtyNow ? dirtyNow : prev));
+  }, [clothes, description, dailyLook?.data?.description]);
+
   const addToCanvas = (item) => {
-    const pos = getDefaultPlacement(item.categoryCode);
+    const pos = getCanvasPosition(item.categoryCode);
 
     const obj = {
       instanceId: `${item.clothesId}-${Date.now()}`,
       clothesId: item.clothesId,
-      imageUrl: item.thumbnailUrl,
+      imageUrl: item.imageUrl,
       name: item.name,
       categoryCode: item.categoryCode,
       x: pos.x,
       y: pos.y,
       scaleX: pos.scale,
       scaleY: pos.scale,
-      rotation: item.roation,
+      rotation: item.rotation,
     };
 
     addClothes(obj);
@@ -85,9 +94,11 @@ const CalendarEditor = () => {
 
   const saveImage = async () => {
     if (!stageRef.current) return;
-    isSavingRef.current = true;
+
+    setIsSaving(true);
     const prev = selectedId;
     setSelectedId(null);
+
     requestAnimationFrame(async () => {
       try {
         const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
@@ -101,6 +112,8 @@ const CalendarEditor = () => {
 
         await api.post(`/daily-look/date/${date}`, formData);
 
+        pastClothesRef.current = clothes;
+        setIsDirty(false);
         clearClothes();
 
         setTimeout(() => {
@@ -113,7 +126,7 @@ const CalendarEditor = () => {
 
         setSelectedId(prev);
       } finally {
-        setTimeout(() => (isSavingRef.current = false), 0);
+        setIsSaving(false);
       }
     });
   };
@@ -179,7 +192,7 @@ const CalendarEditor = () => {
           className={styles.fab}
           onClick={(e) => {
             e.stopPropagation();
-            setSheetOpen(true);
+            setClosetModal(true);
           }}
         >
           +
@@ -187,16 +200,16 @@ const CalendarEditor = () => {
       </div>
       <ItemCarousel items={clothes} selectedId={selectedId} onClick={setSelectedId} />
       <ClosetModal
-        isOpen={sheetOpen}
-        onClose={setSheetOpen}
+        isOpen={closetModal}
+        onClose={setClosetModal}
         onAdd={addToCanvas}
         clothes={clothes}
         onRemove={removeClothes}
       />
       <div className={styles["button-wrapper"]}>
         <>
-          <Button onClick={saveImage} style="default">
-            저장하기
+          <Button onClick={saveImage} style="default" disabled={isSaving || clothes.length === 0}>
+            {isSaving ? "저장 중..." : "저장하기"}
           </Button>
           <Button
             onClick={(e) => {

@@ -13,9 +13,9 @@ import {
 import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 import { useUserStore } from "@/stores/userStore.js";
-import clothesService from "@/services/clothesService.js";
+import ClothesServiceSample from "@/pages/ClosetSamplePage/clothesServiceSample.js";
 import chevronDown from "@/assets/images/chevron-down.svg";
-import userIcon from "@/assets/images/usericon.png"; // 교체
+import userIcon from "@/assets/images/usericon.png";
 import { requestAiFitting } from "@/services/avatars.js";
 
 const AiFittingLanding = () => {
@@ -26,6 +26,7 @@ const AiFittingLanding = () => {
   const updateClothingSelection = useAiFittingStore((state) => state.updateClothingSelection);
   const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
   const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
+  const resetAiFittingState = useAiFittingStore((state) => state.resetAiFittingState);
   const user = useUserStore((state) => state.user);
   const loadUserFromToken = useUserStore((state) => state.loadUserFromToken);
   const userId = user?.userId;
@@ -44,6 +45,14 @@ const AiFittingLanding = () => {
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
+
+  // 페이지 벗어날 때 AI 피팅 상태 초기화
+  useEffect(() => {
+    return () => {
+      // 컴포넌트 언마운트 시 상태 초기화
+      resetAiFittingState();
+    };
+  }, [resetAiFittingState]);
 
   useEffect(() => {
     if (!user) {
@@ -71,17 +80,18 @@ const AiFittingLanding = () => {
 
       setIsLoadingClothes(true);
       try {
-        const response = await clothesService.getMyClothes();
+        const response = await ClothesServiceSample.getUserClothes();
         console.log("API 응답 데이터:", response);
 
-        const transformedClothes = transformClothesApiData(response);
-        console.log("변환된 옷 데이터:", transformedClothes);
-
-        const grouped = groupClothesByCategory(transformedClothes);
-        console.log("카테고리별 그룹화된 데이터:", grouped);
-
-        setMyClothes(transformedClothes);
-        setGroupedClothes(grouped);
+        if (response.success && response.data) {
+          const transformedClothes = transformClothesApiData(response.data);
+          const grouped = groupClothesByCategory(transformedClothes);
+          setMyClothes(transformedClothes);
+          setGroupedClothes(grouped);
+        } else {
+          setMyClothes([]);
+          setGroupedClothes({ top: [], bottom: [], shoes: [] });
+        }
       } catch (error) {
         console.error("옷 데이터 로드 실패:", error);
         // 에러가 발생해도 빈 배열로 설정
@@ -94,6 +104,7 @@ const AiFittingLanding = () => {
 
     loadClothes();
   }, [userId]);
+
   useEffect(() => {
     if (!avatars.length) return;
 

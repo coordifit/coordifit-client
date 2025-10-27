@@ -1,17 +1,18 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   margin: 0 -12px;
   background-color: #fafafa;
 }
 
-/* 카테고리 섹션 - 가로 스크롤 */
+/* 카테고리 섹션 - 고정 */
 .categoryContainer {
   background: #ffffff;
-  margin-bottom: 8px;
-  position: relative;
-  overflow: visible;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .categoryScroller {
@@ -127,13 +128,13 @@
   justify-content: center;
   text-align: center;
   font-family: "Pretendard Variable", sans-serif;
-  font-weight: 600; /* semibold */
+  font-weight: 600;
   font-size: 16px;
   color: #333333;
-  min-height: 60vh; /* 화면 높이의 60%를 차지해서 중앙에 위치 */
-  width: 100%; /* 전체 너비 사용 */
-  padding: 20px; /* 좌우 여백 */
-  box-sizing: border-box; /* 패딩 포함한 박스 사이징 */
+  height: 50vh;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .errorContainer button {
@@ -150,15 +151,109 @@
 .errorContainer button:hover {
   background-color: #333;
 }
-/* ✅ 게시물 개수 표시 */
+/* 스크롤 가능한 콘텐츠 영역 */
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #fafafa;
+  padding-bottom: 120px; /* 하단 탭을 위한 여백 */
+}
+
+/* 게시물 헤더 (개수 + 정렬) */
+.postHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #fafafa;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* 게시물 개수 표시 */
 .postCount {
   font-family: "Pretendard", sans-serif;
-  font-weight: 600; /* Semibold */
+  font-weight: 600;
   font-size: 12px;
   color: #999999;
-  margin-bottom: 8px;
-  padding: 0 12px;
 }
+/* 정렬 컴포넌트 */
+.sortContainer {
+  position: relative;
+}
+
+.sortButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-family: "Pretendard", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #999999;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.sortButton:hover {
+  background-color: #f5f5f5;
+}
+
+.sortArrow {
+  width: 12px;
+  height: 8px;
+  transition: transform 0.2s ease;
+}
+
+.sortButton:hover .sortArrow {
+  transform: rotate(180deg);
+}
+
+.sortDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 80px;
+  overflow: hidden;
+}
+
+.sortOption {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  font-family: "Pretendard", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #333333;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.sortOption:hover {
+  background-color: #f5f5f5;
+}
+
+.activeSortOption {
+  background-color: #333333;
+  color: white;
+}
+
+.activeSortOption:hover {
+  background-color: #333333;
+}
+
 .postList {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

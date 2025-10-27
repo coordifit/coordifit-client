@@ -276,7 +276,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         handle: {
-          title: "구매 내역 스캔",
+          title: "구매 내역 등록하기",
           showBack: true,
           showHeader: true,
           showTabbar: false,
@@ -304,10 +304,10 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         handle: {
-          title: "분석 결과",
+          title: "구매내역 분석 결과",
           showBack: true,
           showHeader: true,
-          showTabbar: false,
+          showTabbar: true,
         },
       },
       {

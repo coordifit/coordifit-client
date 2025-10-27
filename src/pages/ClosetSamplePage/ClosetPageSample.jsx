@@ -279,7 +279,7 @@ const ClosetPageSample = () => {
 
     return result;
   }, [clothesItems, mainCategory, subCategory, subCategoriesMap, sortType]);
-  const isCoordiTab = activeTab === "B20006";
+  const isCoordiTab = activeTab === "B20007";
 
   if (loading) {
     return (

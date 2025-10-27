@@ -47,16 +47,20 @@ const OcrAnalyzingPage = () => {
       setProgress(100);
       setCurrentStep("complete");
 
-      // 분석 완료 후 결과 페이지로 이동
-      setTimeout(() => {
-        navigate("/closet/ocr/result", {
-          state: {
-            originalImage: selectedFile,
-            ocrData: ocrResult.data,
-            analysisResult: chatgptResult.data,
-          },
-        });
-      }, 1000);
+      console.log("🎯 결과 페이지로 전달할 데이터:", {
+        originalImage: selectedFile,
+        ocrData: ocrResult.data,
+        analysisResult: chatgptResult.data, // Spring Boot ApiResponseDto 구조 그대로 전달
+      });
+
+      // 분석 완료 후 즉시 결과 페이지로 이동
+      navigate("/closet/ocr/result", {
+        state: {
+          originalImage: selectedFile,
+          ocrData: ocrResult.data,
+          analysisResult: chatgptResult.data, // Spring Boot ApiResponseDto 구조 그대로 전달
+        },
+      });
     } catch (error) {
       console.error("분석 실패:", error);
       alert(`분석에 실패했습니다: ${error.message}`);
@@ -83,19 +87,21 @@ const OcrAnalyzingPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <button className={styles.backButton} onClick={handleBack}>
-          ←
-        </button>
-        <h1 className={styles.title}>구매내역 사진 업로드</h1>
-      </div>
-
       <div className={styles.content}>
         <div className={styles.analyzingSection}>
           <div className={styles.sparkleIcon}>
             <img src={autoAwesomeIcon} alt="분석중" className={styles.sparkleImage} />
           </div>
-
+          <div className={styles.receiptPreview}>
+            {selectedFile && (
+              <img
+                src={URL.createObjectURL(selectedFile)}
+                alt="분석중인 영수증"
+                className={styles.receiptImage}
+              />
+            )}
+            <div className={styles.highlightOverlay}></div>
+          </div>
           <h2 className={styles.analyzingTitle}>AI가 사진을 분석중입니다.</h2>
           <p className={styles.analyzingSubtitle}>최대 1분정도 소요될 수 있습니다.</p>
 
@@ -107,17 +113,6 @@ const OcrAnalyzingPage = () => {
           </div>
 
           <div className={styles.stepMessage}>{getStepMessage()}</div>
-
-          <div className={styles.receiptPreview}>
-            {selectedFile && (
-              <img
-                src={URL.createObjectURL(selectedFile)}
-                alt="분석중인 영수증"
-                className={styles.receiptImage}
-              />
-            )}
-            <div className={styles.highlightOverlay}></div>
-          </div>
         </div>
       </div>
     </div>

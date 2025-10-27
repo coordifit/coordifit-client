@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./OcrPage.module.css";
-import uploadIcon from "@/assets/images/snapupload.png";
+import uploadIcon from "@/assets/images/mask.png";
 
 const OcrPage = () => {
   const navigate = useNavigate();
@@ -50,36 +50,8 @@ const OcrPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <button className={styles.backButton} onClick={handleBack}>
-          ←
-        </button>
-        <h1 className={styles.title}>구매내역 사진 업로드</h1>
-      </div>
-
       <div className={styles.content}>
         <div className={styles.uploadSection}>
-          <div className={styles.uploadImageWrapper}>
-            <img src={uploadIcon} alt="업로드" className={styles.uploadImage} />
-          </div>
-
-          <h2 className={styles.uploadTitle}>구매내역 캡처를 앨범에서 선택하세요</h2>
-
-          <div className={styles.uploadInfo}>
-            <div className={styles.infoItem}>
-              <span className={styles.bullet}>•</span>
-              <span>밝고 선명한 사진일수록 인식이 잘 됩니다.</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.bullet}>•</span>
-              <span>사진은 최대 1장만 업로드 가능합니다.</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.bullet}>•</span>
-              <span>이미지 분석에 최대 1분정도 소요될 수 있습니다.</span>
-            </div>
-          </div>
-
           <div
             className={`${styles.dropZone} ${isDragOver ? styles.dragOver : ""} ${selectedFile ? styles.hasFile : ""}`}
             onDrop={handleDrop}
@@ -97,8 +69,10 @@ const OcrPage = () => {
               </div>
             ) : (
               <div className={styles.dropContent}>
-                <div className={styles.uploadIconLarge}>📁</div>
-                <p>이미지를 드래그하거나 클릭하여 업로드</p>
+                <div className={styles.uploadImageWrapper}>
+                  <img src={uploadIcon} alt="업로드" className={styles.uploadImage} />
+                </div>{" "}
+                <p>이미지를 클릭하여 업로드</p>
               </div>
             )}
             <input
@@ -107,6 +81,23 @@ const OcrPage = () => {
               onChange={handleFileSelect}
               className={styles.fileInput}
             />
+          </div>
+
+          <h2 className={styles.uploadTitle}>구매내역 캡처를 앨범에서 선택하세요</h2>
+
+          <div className={styles.uploadInfo}>
+            <div className={styles.infoItem}>
+              <span className={styles.bullet}>•</span>
+              <span>밝고 선명한 사진일수록 인식이 잘 됩니다.</span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.bullet}>•</span>
+              <span>사진은 최대 1장만 업로드 가능합니다.</span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.bullet}>•</span>
+              <span>이미지 분석에 최대 1분정도 소요될 수 있습니다.</span>
+            </div>
           </div>
         </div>
 

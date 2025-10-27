@@ -10,6 +10,8 @@ import AddItemModal from "@/components/AddItemModal/AddItemModal";
 import clothsenrollIcon from "@/assets/images/clothsenroll.png";
 import paymentIcon from "@/assets/images/payment.png";
 import { deleteCoordis } from "@/services/coordiService";
+import noAiImage from "@/assets/icons/ai_default.png";
+import CoordiViewMode from "../Closet/CoordiViewMode/CoordiViewMode";
 
 const ClosetPageSample = () => {
   const navigate = useNavigate();
@@ -30,9 +32,12 @@ const ClosetPageSample = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("my");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState("bottom");
   const sortRef = useRef(null);
+
+  const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   const [sortType, setSortType] = useState(() => {
     return localStorage.getItem("closet_sortType") || "purchase";
@@ -55,8 +60,6 @@ const ClosetPageSample = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isAddModalOpen]);
-
-  const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   useEffect(() => {
     const fetchTabs = async () => {
@@ -210,7 +213,11 @@ const ClosetPageSample = () => {
       return;
     }
 
-    navigate(`/closet/coordi/${item.coordiId}`);
+    if (viewMode === "ai") {
+      navigate("/ai-fitting");
+    } else {
+      navigate(`/closet/coordi/${item.coordiId}`);
+    }
   };
 
   const handleClickCoordiEditor = () => {
@@ -415,35 +422,53 @@ const ClosetPageSample = () => {
       </div>
 
       <section className={styles.gridSection}>
+        {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
+
         <div className={styles.grid}>
           {isCoordiTab ? (
             <>
-              {coordi.data.map((item) => (
-                <article
-                  key={item.coordiId}
-                  className={clsx(styles.card, isSelecting && styles.cardSelectable)}
-                  onClick={() => handleCoordiClick(item)}
-                >
-                  <div className={styles.cardImageWrapper}>
-                    <img
-                      src={item.thumbImageUrl}
-                      alt={item.coordiName}
-                      className={styles.cardImage}
-                    />
-                    {isSelecting && (
-                      <span
-                        className={clsx(
-                          styles.checkbox,
-                          selectedItems.includes(item.coordiId) && styles.checkboxChecked,
-                        )}
+              {coordi.data.map((item) => {
+                const imageSrc =
+                  viewMode === "ai"
+                    ? item.aiImageUrl || noAiImage
+                    : item.thumbImageUrl || noAiImage;
+
+                return (
+                  <article
+                    key={item.coordiId}
+                    className={clsx(styles.card, isSelecting && styles.cardSelectable)}
+                    onClick={() => handleCoordiClick(item)}
+                  >
+                    <div className={styles.cardImageWrapper}>
+                      <img
+                        src={imageSrc}
+                        alt={item.coordiName}
+                        className={viewMode === "ai" ? styles.cardImageAi : styles.cardImage}
                       />
-                    )}
-                  </div>
-                  <div className={styles.cardContent}>
-                    <p className={styles.cardName}>{item.coordiName}</p>
-                  </div>
-                </article>
-              ))}
+                      {viewMode === "ai" && !item.aiImageUrl && (
+                        <button
+                          type="button"
+                          className={styles.addAiButton}
+                          onClick={() => handleCoordiClick(item)}
+                        >
+                          AI 피팅 추가하기
+                        </button>
+                      )}
+                      {isSelecting && (
+                        <span
+                          className={clsx(
+                            styles.checkbox,
+                            selectedItems.includes(item.coordiId) && styles.checkboxChecked,
+                          )}
+                        />
+                      )}
+                    </div>
+                    <div className={styles.cardContent}>
+                      <p className={styles.cardName}>{item.coordiName}</p>
+                    </div>
+                  </article>
+                );
+              })}
             </>
           ) : (
             <>
@@ -515,8 +540,11 @@ const ClosetPageSample = () => {
           )}
         </div>
       </section>
-      {isCoordiTab && <button onClick={handleClickCoordiEditor}>코디 추가하기</button>}
-
+      {isCoordiTab && (
+        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
+          + 코디 추가하기
+        </button>
+      )}
       {/* Floating Action Button */}
       {!isCoordiTab && !isSelecting && (
         <button
@@ -528,13 +556,6 @@ const ClosetPageSample = () => {
           ＋
         </button>
       )}
-
-      {isCoordiTab && (
-        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
-          + 코디 추가하기
-        </button>
-      )}
-
       {/* 삭제 버튼 */}
       {isSelecting && selectedItems.length > 0 && (
         <button type="button" className={styles.deletePill} onClick={handleDelete}>

@@ -128,14 +128,6 @@ const CoordiEditor = () => {
 
         queryClient.invalidateQueries(["coordis"]);
 
-        // 다운로드는 그대로
-        const link = document.createElement("a");
-        link.download = fileName;
-        link.href = uri;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
         setSelectedId(prev);
       } finally {
         setTimeout(() => (isSavingRef.current = false), 0);

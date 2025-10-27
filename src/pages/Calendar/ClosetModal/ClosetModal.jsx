@@ -6,6 +6,7 @@ import { useClothesQuery } from "@/hooks/useClothesQuery";
 import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/constants/category";
 import { CLOSET_TABS } from "@/pages/ClosetPage/closetData";
+import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 
 const cn = classNames.bind(styles);
 
@@ -15,7 +16,8 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
   const [subCategory, setSubCategory] = useState("all");
   const isCoordiTab = activeTab === "coordi";
 
-  // 카테고리 쿼리
+  const { data: coordis = { data: [] } } = useAllCoordisQuery();
+
   const {
     data: categories,
     isLoading: isCategoryLoading,
@@ -43,7 +45,6 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
       })) ?? [],
   });
 
-  // 로딩/에러 로깅 (1차적으로 에러만 콘솔에찍음)
   useEffect(() => {
     if (isCategoryError) console.error("❌ 카테고리 로드 오류:", categoryError);
     if (isClothesError) console.error("❌ 옷 정보 로드 오류:", clothesError);
@@ -149,15 +150,48 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
 
         <div className={cn("sheetBody")}>
           {isLoading && <div className={cn("loading")}>불러오는 중…</div>}
-          {/* 필터링된 아이템 렌더링 */}
           <div className={cn("closetGrid")}>
             {isCoordiTab ? (
-              <h2>이곳은 코디 페이지 입니다.</h2>
+              <>
+                {coordis.data.map((coordi) => {
+                  const itemList = JSON.parse(coordi.canvasJson);
+
+                  return (
+                    <button
+                      key={coordi.coordiId}
+                      className={cn("closetCard")}
+                      onClick={() => {
+                        itemList.forEach((clothes) => {
+                          const parseCoordiItem = {
+                            clothesId: clothes.clothesId,
+                            categoryCode: clothes.categoryCode,
+                            categoryName: CATEGORIES[clothes.categoryCode].ko,
+                            thumbnailUrl: clothes.imageUrl,
+                            name: clothes.name,
+                          };
+
+                          onAdd(parseCoordiItem);
+                        });
+                      }}
+                    >
+                      <img
+                        src={coordi.originImageUrl}
+                        alt={coordi.coordiName}
+                        className={cn("closetImg")}
+                      />
+                      <div className={cn("closetInfo")}>
+                        <div className={cn("closetName")}>{coordi.coordiName}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </>
             ) : (
               <>
                 {filteredItems.map((item) => {
                   const isAdded = clothes.some((c) => c.clothesId === item.clothesId);
 
+                  console.log("clothes item", item);
                   return (
                     <button
                       key={item.clothesId}

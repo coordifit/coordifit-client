@@ -723,7 +723,6 @@ const MainPage = () => {
     }
 
     return rawClothes.map((item) => {
-      // ClothesResponseSample에서는 categoryCode만 제공 (서브 카테고리 코드)
       const categoryCode = item.categoryCode || "";
 
       // 서브 카테고리 코드로 메인 카테고리 찾기
@@ -756,7 +755,6 @@ const MainPage = () => {
 
     return clothesWithMainCategory
       .filter((item) => {
-        // ClothesResponseSample에서는 mainCategoryCode가 이미 clothesWithMainCategory에서 설정됨
         const itemMainCode = item.mainCategoryCode || "";
 
         // 메인 카테고리 코드로 비교

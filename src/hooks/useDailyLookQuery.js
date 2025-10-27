@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getDailyLookByDate, getDailyLooksByMonth } from "@/services/dailyLookApi";
+import {
+  fetchDailylookSummary,
+  getDailyLookByDate,
+  getDailyLooksByMonth,
+} from "@/services/dailyLookApi";
 
 const useDailyLookByDateQuery = (wearDate) => {
   return useQuery({
@@ -19,4 +23,12 @@ const useDailyLooksByMonthQuery = (yearMonth) => {
   });
 };
 
-export { useDailyLooksByMonthQuery, useDailyLookByDateQuery };
+function useDailylookSummaryQuery(yearMonth) {
+  return useQuery({
+    queryKey: ["dailylookSummary", yearMonth || "current"],
+    queryFn: () => fetchDailylookSummary(yearMonth),
+    staleTime: 60_000,
+  });
+}
+
+export { useDailyLooksByMonthQuery, useDailyLookByDateQuery, useDailylookSummaryQuery };

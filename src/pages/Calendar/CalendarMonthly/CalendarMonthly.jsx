@@ -94,6 +94,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
                     e.stopPropagation();
                     setViewMode("daily");
                     clearClothes();
+                    setTargetDate(new Date(target.wearDate));
                     navigate(`/calendar/${formatDate(new Date(target.wearDate))}`);
                   }}
                 />
@@ -103,7 +104,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
         />
       )}
       <div className={cx("summaryRow")}>
-        <button type="button" className={cx("summaryCard")} onClick={() => navigate("/dailylooks")}>
+        <button type="button" className={cx("summaryCard")} disabled>
           <div className={cx("summaryTitle")}>데일리룩</div>
           <div className={cx("summaryCount", "accent")}>{summary?.totalDailylooks || 0}개</div>
         </button>
@@ -113,7 +114,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
           className={cx("summaryCard")}
           onClick={() => {
             const id = summary?.mostWornOverall?.clothesId;
-            if (id) navigate(`/closet/${id}`);
+            if (id) navigate(`/closet/item-sample/${id}`);
           }}
         >
           <div className={cx("summaryTitle")}>가장 많이입은 옷</div>
@@ -135,7 +136,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
           className={cx("summaryCard")}
           onClick={() => {
             const id = summary?.mostWornThisMonth?.clothesId;
-            if (id) navigate(`/closet/${id}`);
+            if (id) navigate(`/closet/item-sample/${id}`);
           }}
         >
           <div className={cx("summaryTitle")}>이번달 많이입은옷</div>

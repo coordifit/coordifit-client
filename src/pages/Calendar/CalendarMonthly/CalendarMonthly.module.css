@@ -47,15 +47,17 @@
   border-bottom: none !important;
 }
 
+:global(.react-calendar__tile--now) {
+  background: none !important;
+  color: #000 !important;
+  font-weight: 600;
+}
+
 :global(.react-calendar__tile.sunday) {
   color: red;
 }
 :global(.react-calendar__tile.saturday) {
   color: blue;
-}
-
-:global(.react-calendar__tile--now) {
-  background: none;
 }
 
 :global(.react-calendar__tile--active) {

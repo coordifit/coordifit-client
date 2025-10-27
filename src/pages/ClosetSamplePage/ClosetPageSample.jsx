@@ -65,12 +65,10 @@ const ClosetPageSample = () => {
     const fetchTabs = async () => {
       try {
         const response = await CommonCodeService.getCommonCodesByParentCodeId("B10002");
-        const tabsData = Object.values(response)
-          .map((tab) => ({
-            id: tab.codeId,
-            label: tab.codeName,
-          }))
-          .reverse();
+        const tabsData = Object.values(response).map((tab) => ({
+          id: tab.codeId,
+          label: tab.codeName,
+        }));
 
         setTabs(tabsData);
 
@@ -288,7 +286,7 @@ const ClosetPageSample = () => {
 
     return result;
   }, [clothesItems, mainCategory, subCategory, subCategoriesMap, sortType]);
-  const isCoordiTab = activeTab === "B20006";
+  const isCoordiTab = activeTab === "B20007";
 
   if (loading) {
     return (

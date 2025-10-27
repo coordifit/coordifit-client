@@ -268,7 +268,7 @@ const AiFittingResultPage = () => {
         <h3 className={styles.productHeading}>착용 상품 정보</h3>
         <div className={styles.productList}>
           {selectedItems.map((item) => {
-            const price = formatPrice(item.price);
+            const price = formatPrice(item.apiData.price);
             return (
               <article key={item.id ?? item.name} className={styles.productCard}>
                 <div className={styles.productThumbnail}>
@@ -280,7 +280,9 @@ const AiFittingResultPage = () => {
                 </div>
                 <div className={styles.productMeta}>
                   <div className={styles.productMetaHeader}>
-                    {item.brand && <span className={styles.productBrand}>{item.brand}</span>}
+                    {item.apiData.brand && (
+                      <span className={styles.productBrand}>{item.apiData.brand}</span>
+                    )}
                   </div>
                   <span className={styles.productName}>{item.name}</span>
                   {price && <span className={styles.productPrice}>{price}원</span>}

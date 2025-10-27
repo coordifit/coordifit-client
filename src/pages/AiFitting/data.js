@@ -114,7 +114,7 @@ export const transformClothesApiData = (apiClothes) => {
       purchaseDate: item.purchaseDate,
       wearCount: item.wearCount || 0,
       lastWornDate: item.lastWornDate,
-      images: [item.thumbnailUrl], // thumbnailUrl 사용
+      images: [item.imageUrl], // imageUrl 사용
       // API 원본 데이터도 보관
       apiData: item,
     };

@@ -15,6 +15,7 @@ import { CANVAS_CONFIG } from "@/constants/calendar";
 import { getCanvasPosition } from "@/utils/canvasUtils";
 import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
 import { api } from "@/services/axiosInstance";
+import Button from "@/components/Button/Button";
 
 const cn = classNames.bind(styles);
 
@@ -183,9 +184,6 @@ const CoordiEditor = () => {
               <button className={cn("btnDanger")} onClick={removeSelected}>
                 삭제하기
               </button>
-              <button className={cn("btnPrimary")} onClick={handleClickSave}>
-                저장하기
-              </button>
             </div>
           </div>
         </div>
@@ -207,30 +205,58 @@ const CoordiEditor = () => {
         clothes={coordiItems}
         onRemove={removeCooridItem}
       />
+      <div className={styles["button-wrapper"]}>
+        <>
+          <Button onClick={handleClickSave} style="default">
+            저장하기
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(-1);
+            }}
+            style="secondary"
+          >
+            뒤로가기
+          </Button>
+        </>
+      </div>
       {isModalOpen && (
         <Modal
           title="코디 상세정보 입력"
           onClose={handleClickCancel}
           children={
             <>
-              <input
-                className={styles.input}
-                placeholder="코디의 제목을 입력해주세요."
-                value={coordiName}
-                onChange={(e) => setCoordiName(e.target.value)}
-              />
-              <input
-                className={styles.input}
-                placeholder="코디 상세 설명을 입력해주세요"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <button className={styles.saveButton} onClick={saveImage}>
+              <div className={styles.field}>
+                <label className={styles.label}>제목</label>
+                <input
+                  className={styles.input}
+                  placeholder="코디의 제목을 입력해주세요."
+                  value={coordiName}
+                  onChange={(e) => setCoordiName(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>설명</label>
+                <input
+                  className={styles.input}
+                  placeholder="코디 상세 설명을 입력해주세요"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+
+              <button
+                className={styles.saveButton}
+                onClick={saveImage}
+                disabled={!coordiName.trim() || !description.trim()}
+              >
                 저장하기
               </button>
             </>
           }
-        ></Modal>
+        />
       )}
       {open && (
         <Modal

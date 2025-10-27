@@ -18,7 +18,7 @@ const Layout = () => {
 
   const showHeader = lastDefined(handles.map((h) => h.showHeader));
   const showTabbar = lastDefined(handles.map((h) => h.showTabbar));
-  const contentPadding = lastDefined(handles.map((h) => h.contentPadding));
+  const contentPadding = lastDefined(handles.map((h) => h.padding));
   const isNoPad = contentPadding === "none";
 
   return (

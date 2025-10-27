@@ -65,8 +65,11 @@ const CalendarEditor = () => {
     const sameClothes = JSON.stringify(pastClothesRef.current) === JSON.stringify(clothes);
     const sameDesc = (dailyLook?.data?.description || "") === description;
 
-    setIsDirty(!(sameClothes && sameDesc));
-  }, [clothes, dailyLook]);
+    const dirtyNow = !(sameClothes && sameDesc);
+
+    // 이전 상태와 다를 때만 setState 실행
+    setIsDirty((prev) => (prev !== dirtyNow ? dirtyNow : prev));
+  }, [clothes, description, dailyLook?.data?.description]);
 
   const addToCanvas = (item) => {
     const pos = getCanvasPosition(item.categoryCode);

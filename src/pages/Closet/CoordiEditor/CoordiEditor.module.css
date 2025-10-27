@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  padding: 20px;
 }
 
 .header {
@@ -22,13 +23,14 @@
   background: #fff;
   border: 1px solid #eee;
   border-radius: 16px;
-  padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .stage {
   display: block;
   border-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   overflow: hidden;
   border: 1px solid #eee;
 }
@@ -37,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12px;
+  margin: 10px;
 }
 
 .colors {
@@ -98,16 +100,26 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 4px;
+}
 
 .input {
   width: 100%;
   padding: 12px 14px;
-  margin-bottom: 12px;
-
   background-color: #fafafa;
   border: 1.5px solid #e0e0e0;
   border-radius: 10px;
-
   font-size: 14px;
   color: #333;
   transition: all 0.2s ease;
@@ -148,4 +160,18 @@
   &:active {
     transform: scale(0.98);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    background: #ddd;
+    color: #999;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.button-wrapper {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
 }

@@ -118,7 +118,7 @@ const router = createBrowserRouter([
           showBack: false,
           showHeader: false,
           showTabbar: true,
-          contentPadding: "none",
+          padding: "none",
         },
         children: [
           {
@@ -138,7 +138,13 @@ const router = createBrowserRouter([
             <CalendarEditor />
           </ProtectedRoute>
         ),
-        handle: { title: "데일리룩 편집", showBack: true, showHeader: true, showTabbar: true },
+        handle: {
+          title: "데일리룩 편집",
+          showBack: true,
+          showHeader: true,
+          showTabbar: true,
+          padding: "none",
+        },
       },
       {
         path: "/closet",
@@ -166,6 +172,7 @@ const router = createBrowserRouter([
           showBack: true,
           showHeader: true,
           showTabbar: false,
+          padding: "none",
         },
       },
       {
@@ -180,6 +187,7 @@ const router = createBrowserRouter([
           showBack: true,
           showHeader: true,
           showTabbar: false,
+          padding: "none",
         },
       },
       {
@@ -194,6 +202,7 @@ const router = createBrowserRouter([
           showBack: true,
           showHeader: true,
           showTabbar: false,
+          padding: "none",
         },
       },
       {

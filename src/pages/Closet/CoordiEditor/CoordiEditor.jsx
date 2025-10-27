@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCoordiByIdQuery } from "@/hooks/useCoordiQuery";
 import { CANVAS_CONFIG } from "@/constants/calendar";
-import { getDefaultPlacement } from "@/utils/canvasUtils";
+import { getCanvasPosition } from "@/utils/canvasUtils";
 import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
 import { api } from "@/services/axiosInstance";
 
@@ -73,7 +73,7 @@ const CoordiEditor = () => {
   };
 
   const addToCanvas = (item) => {
-    const pos = getDefaultPlacement(item.categoryCode);
+    const pos = getCanvasPosition(item.categoryCode);
 
     const konvaObject = {
       instanceId: `${item.clothesId}-${Date.now()}`,

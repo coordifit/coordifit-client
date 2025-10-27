@@ -4,8 +4,10 @@ import clsx from "clsx";
 
 import styles from "./AvatarSelectionPage.module.css";
 import addAvatarIcon from "@/assets/images/enrollicon.png";
+import circleXIcon from "@/assets/images/circle-x.png";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 import { useUserStore } from "@/stores/userStore.js";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const AvatarSelectionPage = () => {
   const navigate = useNavigate();
@@ -25,6 +27,8 @@ const AvatarSelectionPage = () => {
     selectedAvatarId ?? avatars[0]?.id ?? null,
   );
   const [deletingAvatarId, setDeletingAvatarId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [avatarToDelete, setAvatarToDelete] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -52,15 +56,43 @@ const AvatarSelectionPage = () => {
   };
 
   const handleDelete = async (avatarId) => {
-    setDeletingAvatarId(avatarId);
+    if (!avatarToDelete) return;
+
+    setDeletingAvatarId(avatarToDelete.id);
 
     try {
-      await removeAvatar(avatarId);
+      await removeAvatar(avatarToDelete.id);
     } catch (error) {
       console.error("Failed to delete avatar", error);
+      if (typeof window !== "undefined" && typeof window.alert === "function") {
+        window.alert("아바타 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
     } finally {
       setDeletingAvatarId(null);
+      setAvatarToDelete(null);
     }
+  };
+
+  const handleDeleteClick = (avatar) => {
+    setAvatarToDelete(avatar);
+    setShowDeleteModal(true);
+  };
+
+  // 한국어 조사 처리 함수
+  const getParticle = (name) => {
+    if (!name) return "를";
+    const lastChar = name.charAt(name.length - 1);
+    const lastCharCode = lastChar.charCodeAt(0);
+
+    // 한글인지 확인
+    if (lastCharCode >= 0xac00 && lastCharCode <= 0xd7a3) {
+      // 받침이 있는지 확인
+      const hasFinalConsonant = (lastCharCode - 0xac00) % 28 !== 0;
+      return hasFinalConsonant ? "을" : "를";
+    }
+
+    // 한글이 아니면 기본값
+    return "를";
   };
 
   return (
@@ -90,16 +122,20 @@ const AvatarSelectionPage = () => {
             >
               <div className={styles.avatarImageWrapper}>
                 <img src={avatar.imageUrl} alt={avatar.name} className={styles.avatarImage} />
+                <button
+                  type="button"
+                  className={styles.deleteIconButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(avatar);
+                  }}
+                  disabled={deletingAvatarId === avatar.id}
+                  aria-label="아바타 삭제"
+                >
+                  <img src={circleXIcon} alt="삭제" className={styles.deleteIcon} />
+                </button>
               </div>
               <span className={styles.avatarName}>{avatar.name}</span>
-            </button>
-            <button
-              type="button"
-              className={styles.deleteButton}
-              onClick={() => handleDelete(avatar.id)}
-              disabled={deletingAvatarId === avatar.id}
-            >
-              {deletingAvatarId === avatar.id ? "삭제 중..." : "삭제"}
             </button>
           </div>
         ))}
@@ -113,11 +149,15 @@ const AvatarSelectionPage = () => {
             <div className={styles.createAvatarInner}>
               <div className={styles.createAvatarIllustration}>
                 <img src={addAvatarIcon} alt="" className={styles.createIcon} />
+                <span className={styles.createAvatarDescription}>
+                  나만의 아바타를
+                  <br />
+                  제작해보세요
+                </span>
+                <div className={styles.createAvatarButton}>아바타 제작</div>
               </div>
-              <p className={styles.createAvatarDescription}>나만의 아바타를 제작해보세요</p>
-              <span className={styles.createAvatarButton}>아바타 제작</span>
+              <span className={styles.createAvatarTitle}>아바타 추가</span>
             </div>
-            <span className={styles.avatarName}>아바타 추가</span>
           </button>
         </div>
       </div>
@@ -130,6 +170,20 @@ const AvatarSelectionPage = () => {
       >
         선택하기
       </button>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setAvatarToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="아바타 삭제"
+        message={`정말로 '${avatarToDelete?.name}'${getParticle(avatarToDelete?.name)} 삭제하시겠습니까?`}
+        confirmText="삭제"
+        cancelText="취소"
+        variant="danger"
+      />
     </div>
   );
 };

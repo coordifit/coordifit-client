@@ -137,7 +137,13 @@ export const useAiFittingStore = create(
             [type]: item,
           },
         })),
-      clearClothingSelection: () => set({ clothingSelection: createEmptySelection() }),
+
+      // AI 피팅 전체 상태 초기화 (아바타 선택 + 옷 선택 모두 초기화)
+      resetAiFittingState: () =>
+        set({
+          selectedAvatarId: null,
+          clothingSelection: createEmptySelection(),
+        }),
     }),
     { name: "AiFittingStore" },
   ),

@@ -15,7 +15,7 @@ import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 import { useUserStore } from "@/stores/userStore.js";
 import clothesService from "@/services/clothesService.js";
 import chevronDown from "@/assets/images/chevron-down.svg";
-import userIcon from "@/assets/images/usericon.png"; // 교체
+import userIcon from "@/assets/images/usericon.png";
 import { requestAiFitting } from "@/services/avatars.js";
 
 const AiFittingLanding = () => {
@@ -26,6 +26,7 @@ const AiFittingLanding = () => {
   const updateClothingSelection = useAiFittingStore((state) => state.updateClothingSelection);
   const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
   const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
+  const resetAiFittingState = useAiFittingStore((state) => state.resetAiFittingState);
   const user = useUserStore((state) => state.user);
   const loadUserFromToken = useUserStore((state) => state.loadUserFromToken);
   const userId = user?.userId;
@@ -44,6 +45,14 @@ const AiFittingLanding = () => {
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
+
+  // 페이지 벗어날 때 AI 피팅 상태 초기화
+  useEffect(() => {
+    return () => {
+      // 컴포넌트 언마운트 시 상태 초기화
+      resetAiFittingState();
+    };
+  }, [resetAiFittingState]);
 
   useEffect(() => {
     if (!user) {

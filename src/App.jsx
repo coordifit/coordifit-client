@@ -14,10 +14,6 @@ import CalendarLayout from "@calendar/CalendarLayout/CalendarLayout";
 import CalendarBody from "@calendar/CalendarBody/CalendarBody";
 import CalendarEditor from "@calendar/CalendarEditor/CalendarEditor";
 
-import ClosetPage from "@/pages/ClosetPage/ClosetPage";
-import ClosetDetailPage from "@/pages/ClosetDetailPage/ClosetDetailPage";
-import ClosetRegisterPage from "@/pages/ClosetRegisterPage/ClosetRegisterPage";
-
 import ClosetPageSample from "@/pages/ClosetSamplePage/ClosetPageSample";
 import ClosetDetailPageSample from "@/pages/ClosetSamplePage/ClosetDetailPageSample";
 import ClosetRegisterPageSample from "@/pages/ClosetSamplePage/ClosetRegisterPageSample";
@@ -147,20 +143,6 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/closet",
-        element: (
-          <ProtectedRoute>
-            <ClosetPage />
-          </ProtectedRoute>
-        ),
-        handle: {
-          title: "내 옷장",
-          showBack: true,
-          showHeader: true,
-          showTabbar: true,
-        },
-      },
-      {
         path: "/closet/coordi/editor",
         element: (
           <ProtectedRoute>
@@ -206,34 +188,6 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/closet/register",
-        element: (
-          <ProtectedRoute>
-            <ClosetRegisterPage />
-          </ProtectedRoute>
-        ),
-        handle: {
-          title: "옷 등록",
-          showBack: true,
-          showHeader: true,
-          showTabbar: false,
-        },
-      },
-      {
-        path: "/closet/item/:itemId",
-        element: (
-          <ProtectedRoute>
-            <ClosetDetailPage />
-          </ProtectedRoute>
-        ),
-        handle: {
-          title: "옷 상세보기",
-          showBack: true,
-          showHeader: true,
-          showTabbar: true,
-        },
-      },
-      {
         path: "/closet-sample",
         element: (
           <ProtectedRoute>
@@ -241,7 +195,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         handle: {
-          title: "옷장 (샘플)",
+          title: "내 옷장",
           showBack: true,
           showHeader: true,
           showTabbar: true,
@@ -255,7 +209,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         handle: {
-          title: "옷 상세 (샘플)",
+          title: "옷 상세보기",
           showBack: true,
           showHeader: true,
           showTabbar: true,
@@ -269,7 +223,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         handle: {
-          title: "옷 등록 (샘플)",
+          title: "옷 등록",
           showBack: true,
           showHeader: true,
           showTabbar: false,

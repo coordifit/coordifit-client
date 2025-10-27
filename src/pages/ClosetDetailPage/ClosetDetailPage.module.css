@@ -198,6 +198,22 @@
 
 .fieldInput[type="date"] {
   text-align: right;
+  font-size: 15px; /* 글자 크기 조절 */
+  font-weight: 600; /* 굵게 */
+  color: #333333; /* 진한 글자색 */
+  font-family: "Pretendard", "Noto Sans KR", sans-serif;
+  letter-spacing: 0.3px; /* 자간 살짝 */
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.fieldInput[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(45%) sepia(40%) saturate(350%) hue-rotate(180deg);
+  opacity: 0.8;
 }
 
 .fieldInput::placeholder {

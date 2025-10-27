@@ -1,5 +1,4 @@
 .page {
-  min-height: 100vh;
   padding: clamp(8px, 1.5vh, 16px) 5px clamp(8px, 1.5vh, 16px);
   display: flex;
   flex-direction: column;

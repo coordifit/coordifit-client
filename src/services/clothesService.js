@@ -20,7 +20,7 @@ class ClothesService {
         });
       }
 
-      const response = await api.post("/clothes/sample", formData);
+      const response = await api.post("/clothes", formData);
       return response.data;
     } catch (error) {
       console.error("옷 등록 오류:", error);
@@ -30,7 +30,7 @@ class ClothesService {
 
   async getUserClothes() {
     try {
-      const response = await api.get("/clothes/sample");
+      const response = await api.get("/clothes");
       return response.data;
     } catch (error) {
       console.error("옷 목록 조회 오류:", error);
@@ -40,7 +40,7 @@ class ClothesService {
 
   async getClothesDetail(clothesId) {
     try {
-      const response = await api.get(`/clothes/sample/${clothesId}`);
+      const response = await api.get(`/clothes/${clothesId}`);
       return response.data;
     } catch (error) {
       console.error("옷 상세 조회 오류:", error);
@@ -75,7 +75,7 @@ class ClothesService {
         });
       }
 
-      const response = await api.put(`/clothes/sample/${clothesId}`, formData);
+      const response = await api.put(`/clothes/${clothesId}`, formData);
       return response.data;
     } catch (error) {
       console.error("옷 수정 오류:", error);
@@ -85,7 +85,7 @@ class ClothesService {
 
   async deleteClothes(clothesId) {
     try {
-      const response = await api.delete(`/clothes/sample/${clothesId}`);
+      const response = await api.delete(`/clothes/${clothesId}`);
       return response.data;
     } catch (error) {
       console.error("옷 삭제 오류:", error);
@@ -98,7 +98,7 @@ class ClothesService {
       if (!Array.isArray(clothesIds) || clothesIds.length === 0) {
         throw new Error("삭제할 옷 ID 목록이 비어있습니다.");
       }
-      const response = await api.delete("/clothes/sample/bulk", { data: clothesIds });
+      const response = await api.delete("/clothes/bulk", { data: clothesIds });
       return response.data;
     } catch (error) {
       console.error("옷 일괄 삭제 오류:", error);

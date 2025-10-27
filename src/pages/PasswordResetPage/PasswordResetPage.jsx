@@ -29,7 +29,7 @@ const PasswordReset = () => {
 
   /* ✅ 유효성 검사 함수 */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pw);
+  const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#^]).{8,}$/.test(pw);
 
   /* ✅ 입력 실시간 검증 */
   const handleInputChange = (field, value) => {

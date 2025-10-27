@@ -36,7 +36,7 @@ const SignUpPage = () => {
 
   /* ✅ 유효성 검사 함수 */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pw);
+  const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#^]).{8,}$/.test(pw);
   const validateNickname = (nick) => nick.length >= 2 && nick.length <= 50;
 
   /* ✅ 입력 실시간 검증 */

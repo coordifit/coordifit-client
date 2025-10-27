@@ -72,7 +72,7 @@ const CalendarEditor = () => {
     const obj = {
       instanceId: `${item.clothesId}-${Date.now()}`,
       clothesId: item.clothesId,
-      imageUrl: item.thumbnailUrl,
+      imageUrl: item.imageUrl,
       name: item.name,
       categoryCode: item.categoryCode,
       x: pos.x,

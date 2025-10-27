@@ -14,9 +14,9 @@ import CalendarLayout from "@calendar/CalendarLayout/CalendarLayout";
 import CalendarBody from "@calendar/CalendarBody/CalendarBody";
 import CalendarEditor from "@calendar/CalendarEditor/CalendarEditor";
 
-import ClosetPageSample from "@/pages/ClosetSamplePage/ClosetPageSample";
-import ClosetDetailPageSample from "@/pages/ClosetSamplePage/ClosetDetailPageSample";
-import ClosetRegisterPageSample from "@/pages/ClosetSamplePage/ClosetRegisterPageSample";
+import ClosetPageSample from "@/pages/ClosetPage/ClosetPageSample";
+import ClosetDetailPageSample from "@/pages/ClosetPage/ClosetDetailPageSample";
+import ClosetRegisterPageSample from "@/pages/ClosetPage/ClosetRegisterPageSample";
 import OcrPage from "@/pages/OcrPage/OcrPage";
 import OcrAnalyzingPage from "@/pages/OcrAnalyzingPage/OcrAnalyzingPage";
 import OcrResultPage from "@/pages/OcrResultPage/OcrResultPage";

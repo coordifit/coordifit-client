@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PasswordResetPage.module.css";
 
@@ -22,14 +22,18 @@ const PasswordReset = () => {
     passwordConfirm: false,
   });
 
+  const [emailChecked, setEmailChecked] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [verificationTimer, setVerificationTimer] = useState(0);
   const [sentVerificationCode, setSentVerificationCode] = useState("");
   const [messages, setMessages] = useState({});
 
+  const emailCheckTimeoutRef = useRef(null);
+
   /* ✅ 유효성 검사 함수 */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pw);
+  const validatePassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#^]).{8,}$/.test(pw);
 
   /* ✅ 입력 실시간 검증 */
   const handleInputChange = (field, value) => {
@@ -42,6 +46,38 @@ const PasswordReset = () => {
         ...p,
         email: isValid ? "이메일 중복 확인이 필요합니다." : "올바른 이메일 형식을 입력해주세요.",
       }));
+      // 이메일이 변경되면 중복 확인 상태 초기화
+      setEmailChecked(false);
+
+      // 기존 타이머 클리어
+      if (emailCheckTimeoutRef.current) {
+        clearTimeout(emailCheckTimeoutRef.current);
+      }
+
+      // 1초 후 자동으로 중복 확인 실행 (유효한 이메일일 경우)
+      if (isValid) {
+        emailCheckTimeoutRef.current = setTimeout(async () => {
+          try {
+            const result = await checkEmailDuplicate(value);
+            // 비밀번호 재설정은 이메일이 존재해야 함 (회원가입과 반대)
+            if (result.success && !result.data) {
+              // 이메일이 이미 사용 중 = 존재함 = OK
+              setMessages((p) => ({ ...p, email: "사용 가능한 이메일입니다." }));
+              setValidation((p) => ({ ...p, email: true }));
+              setEmailChecked(true);
+            } else {
+              // 이메일이 사용 가능 = 존재하지 않음 = 에러
+              setMessages((p) => ({ ...p, email: "존재하지 않는 이메일입니다." }));
+              setValidation((p) => ({ ...p, email: false }));
+              setEmailChecked(false);
+            }
+          } catch {
+            setMessages((p) => ({ ...p, email: "이메일 중복 확인 중 오류가 발생했습니다." }));
+            setValidation((p) => ({ ...p, email: false }));
+            setEmailChecked(false);
+          }
+        }, 1000);
+      }
     } else if (field === "newPassword") {
       const isValid = validatePassword(value);
       setValidation((p) => ({ ...p, password: isValid }));
@@ -87,14 +123,17 @@ const PasswordReset = () => {
         // 이메일이 이미 사용 중 = 존재함 = OK
         setMessages((p) => ({ ...p, email: "사용 가능한 이메일입니다." }));
         setValidation((p) => ({ ...p, email: true }));
+        setEmailChecked(true);
       } else {
         // 이메일이 사용 가능 = 존재하지 않음 = 에러
         setMessages((p) => ({ ...p, email: "존재하지 않는 이메일입니다." }));
         setValidation((p) => ({ ...p, email: false }));
+        setEmailChecked(false);
       }
     } catch {
       setMessages((p) => ({ ...p, email: "이메일 중복 확인 중 오류가 발생했습니다." }));
       setValidation((p) => ({ ...p, email: false }));
+      setEmailChecked(false);
     }
   };
 
@@ -182,13 +221,12 @@ const PasswordReset = () => {
               placeholder="예) coordifit@codifit.com"
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              onBlur={handleEmailCheck}
             />
             <button
               type="button"
               className={styles.smallButton}
               onClick={handleSendVerification}
-              disabled={!validation.email || isLoading}
+              disabled={!emailChecked || isLoading}
             >
               {isLoading ? "발송 중..." : "인증받기"}
             </button>

@@ -39,7 +39,7 @@ import heartBlack from "@/assets/images/hearticon_white.png";
 import heartRed from "@/assets/images/hearticon_red.png";
 import profileImage from "@/assets/images/mainpage/usericon.png";
 
-import clothesService from "@/services/clothesService";
+import ClothesServiceSample from "../ClosetSamplePage/clothesServiceSample";
 import postService from "@/services/postService";
 import commonCodeService from "@/services/commonCodeService";
 import { getDailyLooksByMonth } from "@/services/dailyLookApi";
@@ -581,36 +581,17 @@ const MainPage = () => {
       setClothesError(null);
 
       try {
-        const response = await clothesService.getClothes();
+        const response = await ClothesServiceSample.getUserClothes();
         console.log("최근 착용한 옷 응답:", response);
         if (cancelled) {
           return;
         }
 
-        // SnapAddPage와 같은 방식으로 응답 처리
-        const items = response?.data?.content || [];
-
-        if (!items.length) {
+        if (response.success && response.data) {
+          setRawClothes(response.data);
+        } else {
           setRawClothes([]);
-          return;
         }
-
-        // SnapAddPage 방식을 참고하여 데이터 변환
-        const adapted = items.map((item, index) => ({
-          id: item.clothesId || `closet-${index}`,
-          name: item.name || "이름 미입력",
-          brand: item.brand || "브랜드 미입력",
-          price: item.price ?? null,
-          categoryName: item.categoryName || "",
-          subCategoryName: item.subCategoryName || "",
-          categoryCode: item.categoryCode || "",
-          mainCategoryCode: item.mainCategoryCode || "",
-          subCategoryCode: item.subCategoryCode || item.categoryCode || "",
-          description: item.description || "",
-          image: item.thumbnailUrl || "",
-        }));
-
-        setRawClothes(adapted);
       } catch (error) {
         if (!cancelled) {
           console.error("최근 착용한 옷 조회 실패", error);
@@ -742,23 +723,14 @@ const MainPage = () => {
     }
 
     return rawClothes.map((item) => {
-      const subCode = item.subCategoryCode || "";
-      const subName = item.subCategoryName || "";
-      const mainName = item.categoryName || "";
+      // ClothesResponseSample에서는 categoryCode만 제공 (서브 카테고리 코드)
+      const categoryCode = item.categoryCode || "";
 
-      const derivedMainCode =
-        item.mainCategoryCode ||
-        categoryMappings.subToMain[subCode] ||
-        (mainName && categoryMappings.mainByName[mainName]) ||
-        (subName && categoryMappings.subByName[subName]
-          ? categoryMappings.subToMain[categoryMappings.subByName[subName]]
-          : "");
+      // 서브 카테고리 코드로 메인 카테고리 찾기
+      const derivedMainCode = categoryMappings.subToMain[categoryCode] || "";
 
-      const derivedMainName =
-        categoryMappings.mainNameByCode[derivedMainCode] ||
-        mainName ||
-        (derivedMainCode && categoryMappings.mainNameByCode[derivedMainCode]) ||
-        "";
+      // 메인 카테고리 이름 가져오기
+      const derivedMainName = categoryMappings.mainNameByCode[derivedMainCode] || "";
 
       return {
         ...item,
@@ -784,36 +756,27 @@ const MainPage = () => {
 
     return clothesWithMainCategory
       .filter((item) => {
-        const itemMainCode =
-          item.mainCategoryCode ||
-          (item.mainCategoryName && categoryMappings.mainByName[item.mainCategoryName]) ||
-          (item.categoryName && categoryMappings.mainByName[item.categoryName]) ||
-          "";
+        // ClothesResponseSample에서는 mainCategoryCode가 이미 clothesWithMainCategory에서 설정됨
+        const itemMainCode = item.mainCategoryCode || "";
 
+        // 메인 카테고리 코드로 비교
         if (itemMainCode && desiredMainCode && itemMainCode === desiredMainCode) {
           return true;
         }
 
-        const itemMainName =
-          item.mainCategoryName ||
-          item.categoryName ||
-          categoryMappings.mainNameByCode[itemMainCode] ||
-          "";
-
+        // 메인 카테고리 이름으로 비교
+        const itemMainName = item.mainCategoryName || "";
         if (itemMainName && itemMainName === desiredMainLabel) {
           return true;
         }
 
-        const fallbackCandidates = [
-          item.subCategoryName,
-          item.categoryName,
-          item.categoryCode,
-          item.subCategoryCode,
-        ]
-          .filter(Boolean)
-          .map((value) => value.toString().toLowerCase());
+        // categoryCode로 fallback (서브 카테고리 코드)
+        if (item.categoryCode) {
+          const fallbackValue = item.categoryCode.toLowerCase();
+          return fallbackValue.includes(fallbackMainId);
+        }
 
-        return fallbackCandidates.some((value) => value.includes(fallbackMainId));
+        return false;
       })
       .slice(0, 4);
   }, [
@@ -1213,10 +1176,10 @@ const MainPage = () => {
               ))
             : formattedClothes.length > 0
               ? formattedClothes.map((item) => (
-                  <div className={styles.clothesCard} key={item.id}>
+                  <div className={styles.clothesCard} key={item.clothesId}>
                     <div className={styles.clothesImageWrapper}>
-                      {item.image ? (
-                        <img src={item.image} alt={`${item.name} 이미지`} />
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={`${item.name} 이미지`} />
                       ) : (
                         <span className={styles.imagePlaceholder}>이미지 없음</span>
                       )}

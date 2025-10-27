@@ -85,10 +85,6 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
     <>
       {isOpen && <div className={cn("sheetOverlay")} onClick={() => onClose(false)} />}
       <div className={cn("sheet", { sheetOpen: isOpen })}>
-        <button className={cn("sheetClose")} onClick={() => onClose(false)}>
-          닫기
-        </button>
-        {/* 옷 / 코드 선택 탭바 */}
         <section className={cn("tabBar")}>
           {CLOSET_TABS.map((tab) => (
             <button
@@ -125,7 +121,7 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
               </div>
             </div>
 
-            {mainCategory !== "all" && (
+            {mainCategory !== "all" ? (
               <div className={cn("subCategoryList")}>
                 {subCategories.map((sub) => (
                   <button
@@ -141,6 +137,8 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                   </button>
                 ))}
               </div>
+            ) : (
+              <div className={cn("emptySubCategory")}></div>
             )}
           </section>
         )}

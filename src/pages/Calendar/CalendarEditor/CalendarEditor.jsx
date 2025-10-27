@@ -53,7 +53,7 @@ const CalendarEditor = () => {
 
       pastClothesRef.current = pastClothes;
       setClothes(pastClothes);
-      setDescription(dailyLook.data.description);
+      setDescription(dailyLook.data.description || "");
     }
   }, [dailyLook]);
 

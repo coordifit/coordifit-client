@@ -9,6 +9,8 @@
 }
 
 .sheet {
+  display: flex;
+  flex-direction: column;
   z-index: 11;
   position: fixed;
   left: 0;
@@ -48,27 +50,50 @@
 .sheetBody {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  height: calc(100% - 100px);
+  height: 80%;
+  overflow: hidden;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  justify-items: stretch;
+  width: 100%;
+  max-width: 100%;
 }
 
 .closetGrid {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 150px;
+  gap: 0;
+  margin-top: 10px;
+  justify-items: stretch;
   overflow: auto;
+  width: 100%;
+  height: 90%;
+}
+
+.closetGrid::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .closetCard {
+  aspect-ratio: 3 / 4;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 150px;
-  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid rgba(170, 178, 200, 0.2);
+  padding: 8px 6px;
+  overflow: hidden;
   border: 1px solid #eee;
   border-radius: 12px;
-  padding: 8px;
   background: #fff;
   cursor: pointer;
+  transition: border-color 0.2s ease;
 }
 
 .closetImg {
@@ -76,20 +101,45 @@
   aspect-ratio: 1/1;
   object-fit: cover;
   border-radius: 8px;
+  margin-bottom: 3px;
 }
+/* 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  */
 
 .closetInfo {
+  width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 0 4px;
 }
 
 .closetName {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  display: block;
+  text-align: left;
   font-size: 12px;
   font-weight: 600;
+  color: #333333;
 }
 
 .closetCat {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  text-align: left;
+  display: block;
   font-size: 10px;
   color: #777;
   min-width: max-content;
@@ -107,8 +157,11 @@
 }
 
 .selectedBar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
   border-top: 1px solid #eee;
-  padding-top: 8px;
 }
 
 .selectedEmpty {
@@ -128,10 +181,20 @@
   scrollbar-width: thin;
 }
 
+.selectedList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 .selectedItem {
   display: flex;
   position: relative;
   align-items: center;
+  width: 40%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+
   gap: 6px;
   border: 1px solid #eee;
   border-radius: 10px;
@@ -154,8 +217,11 @@
 
 .removeBtn {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  width: 15px;
+  height: 15px;
+
+  top: -3px;
+  right: -3px;
   width: 20px;
   height: 20px;
   border: 1px solid black;
@@ -192,8 +258,7 @@
 .categories {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .categoryHeader {
@@ -205,9 +270,13 @@
 .categoryMainList {
   display: flex;
   gap: 6px;
-  padding: 0 20px 0;
+  padding: 0;
   overflow-x: auto;
   padding-bottom: 4px;
+}
+
+.categoryMainList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .categoryButton {
@@ -215,12 +284,12 @@
   justify-content: center;
   align-items: center;
   padding: 0 15px;
-  height: 30px;
+  height: 25px;
   border-radius: 10px;
   border: none;
   background: #ffffff;
   color: #a6a6a6;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -234,18 +303,26 @@
 .subCategoryList {
   display: flex;
   gap: 12px;
-  padding: 0 20px 0;
+  padding: 0 20px 0 5px;
   overflow-x: auto;
-  padding-bottom: 6px;
+}
+
+.emptySubCategory {
+  height: 26px;
+  width: 100%;
+}
+
+.subCategoryList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .subCategoryButton {
   border: none;
   background: transparent;
-  padding: 8px 10px 6px;
-  font-size: 13px;
+  padding: 6px;
+  font-size: 11px;
   font-weight: 600;
-  color: #d5d5d5;
+  color: #bbbbbb;
   white-space: nowrap;
 }
 
@@ -336,7 +413,6 @@
 
 .tabButton {
   flex: 1;
-  padding: 0px 0px 12px;
   background: none;
   border: none;
   font-size: 15px;
@@ -369,6 +445,10 @@
 .activeTab {
   color: #333;
   font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
 }
 
 .tabBar {

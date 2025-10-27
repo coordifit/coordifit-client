@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ClothesServiceSample from "../ClosetSamplePage/clothesServiceSample";
+import clothesService from "@/services/clothesService";
 import postService from "../../services/postService";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapUploadCompletePage.module.css";
@@ -41,7 +41,7 @@ const SnapUploadCompletePage = () => {
   useEffect(() => {
     const loadClothes = async () => {
       try {
-        const response = await ClothesServiceSample.getUserClothes();
+        const response = await clothesService.getUserClothes();
         if (response.success && response.data) {
           setClothesItems(response.data);
         } else {

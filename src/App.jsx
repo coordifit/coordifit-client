@@ -14,9 +14,9 @@ import CalendarLayout from "@calendar/CalendarLayout/CalendarLayout";
 import CalendarBody from "@calendar/CalendarBody/CalendarBody";
 import CalendarEditor from "@calendar/CalendarEditor/CalendarEditor";
 
-import ClosetPageSample from "@/pages/ClosetPage/ClosetPageSample";
-import ClosetDetailPageSample from "@/pages/ClosetPage/ClosetDetailPageSample";
-import ClosetRegisterPageSample from "@/pages/ClosetPage/ClosetRegisterPageSample";
+import ClosetPage from "@/pages/ClosetPage/ClosetPage";
+import ClosetDetailPage from "@/pages/ClosetPage/ClosetDetailPage";
+import ClosetRegisterPage from "@/pages/ClosetPage/ClosetRegisterPage";
 import OcrPage from "@/pages/OcrPage/OcrPage";
 import OcrAnalyzingPage from "@/pages/OcrAnalyzingPage/OcrAnalyzingPage";
 import OcrResultPage from "@/pages/OcrResultPage/OcrResultPage";
@@ -190,10 +190,10 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/closet-sample",
+        path: "/closet",
         element: (
           <ProtectedRoute>
-            <ClosetPageSample />
+            <ClosetPage />
           </ProtectedRoute>
         ),
         handle: {
@@ -204,10 +204,10 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/closet/item-sample/:itemId",
+        path: "/closet/item/:itemId",
         element: (
           <ProtectedRoute>
-            <ClosetDetailPageSample />
+            <ClosetDetailPage />
           </ProtectedRoute>
         ),
         handle: {
@@ -218,10 +218,10 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "/closet/register-sample",
+        path: "/closet/register",
         element: (
           <ProtectedRoute>
-            <ClosetRegisterPageSample />
+            <ClosetRegisterPage />
           </ProtectedRoute>
         ),
         handle: {

@@ -13,7 +13,7 @@ import {
 import { CLOTHING_ITEMS, MAIN_CATEGORIES } from "@/pages/ClosetPage/closetData";
 import { useAiFittingStore } from "@/stores/aiFittingStore.js";
 import { useUserStore } from "@/stores/userStore.js";
-import ClothesServiceSample from "@/pages/ClosetSamplePage/clothesServiceSample.js";
+import clothesService from "@/services/clothesService";
 import chevronDown from "@/assets/images/chevron-down.svg";
 import userIcon from "@/assets/images/usericon.png";
 import { requestAiFitting } from "@/services/avatars.js";
@@ -80,7 +80,7 @@ const AiFittingLanding = () => {
 
       setIsLoadingClothes(true);
       try {
-        const response = await ClothesServiceSample.getUserClothes();
+        const response = await clothesService.getUserClothes();
         console.log("API 응답 데이터:", response);
 
         if (response.success && response.data) {

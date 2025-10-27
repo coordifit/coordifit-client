@@ -1,6 +1,6 @@
-import { api } from "../../services/axiosInstance";
+import { api } from "./axiosInstance";
 
-class ClothesServiceSample {
+class ClothesService {
   async createClothes(clothesData) {
     try {
       const formData = new FormData();
@@ -107,4 +107,4 @@ class ClothesServiceSample {
   }
 }
 
-export default new ClothesServiceSample();
+export default new ClothesService();

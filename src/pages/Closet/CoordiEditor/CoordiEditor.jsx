@@ -128,7 +128,7 @@ const CoordiEditor = () => {
         clearCoordiItems();
 
         setTimeout(() => {
-          navigate("/closet-sample", { replace: true });
+          navigate("/closet", { replace: true });
         }, 0);
 
         queryClient.invalidateQueries(["coordis"]);

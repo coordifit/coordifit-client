@@ -1,9 +1,8 @@
-// src/pages/ClosetSamplePage/ClosetRegisterPageSample.jsx
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
-import clothesServiceSample from "@/services/clothesService";
+import clothesService from "@/services/clothesService";
 import styles from "./ClosetRegisterPage.module.css";
 
 import TopIcon from "@/assets/images/topicon.png";
@@ -26,7 +25,7 @@ const CATEGORY_ICON_MAP = {
   패션소품: AccessoriesIcon,
 };
 
-const ClosetRegisterPageSample = () => {
+const ClosetRegisterPage = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -128,11 +127,11 @@ const ClosetRegisterPageSample = () => {
         files: photoFiles,
       };
 
-      const response = await clothesServiceSample.createClothes(clothesData);
+      const response = await clothesService.createClothes(clothesData);
 
       if (response.success) {
         alert("옷이 성공적으로 등록되었습니다!");
-        navigate("/closet-sample");
+        navigate("/closet");
       } else {
         alert(response.message || "등록에 실패했습니다.");
       }
@@ -396,4 +395,4 @@ const ClosetRegisterPageSample = () => {
   );
 };
 
-export default ClosetRegisterPageSample;
+export default ClosetRegisterPage;

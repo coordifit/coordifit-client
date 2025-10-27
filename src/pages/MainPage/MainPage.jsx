@@ -39,7 +39,7 @@ import heartBlack from "@/assets/images/hearticon_white.png";
 import heartRed from "@/assets/images/hearticon_red.png";
 import profileImage from "@/assets/images/mainpage/usericon.png";
 
-import ClothesServiceSample from "../ClosetSamplePage/clothesServiceSample";
+import clothesService from "@/services/clothesService";
 import postService from "@/services/postService";
 import commonCodeService from "@/services/commonCodeService";
 import { getDailyLooksByMonth } from "@/services/dailyLookApi";
@@ -52,7 +52,7 @@ const HERO_CARDS = [
     title: "옷장 관리의 시작, 새 옷을 사는 순간부터.",
     subtitle: "나만의 스타일을 완성하는 가장 쉬운 방법",
     image: heroCloset,
-    destination: "/closet-sample",
+    destination: "/closet",
   },
   {
     id: "calendar",
@@ -581,7 +581,7 @@ const MainPage = () => {
       setClothesError(null);
 
       try {
-        const response = await ClothesServiceSample.getUserClothes();
+        const response = await clothesService.getUserClothes();
         console.log("최근 착용한 옷 응답:", response);
         if (cancelled) {
           return;
@@ -880,7 +880,7 @@ const MainPage = () => {
     (shortcut) => {
       const { mainCode, subCode } = resolveShortcutCodes(shortcut);
 
-      navigate("/closet-sample", {
+      navigate("/closet", {
         state: {
           selectedMainCategory: mainCode,
           selectedSubCategory: subCode,
@@ -1007,7 +1007,7 @@ const MainPage = () => {
           <button
             type="button"
             className={styles.sectionLink}
-            onClick={() => handleSectionNavigate("/closet-sample")}
+            onClick={() => handleSectionNavigate("/closet")}
           >
             옷장 전체 보기
           </button>
@@ -1134,7 +1134,7 @@ const MainPage = () => {
           <button
             type="button"
             className={styles.sectionLink}
-            onClick={() => handleSectionNavigate("/closet-sample")}
+            onClick={() => handleSectionNavigate("/closet")}
           >
             옷장 가기
           </button>

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
-import ClothesServiceSample from "../ClosetSamplePage/clothesServiceSample";
+import clothesService from "@/services/clothesService";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapAddPage.module.css";
 import cameraIcon from "@/assets/images/snapupload.png";
@@ -63,7 +63,7 @@ const SnapAddPage = () => {
   useEffect(() => {
     const loadAllClothes = async () => {
       try {
-        const response = await ClothesServiceSample.getUserClothes();
+        const response = await clothesService.getUserClothes();
         console.log("전체 옷 정보:", response);
         if (response.success && response.data) {
           setClothesItems(response.data);

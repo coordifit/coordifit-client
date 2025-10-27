@@ -10,7 +10,7 @@ const AddItemModal = ({ onClose, position = "bottom" }) => {
     e.preventDefault();
     e.stopPropagation();
     onClose();
-    navigate("/closet/register-sample");
+    navigate("/closet/register");
   };
 
   const handleOcrRegister = (e) => {

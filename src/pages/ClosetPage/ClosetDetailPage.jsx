@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
-import styles from "../ClosetDetailPage/ClosetDetailPage.module.css";
+import styles from "./ClosetDetailPage.module.css";
 import ChevronDown from "@/assets/images/chevron-down.svg";
-import ClothesServiceSample from "./clothesServiceSample";
+import clothesService from "@/services/clothesService";
 import CommonCodeService from "@/services/commonCodeService";
 import TopIcon from "@/assets/images/topicon.png";
 import BottomIcon from "@/assets/images/bottomicon.png";
@@ -11,7 +11,7 @@ import ShoesIcon from "@/assets/images/shoesicon.png";
 import OuterIcon from "@/assets/images/outericon.png";
 import AccessoriesIcon from "@/assets/images/accessoriesicon.png";
 
-const ClosetDetailPageSample = () => {
+const ClosetDetailPage = () => {
   const navigate = useNavigate();
   const { itemId } = useParams();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -55,19 +55,19 @@ const ClosetDetailPageSample = () => {
     const fetchClothesDetail = async () => {
       try {
         setLoading(true);
-        const response = await ClothesServiceSample.getClothesDetail(itemId);
+        const response = await clothesService.getClothesDetail(itemId);
         console.log("옷 상세 응답:", response);
         if (response.success && response.data) {
           setItem(response.data);
         } else {
           console.error("옷 상세 조회 실패:", response.message);
           alert("옷 정보를 불러오는데 실패했습니다.");
-          navigate("/closet-sample");
+          navigate("/closet");
         }
       } catch (err) {
         console.error("옷 상세 조회 실패:", err);
         alert("옷 정보를 불러오는데 실패했습니다.");
-        navigate("/closet-sample");
+        navigate("/closet");
       } finally {
         setLoading(false);
       }
@@ -149,7 +149,7 @@ const ClosetDetailPageSample = () => {
           files: newFiles, // 새로 추가할 이미지 파일
         };
 
-        const response = await ClothesServiceSample.updateClothes(itemId, updateData);
+        const response = await clothesService.updateClothes(itemId, updateData);
 
         if (response.success) {
           alert("수정이 완료되었습니다.");
@@ -165,7 +165,7 @@ const ClosetDetailPageSample = () => {
           });
 
           // 데이터 새로고침
-          const detailResponse = await ClothesServiceSample.getClothesDetail(itemId);
+          const detailResponse = await clothesService.getClothesDetail(itemId);
           if (detailResponse.success && detailResponse.data) {
             setItem(detailResponse.data);
           }
@@ -201,7 +201,7 @@ const ClosetDetailPageSample = () => {
     // 원본 데이터 다시 로드
     const fetchClothesDetail = async () => {
       try {
-        const response = await ClothesServiceSample.getClothesDetail(itemId);
+        const response = await clothesService.getClothesDetail(itemId);
         if (response.success && response.data) {
           setItem(response.data);
         }
@@ -216,11 +216,11 @@ const ClosetDetailPageSample = () => {
     if (!window.confirm("정말 이 옷을 삭제하시겠습니까?")) return;
 
     try {
-      const response = await ClothesServiceSample.deleteClothes(itemId);
+      const response = await clothesService.deleteClothes(itemId);
 
       if (response.success) {
         alert("옷이 삭제되었습니다.");
-        navigate("/closet-sample");
+        navigate("/closet");
       } else {
         alert("삭제에 실패했습니다: " + response.message);
       }
@@ -616,4 +616,4 @@ const ClosetDetailPageSample = () => {
   );
 };
 
-export default ClosetDetailPageSample;
+export default ClosetDetailPage;

@@ -114,7 +114,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
           className={cx("summaryCard")}
           onClick={() => {
             const id = summary?.mostWornOverall?.clothesId;
-            if (id) navigate(`/closet/item-sample/${id}`);
+            if (id) navigate(`/closet/item/${id}`);
           }}
         >
           <div className={cx("summaryTitle")}>가장 많이입은 옷</div>
@@ -136,7 +136,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
           className={cx("summaryCard")}
           onClick={() => {
             const id = summary?.mostWornThisMonth?.clothesId;
-            if (id) navigate(`/closet/item-sample/${id}`);
+            if (id) navigate(`/closet/item/${id}`);
           }}
         >
           <div className={cx("summaryTitle")}>이번달 많이입은옷</div>

@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
-import styles from "../ClosetPage/ClosetPage.module.css";
+import styles from "./ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
-import ClothesServiceSample from "./clothesServiceSample";
+import clothesService from "@/services/clothesService";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
 import CheckIcon from "@/assets/images/checkicon.png";
 import AddItemModal from "@/components/AddItemModal/AddItemModal";
@@ -13,7 +13,7 @@ import { deleteCoordis } from "@/services/coordiService";
 import noAiImage from "@/assets/icons/ai_default.png";
 import CoordiViewMode from "../Closet/CoordiViewMode/CoordiViewMode";
 
-const ClosetPageSample = () => {
+const ClosetPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const addCardRef = useRef(null);
@@ -131,7 +131,7 @@ const ClosetPageSample = () => {
     const fetchClothes = async () => {
       try {
         setLoading(true);
-        const response = await ClothesServiceSample.getUserClothes();
+        const response = await clothesService.getUserClothes();
         if (response.success && response.data) {
           setClothesItems(response.data);
         } else {
@@ -189,7 +189,7 @@ const ClosetPageSample = () => {
   };
 
   const handleManualRegister = () => {
-    navigate("/closet/register-sample");
+    navigate("/closet/register");
     setIsAddModalOpen(false);
   };
 
@@ -204,7 +204,7 @@ const ClosetPageSample = () => {
       return;
     }
     // TODO: 상세 페이지로 이동
-    navigate(`/closet/item-sample/${item.clothesId}`);
+    navigate(`/closet/item/${item.clothesId}`);
   };
 
   const handleCoordiClick = (item) => {
@@ -233,7 +233,7 @@ const ClosetPageSample = () => {
       if (isCoordiTab) {
         response = deleteCoordis(selectedItems);
       } else {
-        response = await ClothesServiceSample.bulkDeleteClothes(selectedItems);
+        response = await clothesService.bulkDeleteClothes(selectedItems);
       }
 
       if (response.success) {
@@ -572,4 +572,4 @@ const ClosetPageSample = () => {
   );
 };
 
-export default ClosetPageSample;
+export default ClosetPage;

@@ -164,7 +164,7 @@ const OcrResultPage = () => {
     console.log("옷장에 추가할 상품들:", selectedProducts);
 
     alert(`${selectedItems.length}개 상품이 옷장에 추가되었습니다!`);
-    navigate("/closet-sample");
+    navigate("/closet");
   };
 
   const handleRetry = () => {

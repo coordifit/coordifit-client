@@ -25,7 +25,7 @@ const fetchDailylookSummary = async (yearMonth) => {
     params: { yearMonth },
   });
 
-  return res;
+  return res.data;
 };
 
 export { getDailyLooksByMonth, getDailyLookByDate, deleteDailyLookByDate, fetchDailylookSummary };

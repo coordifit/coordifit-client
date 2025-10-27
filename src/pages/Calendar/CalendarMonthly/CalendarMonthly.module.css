@@ -108,9 +108,10 @@
 }
 
 .summaryTitle {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
   margin-bottom: 5px;
+  letter-spacing: -0.5px;
 }
 
 .summaryCount {
@@ -158,4 +159,9 @@
   100% {
     background-position: 60px;
   }
+}
+
+.summaryEmptyText {
+  font-size: 12px;
+  color: #aaa;
 }

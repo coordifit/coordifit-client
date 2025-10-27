@@ -28,6 +28,7 @@ function useDailylookSummaryQuery(yearMonth) {
     queryKey: ["dailylookSummary", yearMonth || "current"],
     queryFn: () => fetchDailylookSummary(yearMonth),
     staleTime: 60_000,
+    enabled: !!yearMonth,
   });
 }
 

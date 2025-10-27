@@ -14,39 +14,19 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
 
   const { data: dailyLooks = { data: [] }, isLoading, error } = useDailyLooksByMonthQuery(date);
 
-  const isYearMonth = (value) => /^\d{4}-\d{2}$/.test(value);
-  console.log("dailyLooks", dailyLooks);
+  const isYearMonth = (string) => /^\d{4}-\d{2}$/.test(string);
   const {
     data: summary = {
-      totalDailylooks: 10,
-      mostWornOverall: {
-        instanceId: "C251022002-1761218823935",
-        clothesId: "C251022002",
-        imageUrl:
-          "https://memory-forest-test.s3.ap-southeast-2.amazonaws.com/8472952a-4278-4cf8-92e5-7e0f56cef253_image-removebg-preview (19).png",
-        name: "브라운 스웨터",
-        categoryCode: "B30007",
-        x: 70,
-        y: -10,
-        scaleX: 0.5,
-        scaleY: 0.5,
-      },
-      mostWornThisMonth: {
-        instanceId: "C251022002-1761218823935",
-        clothesId: "C251022002",
-        imageUrl:
-          "https://memory-forest-test.s3.ap-southeast-2.amazonaws.com/8472952a-4278-4cf8-92e5-7e0f56cef253_image-removebg-preview (19).png",
-        name: "브라운 스웨터",
-        categoryCode: "B30007",
-        x: 70,
-        y: -10,
-        scaleX: 0.5,
-        scaleY: 0.5,
+      data: {
+        mostWornClothesOverall: null,
+        mostWornClothesThisMonth: null,
+        totalDailyLookCount: 0,
       },
     },
     isLoading: isLoadingSummary,
-  } = useDailylookSummaryQuery(isYearMonth(date) ? date : undefined);
+  } = useDailylookSummaryQuery(isYearMonth ? date : undefined);
 
+  console.log("summary", summary);
   const { clearClothes } = useClothesStore();
 
   const trimDate = (datetime) => datetime.split(" ")[0];
@@ -104,51 +84,62 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
         />
       )}
       <div className={cx("summaryRow")}>
+        {/* 총 데일리룩 수 */}
         <button type="button" className={cx("summaryCard")} disabled>
           <div className={cx("summaryTitle")}>데일리룩</div>
-          <div className={cx("summaryCount", "accent")}>{summary?.totalDailylooks || 0}개</div>
+          <div className={cx("summaryCount", "accent")}>
+            {summary?.data?.totalDailyLookCount ?? 0}개
+          </div>
         </button>
 
+        {/* 가장 많이 입은 옷 */}
         <button
           type="button"
           className={cx("summaryCard")}
+          disabled={!summary?.data?.mostWornClothesOverall?.clothesId}
           onClick={() => {
-            const id = summary?.mostWornOverall?.clothesId;
+            const id = summary?.mostWornClothesOverall?.clothesId;
             if (id) navigate(`/closet/item/${id}`);
           }}
         >
-          <div className={cx("summaryTitle")}>가장 많이입은 옷</div>
+          <div className={cx("summaryTitle")}>가장 많이 입은 옷</div>
           <div className={cx("summaryThumbBox")}>
-            {summary?.mostWornOverall?.imageUrl ? (
+            {summary.data.mostWornClothesOverall?.imageUrl ? (
               <img
                 className={cx("summaryThumb")}
-                src={summary.mostWornOverall.imageUrl}
-                alt={summary?.mostWornOverall?.name || "most worn overall"}
+                src={summary?.data?.mostWornClothesOverall.imageUrl}
+                alt={summary?.data?.mostWornClothesOverall?.name || "most worn overall"}
               />
             ) : (
-              <div className={cx("summaryThumbSkeleton")} />
+              <div className={cx("summaryThumbSkeleton")}>
+                <span className={cx("summaryEmptyText")}>데이터 없음</span>
+              </div>
             )}
           </div>
         </button>
 
+        {/* 이번달 많이 입은 옷 */}
         <button
           type="button"
           className={cx("summaryCard")}
+          disabled={!summary?.data?.mostWornClothesThisMonth?.clothesId}
           onClick={() => {
-            const id = summary?.mostWornThisMonth?.clothesId;
+            const id = summary?.data?.mostWornClothesThisMonth?.clothesId;
             if (id) navigate(`/closet/item/${id}`);
           }}
         >
-          <div className={cx("summaryTitle")}>이번달 많이입은옷</div>
+          <div className={cx("summaryTitle")}>이번 달 많이 입은 옷</div>
           <div className={cx("summaryThumbBox")}>
-            {summary?.mostWornThisMonth?.imageUrl ? (
+            {summary?.data?.mostWornClothesThisMonth?.imageUrl ? (
               <img
                 className={cx("summaryThumb")}
-                src={summary.mostWornThisMonth.imageUrl}
-                alt={summary?.mostWornThisMonth?.name || "most worn this month"}
+                src={summary?.data?.mostWornClothesThisMonth?.imageUrl}
+                alt={summary?.data?.mostWornClothesThisMonth?.name || "most worn this month"}
               />
             ) : (
-              <div className={cx("summaryThumbSkeleton")} />
+              <div className={cx("summaryThumbSkeleton")}>
+                <span className={cx("summaryEmptyText")}>데이터 없음</span>
+              </div>
             )}
           </div>
         </button>

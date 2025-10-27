@@ -352,7 +352,7 @@ const router = createBrowserRouter([
           title: "AI 피팅 결과",
           showBack: true,
           showHeader: true,
-          showTabbar: false,
+          showTabbar: true,
         },
       },
       {

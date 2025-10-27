@@ -47,13 +47,23 @@ const SnapPage = () => {
 
   // 페이지 진입 시 스크롤 초기화 및 body 스크롤 방지
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // 모든 스크롤 위치 강제 초기화
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
     // body 스크롤 방지
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.body.style.height = "100%";
 
     // 컴포넌트 언마운트 시 body 스크롤 복원
     return () => {
       document.body.style.overflow = "unset";
+      document.body.style.position = "unset";
+      document.body.style.width = "unset";
+      document.body.style.height = "unset";
     };
   }, []);
 

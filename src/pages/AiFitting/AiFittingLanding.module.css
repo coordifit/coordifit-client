@@ -1,20 +1,29 @@
 .page {
-  min-height: 78vh;
-  max-width: 360px;
+  width: 100vw;
+  max-width: min(400px, 100%);
   display: flex;
   flex-direction: column;
   background: #ffffff;
   position: relative;
+  margin: -12px 0 -12px 0;
 }
 
 .pageContent {
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: min(360px, 100%);
+  margin: 0 auto;
 }
 
 .bottomArea {
   margin-top: auto;
+  padding: clamp(12px, 2vh, 20px) clamp(8px, 2vw, 16px);
+  width: 100%;
+  max-width: min(360px, 100%);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .avatarSection {
@@ -23,21 +32,22 @@
 }
 
 .avatarPanel {
-  width: 300px;
-  height: 240px;
-  padding: 32px 24px;
+  width: clamp(280px, 80vw, 320px);
+  height: clamp(200px, 30vh, 260px);
+  padding: clamp(24px, 4vh, 32px) clamp(16px, 6vw, 24px);
   background: #f3f4f6;
-  border-radius: 20px;
+  border-radius: clamp(16px, 5vw, 20px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: clamp(8px, 1vh, 12px);
+  margin: 0 auto;
 }
 
 .avatarPreviewButton {
-  width: 220px;
-  height: 240px;
-  border-radius: 16px;
+  width: clamp(200px, 60vw, 240px);
+  height: clamp(220px, 30vh, 260px);
+  border-radius: clamp(12px, 4vw, 16px);
   background: #f3f4f6;
   border: none;
   padding: 0;
@@ -45,6 +55,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  margin: 0 auto;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -60,15 +71,15 @@
 }
 
 .avatarPreviewImage {
-  width: 220px;
-  height: 240px;
-  border-radius: 16px;
+  width: clamp(200px, 60vw, 240px);
+  height: clamp(220px, 30vh, 260px);
+  border-radius: clamp(12px, 4vw, 16px);
   object-fit: cover;
 }
 
 .avatarPlaceholderIcon {
-  width: 74px; /* 피그마 user icon 크기 */
-  height: 79px;
+  width: clamp(60px, 20vw, 80px);
+  height: clamp(64px, 10vh, 84px);
   object-fit: contain;
   opacity: 0.9;
 }
@@ -82,8 +93,8 @@
 
 .avatarHeading {
   font-weight: 700;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: clamp(12px, 3.5vw, 16px);
+  line-height: clamp(18px, 5vw, 22px);
   color: #4b5563;
 }
 
@@ -103,8 +114,8 @@
   color: #ffffff;
   font-family: "Pretendard", sans-serif;
   font-weight: 600;
-  font-size: 12px;
-  padding: 10px 32px;
+  font-size: clamp(11px, 3vw, 14px);
+  padding: clamp(8px, 2.5vw, 12px) clamp(24px, 8vw, 36px);
   cursor: pointer;
   transition:
     opacity 0.2s ease,
@@ -118,33 +129,36 @@
 .selectionSection {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: clamp(12px, 2vh, 20px);
+  margin-top: clamp(16px, 2vh, 24px);
+  width: 100%;
 }
 
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  margin-top: clamp(8px, 1vh, 12px);
+  padding: 0 clamp(8px, 2vw, 16px);
 }
 
 .sectionTitle {
   margin: 0;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 17px;
+  font-size: clamp(15px, 4.5vw, 19px);
   font-weight: 600;
-  line-height: 28px;
+  line-height: clamp(24px, 7vw, 32px);
   color: #333333;
 }
 
 .backToSelectionButton {
-  padding: 6px 12px;
+  padding: clamp(4px, 1.5vw, 8px) clamp(8px, 3vw, 16px);
   border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: clamp(6px, 2vw, 10px);
   background: #ffffff;
   color: #6b7280;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 14px;
+  font-size: clamp(12px, 3.5vw, 16px);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -158,18 +172,19 @@
 .selectionList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: clamp(8px, 1.5vh, 16px);
+  padding: 0 clamp(8px, 2vw, 16px);
 }
 
 .selectionCard {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(12px, 4vw, 20px);
   width: 100%;
-  height: 76px;
-  padding: 0 20px 0 16px;
+  height: clamp(64px, 10vh, 80px);
+  padding: 0 clamp(16px, 5vw, 24px) 0 clamp(12px, 4vw, 20px);
   border: none;
-  border-radius: 8px;
+  border-radius: clamp(6px, 2vw, 10px);
   background: #f3f4f6;
   cursor: pointer;
   text-align: left;
@@ -186,8 +201,8 @@
 }
 
 .selectionIconWrapper {
-  width: 40px;
-  height: 40px;
+  width: clamp(32px, 10vw, 44px);
+  height: clamp(32px, 10vw, 44px);
   border-radius: 9999px;
   background: #ffffff;
   display: flex;
@@ -197,15 +212,15 @@
 }
 
 .selectionIcon {
-  width: 24px;
-  height: 24px;
+  width: clamp(20px, 6vw, 28px);
+  height: clamp(20px, 6vw, 28px);
   object-fit: contain;
 }
 
 .selectionThumbnailWrapper {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: clamp(32px, 10vw, 44px);
+  height: clamp(32px, 10vw, 44px);
+  border-radius: clamp(6px, 2vw, 10px);
   overflow: hidden;
   background: #ffffff;
   flex-shrink: 0;
@@ -221,32 +236,32 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: clamp(2px, 1vw, 6px);
 }
 
 .selectionLabel {
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 16px;
+  font-size: clamp(14px, 4vw, 18px);
   font-weight: 600;
-  line-height: 24px;
+  line-height: clamp(20px, 6vw, 26px);
   color: #333333;
 }
 
 .selectionSummary {
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 14px;
+  font-size: clamp(12px, 3.5vw, 14px);
   font-weight: 500;
   line-height: 20px;
   color: #6b7280;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 50vw;
 }
 
 .selectionChevronIcon {
-  width: 24px;
-  height: 24px;
+  width: clamp(20px, 6vw, 28px);
+  height: clamp(20px, 6vw, 28px);
   flex-shrink: 0;
   transform: rotate(-90deg);
   transition: transform 0.2s ease;
@@ -260,32 +275,33 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: clamp(16px, 5vw, 24px);
   flex: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 300px);
-  min-height: 200px;
+  max-height: clamp(300px, 60vh, 500px);
+  min-height: clamp(200px, 25vh, 300px);
+  padding: 0 clamp(8px, 2vw, 16px);
 }
 
 .categoryTabs {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(12px, 4vw, 20px);
 }
 
 .categoryMainLabel {
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 16px;
+  font-size: clamp(14px, 4vw, 18px);
   font-weight: 700;
   color: #111827;
 }
 
 .subCategoryTabs {
   display: flex;
-  gap: 8px;
+  gap: clamp(6px, 2vw, 12px);
   overflow-x: auto;
-  margin-bottom: 8px;
-  padding-bottom: 4px;
+  margin-bottom: clamp(6px, 2vw, 12px);
+  padding-bottom: clamp(2px, 1vw, 6px);
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -297,9 +313,9 @@
 .subCategoryButton {
   border: none;
   background: transparent;
-  padding: 8px 12px 6px 12px;
+  padding: clamp(6px, 2vw, 10px) clamp(8px, 3vw, 16px) clamp(4px, 1.5vw, 8px) clamp(8px, 3vw, 16px);
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 14px;
+  font-size: clamp(12px, 3.5vw, 16px);
   font-weight: 600;
   color: #9ca3af;
   cursor: pointer;
@@ -319,15 +335,16 @@
 .closetGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px 10px;
-  padding-bottom: 80px;
+  gap: clamp(8px, 1vh, 12px) clamp(8px, 3vw, 16px);
+  padding-bottom: clamp(80px, 12vh, 120px);
+  justify-items: center;
 }
 
 .closetCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: clamp(6px, 2.5vw, 12px);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -335,9 +352,9 @@
 }
 
 .closetThumbnail {
-  width: 102px;
-  height: 102px;
-  border-radius: 20px;
+  width: clamp(90px, 25vw, 120px);
+  height: clamp(90px, 25vw, 120px);
+  border-radius: clamp(16px, 5vw, 24px);
   background: #f3f4f6;
   display: flex;
   align-items: center;
@@ -363,28 +380,10 @@
 
 .emptyState {
   margin: 0;
-  margin-top: 60px;
-  font-size: 14px;
+  margin-top: clamp(40px, 8vh, 80px);
+  font-size: clamp(12px, 3.5vw, 16px);
   color: #9ca3af;
   text-align: center;
-}
-
-.confirmButtonBottom {
-  position: absolute;
-  bottom: 20px;
-  left: 10px;
-  right: 10px;
-  height: 52px;
-  border: none;
-  border-radius: 12px;
-  background: #333333;
-  color: #ffffff;
-  font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  z-index: 10;
 }
 
 .confirmButton:disabled {
@@ -394,17 +393,17 @@
 
 .backButton {
   width: 100%;
-  height: 48px;
+  height: clamp(40px, 6vh, 52px);
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: clamp(8px, 3vw, 16px);
   background: #ffffff;
   color: #6b7280;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 15px;
+  font-size: clamp(13px, 3.8vw, 17px);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 8px;
+  margin-bottom: clamp(6px, 2vw, 12px);
 }
 
 .backButton:hover {
@@ -414,18 +413,18 @@
 
 .footer {
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: clamp(6px, 2vw, 12px);
 }
 
 .footerButton {
   width: 100%;
-  height: 52px;
+  height: min(52px, 7vh);
   border: none;
   border-radius: 12px;
   background: #333333;
   color: #ffffff;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 16px;
+  font-size: clamp(14px, 4vw, 16px);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -458,21 +457,21 @@
 }
 
 .loadingContent {
-  padding: 32px 28px;
-  border-radius: 16px;
+  padding: clamp(24px, 8vw, 40px) clamp(20px, 7vw, 36px);
+  border-radius: clamp(12px, 4vw, 20px);
   background: rgba(255, 255, 255, 0.92);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: clamp(8px, 3vw, 16px);
   box-shadow: 0px 24px 48px rgba(15, 23, 42, 0.25);
 }
 
 .loadingSpinner {
-  width: 36px;
-  height: 36px;
+  width: clamp(28px, 9vw, 44px);
+  height: clamp(28px, 9vw, 44px);
   border-radius: 50%;
-  border: 3px solid #d1d5db;
+  border: clamp(2px, 0.8vw, 4px) solid #d1d5db;
   border-top-color: #333333;
   animation: loading-spin 1s linear infinite;
 }
@@ -480,7 +479,7 @@
 .loadingMessage {
   margin: 0;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 14px;
+  font-size: clamp(12px, 3.5vw, 16px);
   font-weight: 600;
   color: #111827;
 }
@@ -496,17 +495,17 @@
 
 .confirmButtonBottom {
   position: absolute;
-  width: 336px;
-  bottom: 20px;
-  left: 0px;
-  right: 10px;
-  height: 52px;
+  width: clamp(300px, 90vw, 360px);
+  bottom: clamp(16px, 3vh, 24px);
+  left: 50%;
+  transform: translateX(-50%);
+  height: clamp(44px, 7vh, 56px);
   border: none;
-  border-radius: 12px;
+  border-radius: clamp(8px, 3vw, 16px);
   background: #333333;
   color: #ffffff;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 16px;
+  font-size: clamp(14px, 4vw, 18px);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -516,48 +515,4 @@
 .confirmButtonBottom:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* 작은 화면에서의 조정 */
-@media (max-height: 667px) {
-  .page {
-    padding-bottom: 70px;
-  }
-
-  .closetPanel {
-    max-height: calc(100vh - 280px);
-  }
-
-  .confirmButtonBottom {
-    bottom: 10px;
-    height: 48px;
-    font-size: 15px;
-  }
-}
-
-/* iPhone SE 및 매우 작은 화면 */
-@media (max-height: 568px) {
-  .page {
-    padding-bottom: 60px;
-  }
-
-  .closetPanel {
-    max-height: calc(100vh - 260px);
-    min-height: 150px;
-  }
-
-  .confirmButtonBottom {
-    bottom: 5px;
-    height: 44px;
-    font-size: 14px;
-  }
-
-  .avatarSection {
-    margin-bottom: 10px;
-  }
-
-  .sectionHeader {
-    margin-top: 5px;
-    margin-bottom: 5px;
-  }
 }

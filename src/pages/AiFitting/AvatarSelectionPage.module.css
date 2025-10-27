@@ -167,7 +167,8 @@
   transform: scale(0.8);
 }
 
-.avatarCardWrapper:hover .deleteIconButton {
+.avatarCardWrapper:hover .deleteIconButton,
+.avatarCardActive .deleteIconButton {
   opacity: 1;
   transform: scale(1);
 }

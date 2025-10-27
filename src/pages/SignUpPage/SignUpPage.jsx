@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SignUpPage.module.css";
 
@@ -29,10 +29,15 @@ const SignUpPage = () => {
     nickname: false,
   });
 
+  const [emailChecked, setEmailChecked] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [verificationTimer, setVerificationTimer] = useState(0);
   const [sentVerificationCode, setSentVerificationCode] = useState("");
   const [messages, setMessages] = useState({});
+
+  const emailCheckTimeoutRef = useRef(null);
+  const nicknameCheckTimeoutRef = useRef(null);
 
   /* ✅ 유효성 검사 함수 */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -50,6 +55,35 @@ const SignUpPage = () => {
         ...p,
         email: isValid ? "이메일 중복 확인이 필요합니다." : "올바른 이메일 형식을 입력해주세요.",
       }));
+      // 이메일이 변경되면 중복 확인 상태 초기화
+      setEmailChecked(false);
+
+      // 기존 타이머 클리어
+      if (emailCheckTimeoutRef.current) {
+        clearTimeout(emailCheckTimeoutRef.current);
+      }
+
+      // 1초 후 자동으로 중복 확인 실행 (유효한 이메일일 경우)
+      if (isValid) {
+        emailCheckTimeoutRef.current = setTimeout(async () => {
+          try {
+            const result = await checkEmailDuplicate(value);
+            if (result.success && result.data) {
+              setMessages((p) => ({ ...p, email: "사용 가능한 이메일입니다." }));
+              setValidation((p) => ({ ...p, email: true }));
+              setEmailChecked(true);
+            } else {
+              setMessages((p) => ({ ...p, email: "이미 사용 중인 이메일입니다." }));
+              setValidation((p) => ({ ...p, email: false }));
+              setEmailChecked(false);
+            }
+          } catch {
+            setMessages((p) => ({ ...p, email: "이메일 중복 확인 중 오류가 발생했습니다." }));
+            setValidation((p) => ({ ...p, email: false }));
+            setEmailChecked(false);
+          }
+        }, 1000);
+      }
     } else if (field === "password") {
       const isValid = validatePassword(value);
       setValidation((p) => ({ ...p, password: isValid }));
@@ -82,6 +116,30 @@ const SignUpPage = () => {
         ...p,
         nickname: isValid ? "닉네임 중복 확인이 필요합니다." : "2자 이상 50자 이하로 입력해주세요.",
       }));
+
+      // 기존 타이머 클리어
+      if (nicknameCheckTimeoutRef.current) {
+        clearTimeout(nicknameCheckTimeoutRef.current);
+      }
+
+      // 1초 후 자동으로 중복 확인 실행 (유효한 닉네임일 경우)
+      if (isValid) {
+        nicknameCheckTimeoutRef.current = setTimeout(async () => {
+          try {
+            const result = await checkNicknameDuplicate(value);
+            if (result.success && result.data) {
+              setMessages((p) => ({ ...p, nickname: "사용 가능한 닉네임입니다." }));
+              setValidation((p) => ({ ...p, nickname: true }));
+            } else {
+              setMessages((p) => ({ ...p, nickname: "이미 사용 중인 닉네임입니다." }));
+              setValidation((p) => ({ ...p, nickname: false }));
+            }
+          } catch {
+            setMessages((p) => ({ ...p, nickname: "닉네임 중복 확인 중 오류가 발생했습니다." }));
+            setValidation((p) => ({ ...p, nickname: false }));
+          }
+        }, 1000);
+      }
     } else if (field === "verificationCode") {
       const isValid = value.length === 6;
       setValidation((p) => ({ ...p, emailVerified: isValid }));
@@ -100,13 +158,16 @@ const SignUpPage = () => {
       if (result.success && result.data) {
         setMessages((p) => ({ ...p, email: "사용 가능한 이메일입니다." }));
         setValidation((p) => ({ ...p, email: true }));
+        setEmailChecked(true);
       } else {
         setMessages((p) => ({ ...p, email: "이미 사용 중인 이메일입니다." }));
         setValidation((p) => ({ ...p, email: false }));
+        setEmailChecked(false);
       }
     } catch {
       setMessages((p) => ({ ...p, email: "이메일 중복 확인 중 오류가 발생했습니다." }));
       setValidation((p) => ({ ...p, email: false }));
+      setEmailChecked(false);
     }
   };
 
@@ -208,13 +269,12 @@ const SignUpPage = () => {
               placeholder="예) coordifit@codifit.com"
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              onBlur={handleEmailCheck}
             />
             <button
               type="button"
               className={styles.smallButton}
               onClick={handleSendVerification}
-              disabled={!validation.email || isLoading}
+              disabled={!emailChecked || isLoading}
             >
               {isLoading ? "발송 중..." : "인증받기"}
             </button>
@@ -277,7 +337,6 @@ const SignUpPage = () => {
             placeholder="2자 이상 50자 이하"
             value={formData.nickname}
             onChange={(e) => handleInputChange("nickname", e.target.value)}
-            onBlur={handleNicknameCheck}
           />
           {messages.nickname && (
             <div

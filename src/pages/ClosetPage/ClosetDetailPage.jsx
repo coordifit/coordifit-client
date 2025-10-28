@@ -134,6 +134,52 @@ const ClosetDetailPage = () => {
 
   const handleToggleEdit = async () => {
     if (isEditing) {
+      // 수정 저장 전 유효성 검사
+      if (!item.name || item.name.trim().length === 0) {
+        alert("이름을 입력해주세요.");
+        return;
+      }
+
+      if (item.name.trim().length > 100) {
+        alert("이름은 100자 이내로 입력해주세요.");
+        return;
+      }
+
+      if (!item.categoryCode) {
+        alert("카테고리를 선택해주세요.");
+        return;
+      }
+
+      if (!item.brand || item.brand.trim().length === 0) {
+        alert("브랜드를 입력해주세요.");
+        return;
+      }
+
+      if (item.brand.trim().length > 100) {
+        alert("브랜드는 100자 이내로 입력해주세요.");
+        return;
+      }
+
+      if (item.clothesSize && item.clothesSize.length > 20) {
+        alert("사이즈는 20자 이내로 입력해주세요.");
+        return;
+      }
+
+      if (item.price && item.price.toString().length > 10) {
+        alert("가격은 10자리 이내로 입력해주세요.");
+        return;
+      }
+
+      if (item.purchaseUrl && item.purchaseUrl.length > 1000) {
+        alert("구매링크는 1000자 이내로 입력해주세요.");
+        return;
+      }
+
+      if (item.description && item.description.length > 1000) {
+        alert("설명은 1000자 이내로 입력해주세요.");
+        return;
+      }
+
       // 수정 저장
       try {
         const updateData = {

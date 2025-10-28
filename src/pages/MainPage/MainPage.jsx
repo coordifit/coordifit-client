@@ -239,14 +239,6 @@ const generateCurrentMonthDays = () => {
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  console.log("🔍 Generating calendar days:", {
-    today: today.toString(),
-    year,
-    month,
-    todayDate: today.getDate(),
-    currentTime: new Date().toLocaleString(),
-  });
-
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const days = [];
 
@@ -263,18 +255,8 @@ const generateCurrentMonthDays = () => {
       date: date,
       dateObj: dateObj,
     });
-
-    // 28일 근처 디버깅
-    if (date >= 26 && date <= 31) {
-      console.log(`🔍 Generated day ${date}:`, {
-        id: localDateString,
-        date: date,
-        isToday: date === today.getDate(),
-      });
-    }
   }
 
-  console.log("🔍 Total days generated:", days.length);
   return days;
 };
 
@@ -385,7 +367,6 @@ const MainPage = () => {
           return;
         }
 
-        console.log("일일룩 데이터:", response);
         const dailyLookData = response?.data || [];
         setDailyLooks(dailyLookData);
       } catch (error) {
@@ -495,13 +476,6 @@ const MainPage = () => {
             // 과거 데이터 범위가 이번 달 범위와 겹치는 경우만 요청
             // 10월 1일 데이터 누락 방지를 위해 firstDayStr부터 시작
             if (firstDayStr <= pastEndStr) {
-              console.log("getPastWeatherRange 호출 파라미터:", {
-                lat,
-                lng,
-                startDate: firstDayStr, // 10월 1일부터
-                endDate: pastEndStr,
-              });
-
               const pastWeatherData = await getPastWeatherRange({
                 lat,
                 lng,
@@ -525,13 +499,6 @@ const MainPage = () => {
 
           // 현재/미래 날씨 데이터 (오늘부터 이번 달 마지막까지)
           if (todayStr <= lastDayStr) {
-            console.log("getCurrentWeatherRange 호출 파라미터:", {
-              lat,
-              lng,
-              startDate: todayStr,
-              endDate: lastDayStr,
-            });
-
             const currentWeatherData = await getCurrentWeatherRange({
               lat,
               lng,
@@ -539,18 +506,10 @@ const MainPage = () => {
               endDate: lastDayStr,
             });
 
-            console.log("getCurrentWeatherRange 응답 데이터:", currentWeatherData);
-
             // 현재/미래 데이터 매핑 (이번 달에 속하는 날짜만)
             currentWeatherData.time.forEach((dateStr, index) => {
               // 이번 달에 속하는 날짜인지 확인
               if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
-                console.log(`날짜 ${dateStr} 매핑:`, {
-                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
-                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
-                  wcode: currentWeatherData.weathercode[index],
-                });
-
                 weatherMap[dateStr] = {
                   tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
                   tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
@@ -575,7 +534,6 @@ const MainPage = () => {
 
         if (cancelled) return;
 
-        console.log("변환된 날씨 데이터:", weatherMap);
         setWeatherData(weatherMap);
       } catch (error) {
         if (!cancelled) {
@@ -605,7 +563,6 @@ const MainPage = () => {
 
       try {
         const response = await clothesService.getUserClothes();
-        console.log("최근 착용한 옷 응답:", response);
         if (cancelled) {
           return;
         }
@@ -671,13 +628,6 @@ const MainPage = () => {
 
       // 활성 인덱스가 변경된 경우에만 로그
       if (closestIndex !== lastActiveIndex && calendarData[closestIndex]) {
-        console.log("🔍 Active index changed:", {
-          closestIndex,
-          closestDate: calendarData[closestIndex]?.date,
-          closestId: calendarData[closestIndex]?.id,
-          totalCards: cards.length,
-          isToday: calendarData[closestIndex]?.date === new Date().getDate(),
-        });
         lastActiveIndex = closestIndex;
       }
     };
@@ -709,12 +659,10 @@ const MainPage = () => {
             : Array.isArray(response)
               ? response
               : [];
-        console.log("스냅 게시물 데이터:", items);
         if (!items.length) {
           setSnaps([]);
           return;
         }
-
         const adapted = items.map((item, index) => ({
           id: item.postId || item.id || `snap-${index}`,
           image:
@@ -867,17 +815,6 @@ const MainPage = () => {
       // 10월 1일 디버깅
       if (day.id === "2025-10-01") {
         const testIcon = getWeatherIcon(weather?.wcode);
-        console.log("🔍 10월 1일 날씨 데이터 디버깅:", {
-          dayId: day.id,
-          weatherData: weather,
-          wcode: weather?.wcode,
-          returnedIcon: testIcon,
-          rainyIconPath: rainyIcon,
-          sunnyIconPath: sunnyIcon,
-          iconComparison:
-            testIcon === rainyIcon ? "rainyIcon" : testIcon === sunnyIcon ? "sunnyIcon" : "other",
-          allWeatherData: Object.keys(weatherData),
-        });
       }
 
       const weatherIcon = weather ? getWeatherIcon(weather.wcode) : sunnyIcon;
@@ -912,14 +849,6 @@ const MainPage = () => {
       const targetDate = todayDate + 1; // 하루 추가
       const todayIndex = calendarData.findIndex((day) => day.date === targetDate);
 
-      console.log("🔍 Scroll to today by date:", {
-        todayDate,
-        targetDate,
-        todayIndex,
-        calendarDataLength: calendarData.length,
-        foundDay: calendarData[todayIndex],
-        calendarDataSample: calendarData.slice(25, 31).map((d) => ({ id: d.id, date: d.date })),
-      });
       // 카드 너비 + 간격 계산 (대략적으로)
       if (todayIndex !== -1) {
         // 카드 너비 + 간격 계산 (대략적으로)
@@ -931,15 +860,6 @@ const MainPage = () => {
         const centerOffset = container.clientWidth / 2 - cardWidth / 2;
         const finalScrollPosition = Math.max(0, scrollPosition - centerOffset);
 
-        console.log("🔍 Scroll calculation:", {
-          todayIndex,
-          cardWidth,
-          gap,
-          scrollPosition,
-          centerOffset,
-          finalScrollPosition,
-        });
-
         container.scrollTo({
           left: finalScrollPosition,
           behavior: "smooth",
@@ -950,12 +870,7 @@ const MainPage = () => {
 
         // 스크롤 완료 후 실제 활성 인덱스 확인
         setTimeout(() => {
-          console.log("🔍 After scroll - Active index check:", {
-            expectedIndex: todayIndex,
-            actualActiveIndex: todayIndex,
-            expectedDate: targetDate,
-            calendarDataAtIndex: calendarData[todayIndex],
-          });
+          // 스크롤 완료 후 처리 로직
         }, 150);
       }
     }, 100); // 100ms 지연
@@ -1035,20 +950,8 @@ const MainPage = () => {
 
   const handleCalendarCardClick = useCallback(
     (day) => {
-      console.log("🔍 Calendar card clicked:", {
-        dayId: day.id,
-        dayDate: day.date,
-        dayObj: day.dateObj,
-        navigateTo: `/calendar/${day.id}`,
-        actualClick: true,
-        dayIdType: typeof day.id,
-        dayIdLength: day.id?.length,
-        expectedFormat: "YYYY-MM-DD",
-      });
-
       // 네비게이션 전에 한 번 더 확인
       const navigationPath = `/calendar/${day.id}`;
-      console.log("🔍 About to navigate to:", navigationPath);
 
       // 해당 날짜로 달력 페이지에 이동 (URL 경로에 날짜 포함)
       navigate(navigationPath);

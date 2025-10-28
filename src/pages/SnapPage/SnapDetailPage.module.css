@@ -87,6 +87,11 @@
   font-size: 16px;
   font-weight: 500;
   color: #333;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.3;
 }
 
 /* 메인 이미지 */
@@ -202,6 +207,10 @@
   color: #222222;
   margin-bottom: 4px;
   line-height: 1.3;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .productPrice {
@@ -271,6 +280,13 @@
   padding: 6px 0;
   color: #333;
   font-weight: 600;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.4;
+  width: 100%;
+  overflow: visible;
 }
 
 /* 댓글 섹션 */
@@ -316,24 +332,57 @@
   background-color: #f8f9fa;
 }
 
+.commentTextGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  gap: 2px;
+  max-width: calc(100% - 20px);
+}
+
 .commentUser {
   font-weight: 600;
   color: #333;
   cursor: pointer;
   transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 }
 
 .commentUser:hover {
   color: #2196f3;
 }
-
 .commentText {
   color: #666;
   font-weight: 500;
   flex: 1;
-  margin-left: 5px;
+  margin-left: 0;
+  line-height: 1.4;
+  max-width: calc(100% - 20px);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
+.commentText.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.commentText.expanded {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  overflow: visible;
+}
 .postDate {
   font-size: 14px;
   font-weight: 600;
@@ -481,12 +530,15 @@
   font-family: pretendard-variable;
   color: #333333;
   font-size: 14px;
-  line-height: 17px;
+  line-height: 1.4;
   font-weight: 500;
   margin: 6px 0;
   word-wrap: break-word;
-  word-break: break-word;
+  word-break: break-all;
   overflow-wrap: break-word;
+  white-space: pre-wrap;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .modalCommentActions {

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
 import clothesService from "@/services/clothesService";
@@ -27,6 +27,16 @@ const CATEGORY_ICON_MAP = {
 
 const ClosetRegisterPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // OCR에서 전달받은 데이터
+  const { ocrProducts, isMultipleRegistration, originalImage } = location.state || {};
+
+  // 다중 등록을 위한 현재 인덱스 상태
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
+
+  // 현재 상품 데이터 가져오기
+  const currentProduct = ocrProducts?.[currentProductIndex];
 
   const [formData, setFormData] = useState({
     name: "",
@@ -95,6 +105,27 @@ const ClosetRegisterPage = () => {
     loadCategories();
   }, []);
 
+  // OCR 데이터로 폼 초기화
+  useEffect(() => {
+    if (currentProduct) {
+      setFormData((prev) => ({
+        ...prev,
+        name: currentProduct.name || "",
+        brand: currentProduct.brand || "",
+        size: currentProduct.size || "",
+        price: currentProduct.price || "",
+        purchaseDate: currentProduct.purchaseDate || "",
+        purchaseLink: currentProduct.purchaseLink || "",
+        description: currentProduct.description || "",
+      }));
+
+      // 원본 이미지가 있다면 미리보기로 설정
+      if (originalImage && currentProductIndex === 0) {
+        setPhotoPreviews([originalImage]);
+      }
+    }
+  }, [currentProduct, currentProductIndex, originalImage]);
+
   const handleCategorySelect = (mainCodeId, subCodeId) => {
     setFormData((prev) => ({
       ...prev,
@@ -102,6 +133,19 @@ const ClosetRegisterPage = () => {
       subCategory: subCodeId,
     }));
     setIsCategorySheetOpen(false);
+  };
+
+  // 다중 상품 네비게이션 함수들
+  const goToPreviousProduct = () => {
+    if (currentProductIndex > 0) {
+      setCurrentProductIndex((prev) => prev - 1);
+    }
+  };
+
+  const goToNextProduct = () => {
+    if (currentProductIndex < ocrProducts.length - 1) {
+      setCurrentProductIndex((prev) => prev + 1);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -175,8 +219,33 @@ const ClosetRegisterPage = () => {
       const response = await clothesService.createClothes(clothesData);
 
       if (response.success) {
-        alert("옷이 성공적으로 등록되었습니다!");
-        navigate("/closet");
+        // 다중 등록의 경우 다음 상품으로 이동 또는 완료
+        if (isMultipleRegistration && currentProductIndex < ocrProducts.length - 1) {
+          alert("옷이 성공적으로 등록되었습니다! 다음 상품을 등록해주세요.");
+          // 폼 초기화
+          setFormData({
+            name: "",
+            brand: "",
+            size: "",
+            price: "",
+            purchaseDate: "",
+            purchaseLink: "",
+            description: "",
+            category: "",
+            subCategory: "",
+          });
+          setPhotoPreviews([]);
+          setPhotoFiles([]);
+          // 다음 상품으로 이동
+          setCurrentProductIndex((prev) => prev + 1);
+        } else {
+          // 단일 등록이거나 마지막 상품인 경우
+          const message = isMultipleRegistration
+            ? "모든 상품이 성공적으로 등록되었습니다!"
+            : "옷이 성공적으로 등록되었습니다!";
+          alert(message);
+          navigate("/closet");
+        }
       } else {
         alert(response.message || "등록에 실패했습니다.");
       }
@@ -217,6 +286,36 @@ const ClosetRegisterPage = () => {
 
   return (
     <div className={styles.page}>
+      {/* 다중 등록 진행 상황 헤더 */}
+      {isMultipleRegistration && (
+        <div className={styles.multipleHeader}>
+          <div className={styles.progressInfo}>
+            <span className={styles.progressText}>
+              {currentProductIndex + 1} / {ocrProducts.length}
+            </span>
+            <span className={styles.productName}>{currentProduct?.name || "상품명 없음"}</span>
+          </div>
+          <div className={styles.navigationButtons}>
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={goToPreviousProduct}
+              disabled={currentProductIndex === 0}
+            >
+              ← 이전
+            </button>
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={goToNextProduct}
+              disabled={currentProductIndex === ocrProducts.length - 1}
+            >
+              다음 →
+            </button>
+          </div>
+        </div>
+      )}
+
       <form className={styles.form} onSubmit={handleSubmit}>
         {/* 사진 업로드 */}
         <section className={styles.photoSection}>
@@ -375,7 +474,11 @@ const ClosetRegisterPage = () => {
           disabled={!isFormValid || isSubmitting}
           onClick={handleSubmit} // ✅ 직접 실행 (form 밖이므로)
         >
-          {isSubmitting ? "등록 중..." : "등록하기"}
+          {isSubmitting
+            ? "등록 중..."
+            : isMultipleRegistration && currentProductIndex < ocrProducts.length - 1
+              ? `등록하고 다음 (${currentProductIndex + 2}/${ocrProducts.length})`
+              : "등록하기"}
         </button>
       </div>
       {isCategorySheetOpen && (

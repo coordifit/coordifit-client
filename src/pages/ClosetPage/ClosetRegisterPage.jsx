@@ -14,6 +14,7 @@ import EnrollIcon from "@/assets/images/enrollicon.png";
 import CalendarIcon from "@/assets/images/calendaricon.png";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import ImagePlusIcon from "@/assets/images/imageplusicon.png";
 
 const MAX_PHOTOS = 5;
 
@@ -220,11 +221,22 @@ const ClosetRegisterPage = () => {
       <form className={styles.form} onSubmit={handleSubmit}>
         {/* 사진 업로드 */}
         <section className={styles.photoSection}>
-          {photoPreviews.length === 0 && (
-            <p className={styles.photoGuide}>사진 등록 0/{MAX_PHOTOS} (1개 이상)</p>
-          )}
-          <label htmlFor="photo-input" className={styles.photoUploader}>
-            {photoPreviews.length > 0 ? (
+          {photoPreviews.length === 0 ? (
+            <>
+              <p className={styles.photoGuide}>사진 등록 0/{MAX_PHOTOS} (1개 이상)</p>
+              {/* ✅ 첫 진입 시 등록 아이콘 클릭 시만 작동 */}
+              <div
+                className={styles.photoUploader}
+                onClick={() => document.getElementById("photo-input").click()}
+              >
+                <div className={styles.photoPlaceholder}>
+                  <img src={EnrollIcon} alt="등록 아이콘" className={styles.photoIcon} />
+                  <span className={styles.photoText}>사진 추가</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
               <div className={styles.previewScroll}>
                 {photoPreviews.map((photoUrl, index) => (
                   <div key={index} className={styles.previewItem}>
@@ -242,18 +254,25 @@ const ClosetRegisterPage = () => {
                     </button>
                   </div>
                 ))}
+
+                {/* ✅ 마지막 카드 클릭 시에만 파일창 열기 */}
+                {photoPreviews.length < MAX_PHOTOS && (
+                  <div
+                    className={clsx(styles.previewItem, styles.addNewCard)}
+                    onClick={() => document.getElementById("photo-input").click()}
+                  >
+                    <img src={ImagePlusIcon} alt="사진 추가" className={styles.addIcon} />
+                    <span className={styles.addText}>사진 추가</span>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className={styles.photoPlaceholder}>
-                <img src={EnrollIcon} alt="등록 아이콘" className={styles.photoIcon} />
-              </div>
-            )}
-          </label>
-          {photoPreviews.length > 0 && (
-            <span className={styles.photoCount}>
-              {photoPreviews.length}/{MAX_PHOTOS}
-            </span>
+
+              <span className={styles.photoCount}>
+                {photoPreviews.length}/{MAX_PHOTOS}
+              </span>
+            </>
           )}
+
           <input
             id="photo-input"
             className={styles.fileInput}

@@ -61,6 +61,9 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
+.content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
 
 .itemName {
   font-family: "Pretendard", "Noto Sans KR", sans-serif;
@@ -477,6 +480,8 @@
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   touch-action: pan-x;
+  padding: 0 8px;
+  gap: 8px;
 }
 
 .carouselTrack::-webkit-scrollbar {
@@ -485,8 +490,8 @@
 
 /* ✅ 각 슬라이드 */
 .carouselSlide {
-  flex: 0 0 100%;
-  scroll-snap-align: start;
+  flex: 0 0 90%;
+  scroll-snap-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -654,4 +659,34 @@
   font-size: 14px;
   color: #333;
   margin-left: 4px;
+}
+
+/* ✅ 마지막 “사진 추가” 카드 */
+.addNewCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #c8c8c8;
+  background: #fafafa;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  gap: 8px;
+}
+
+.addNewCard:hover {
+  background: #f0f0f0;
+}
+
+.addIcon {
+  width: 42px;
+  height: 42px;
+  opacity: 0.7;
+}
+
+.addText {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
 }

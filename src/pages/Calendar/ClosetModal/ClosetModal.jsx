@@ -189,9 +189,14 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                   return (
                     <button
                       key={item.clothesId}
-                      className={cn("closetCard", { disabledCard: isAdded })}
-                      onClick={() => onAdd(item)}
-                      disabled={isAdded}
+                      className={cn("closetCard", { activeCard: isAdded })}
+                      onClick={() => {
+                        if (isAdded) {
+                          onRemove(item.clothesId);
+                        } else {
+                          onAdd(item);
+                        }
+                      }}
                     >
                       <img src={item.imageUrl} alt={item.name} className={cn("closetImg")} />
                       <div className={cn("closetInfo")}>

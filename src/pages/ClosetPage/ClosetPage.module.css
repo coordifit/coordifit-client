@@ -23,6 +23,7 @@
   border: 1px solid #ffffff;
   border-radius: 14px;
   background: #ffffff;
+  font-family: "Pretendard", sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: #333;
@@ -94,6 +95,7 @@
   background: none;
   border: none;
   font-size: 15px;
+  font-family: "Pretendard", sans-serif;
   font-weight: 600;
   color: #d5d5d5;
   position: relative;
@@ -156,6 +158,7 @@
   border: none;
   background: #ffffff;
   color: #a6a6a6;
+  font-family: "Pretendard", sans-serif;
   font-size: 15px;
   font-weight: 700;
   white-space: nowrap;
@@ -188,6 +191,7 @@
   border: none;
   background: transparent;
   padding: 8px 10px 6px;
+  font-family: "Pretendard", sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: #d5d5d5;
@@ -255,6 +259,7 @@
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   background: #fff;
+  font-family: "Pretendard", sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: #000;
@@ -484,6 +489,7 @@
 }
 
 .addLabel {
+  font-family: "Pretendard", sans-serif;
   font-size: 12px;
   font-weight: 600;
 }

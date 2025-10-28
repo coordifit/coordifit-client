@@ -15,6 +15,8 @@ import CalendarIcon from "@/assets/images/calendaricon.png";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import ImagePlusIcon from "@/assets/images/imageplusicon.png";
+import ArrowLeftIcon from "@/assets/images/arrow-left.png";
+import ArrowRightIcon from "@/assets/images/arrow-right.png";
 
 const MAX_PHOTOS = 5;
 
@@ -291,10 +293,10 @@ const ClosetRegisterPage = () => {
       {isMultipleRegistration && (
         <div className={styles.multipleHeader}>
           <div className={styles.progressInfo}>
-            <span className={styles.progressText}>
-              {currentProductIndex + 1} / {ocrProducts.length}
-            </span>
             <span className={styles.productName}>{currentProduct?.name || "상품명 없음"}</span>
+            <span className={styles.progressText}>
+              {currentProductIndex + 1}/{ocrProducts.length}
+            </span>
           </div>
           <div className={styles.navigationButtons}>
             <button
@@ -303,7 +305,7 @@ const ClosetRegisterPage = () => {
               onClick={goToPreviousProduct}
               disabled={currentProductIndex === 0}
             >
-              ← 이전
+              <img src={ArrowLeftIcon} alt="이전" className={styles.arrowIcon} />
             </button>
             <button
               type="button"
@@ -311,7 +313,7 @@ const ClosetRegisterPage = () => {
               onClick={goToNextProduct}
               disabled={currentProductIndex === ocrProducts.length - 1}
             >
-              다음 →
+              <img src={ArrowRightIcon} alt="다음" className={styles.arrowIcon} />
             </button>
           </div>
         </div>
@@ -495,8 +497,8 @@ const ClosetRegisterPage = () => {
         >
           {isSubmitting
             ? "등록 중..."
-            : isMultipleRegistration && currentProductIndex < ocrProducts.length - 1
-              ? `등록하고 다음 (${currentProductIndex + 2}/${ocrProducts.length})`
+            : isMultipleRegistration
+              ? `등록하기 ${currentProductIndex + 1}/${ocrProducts.length}`
               : "등록하기"}
         </button>
       </div>

@@ -11,6 +11,7 @@ import ShoesIcon from "@/assets/images/shoesicon.png";
 import OuterIcon from "@/assets/images/outericon.png";
 import AccessoriesIcon from "@/assets/images/accessoriesicon.png";
 import { useQueryClient } from "@tanstack/react-query";
+import ImagePlusIcon from "@/assets/images/imageplusicon.png";
 
 const ClosetDetailPage = () => {
   const navigate = useNavigate();
@@ -326,10 +327,12 @@ const ClosetDetailPage = () => {
     <div className={styles.page}>
       <main className={styles.content}>
         {/* 이미지 영역 */}
+        {/* 이미지 영역 */}
         <section className={styles.photoSection}>
           {item.images?.length ? (
             <div className={styles.carouselContainer}>
               <div className={styles.carouselTrack} ref={trackRef} onScroll={handleImageScroll}>
+                {/* ✅ 기존 이미지 렌더 */}
                 {item.images.map((img, idx) => (
                   <div key={img.fileId || idx} className={styles.carouselSlide}>
                     <img
@@ -348,8 +351,20 @@ const ClosetDetailPage = () => {
                     )}
                   </div>
                 ))}
+
+                {/* ✅ 마지막 “사진 추가” 카드 (편집 모드일 때만 표시) */}
+                {isEditing && item.images?.length < 5 && (
+                  <div
+                    className={clsx(styles.carouselSlide, styles.addNewCard)}
+                    onClick={() => document.getElementById("edit-file-input").click()}
+                  >
+                    <img src={ImagePlusIcon} alt="사진 추가" className={styles.addIcon} />
+                    <span className={styles.addText}>사진 추가</span>
+                  </div>
+                )}
               </div>
 
+              {/* ✅ 이미지 개수 표시 */}
               {item.images?.length > 1 && (
                 <div className={styles.photoCount}>
                   <span className={styles.currentImage}>{currentIndex + 1}</span>
@@ -362,43 +377,32 @@ const ClosetDetailPage = () => {
             <div className={styles.imageFallback}>등록된 사진이 없어요</div>
           )}
 
-          {/* 편집 모드에서만 추가 버튼 */}
-          {isEditing && (
-            <div className={styles.photoUploader}>
-              <label htmlFor="edit-file-input" className={styles.photoPlaceholder}>
-                <span className={styles.photoIcon}>📷</span>
-                <span className={styles.photoText}>사진 추가</span>
-              </label>
-              <input
-                id="edit-file-input"
-                type="file"
-                accept="image/*"
-                multiple
-                className={styles.fileInput}
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
+          {/* ✅ 파일 input (트리거용, 기존 로직 유지) */}
+          <input
+            id="edit-file-input"
+            type="file"
+            accept="image/*"
+            multiple
+            className={styles.fileInput}
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []);
+              if (files.length === 0) return;
 
-                  if (files.length === 0) return;
+              setNewFiles((prev) => [...prev, ...files]);
 
-                  // 실제 파일 저장
-                  setNewFiles((prev) => [...prev, ...files]);
+              const newImageUrls = files.map((file) => ({
+                url: URL.createObjectURL(file),
+                fileId: null, // 새 이미지는 fileId 없음
+              }));
 
-                  // URL.createObjectURL()로 미리보기 생성 (메모리 효율적)
-                  const newImageUrls = files.map((file) => ({
-                    url: URL.createObjectURL(file),
-                    fileId: null, // 새 이미지는 fileId 없음
-                  }));
+              setItem((prev) => ({
+                ...prev,
+                images: [...(prev.images || []), ...newImageUrls],
+              }));
 
-                  setItem((prev) => ({
-                    ...prev,
-                    images: [...(prev.images || []), ...newImageUrls],
-                  }));
-
-                  e.target.value = ""; // 같은 파일 재선택 가능하도록
-                }}
-              />
-            </div>
-          )}
+              e.target.value = ""; // 같은 파일 재선택 가능하도록 초기화
+            }}
+          />
           {isEditing ? (
             <input
               className={styles.itemNameInput}

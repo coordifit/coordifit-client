@@ -218,6 +218,10 @@ const AiFittingLanding = () => {
         state: {
           imageBase64,
           durationMs,
+          // 아바타와 의류 정보도 함께 전달
+          selectedAvatarId,
+          clothingSelection,
+          selectedAvatar: avatars.find((avatar) => avatar.id === selectedAvatarId),
         },
       });
     } catch (error) {

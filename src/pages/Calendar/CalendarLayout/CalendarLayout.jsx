@@ -35,6 +35,7 @@ const CalendarLayout = () => {
     if (isValidYearMonth(dateParam)) {
       setViewMode("monthly");
     } else {
+      setTargetDate(new Date(dateParam));
       setViewMode("daily");
     }
   }, [dateParam]);

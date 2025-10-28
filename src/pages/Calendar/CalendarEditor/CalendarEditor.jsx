@@ -74,7 +74,10 @@ const CalendarEditor = () => {
   }, [clothes, description, dailyLook?.data?.description]);
 
   const addToCanvas = (item) => {
-    const pos = getCanvasPosition(item.categoryCode);
+    const pos =
+      item.x != null && item.y != null
+        ? { x: item.x, y: item.y, scale: 1 }
+        : getCanvasPosition(item.categoryCode);
 
     const obj = {
       instanceId: `${item.clothesId}-${Date.now()}`,
@@ -84,9 +87,11 @@ const CalendarEditor = () => {
       categoryCode: item.categoryCode,
       x: pos.x,
       y: pos.y,
-      scaleX: pos.scale,
-      scaleY: pos.scale,
-      rotation: item.rotation,
+      scaleX: pos.scale ?? 1,
+      scaleY: pos.scale ?? 1,
+      rotation: item.rotation ?? 0,
+      ...(item.width && { width: item.width }),
+      ...(item.height && { height: item.height }),
     };
 
     addClothes(obj);
@@ -226,6 +231,7 @@ const CalendarEditor = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
+              clearClothes();
               navigate(-1);
             }}
             style="secondary"
@@ -254,7 +260,7 @@ const CalendarEditor = () => {
               </button>
             </>
           }
-          children={"변경 사항이 저장되지 않았습니다\n 계속 이동할까요?"}
+          children={"변경 사항이 저장되지 않았습니다.\n\n계속 이동할까요?"}
         />
       )}
     </div>

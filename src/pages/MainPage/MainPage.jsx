@@ -246,8 +246,11 @@ const generateCurrentMonthDays = () => {
     const dateObj = new Date(year, month, date);
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+    // 로컬 시간 기준으로 날짜 문자열 생성 (UTC 변환으로 인한 날짜 오차 방지)
+    const localDateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+
     days.push({
-      id: dateObj.toISOString().slice(0, 10), // YYYY-MM-DD
+      id: localDateString, // 로컬 시간 기준 YYYY-MM-DD
       day: dayNames[dateObj.getDay()],
       date: date,
       dateObj: dateObj,
@@ -364,7 +367,6 @@ const MainPage = () => {
           return;
         }
 
-        console.log("일일룩 데이터:", response);
         const dailyLookData = response?.data || [];
         setDailyLooks(dailyLookData);
       } catch (error) {
@@ -396,15 +398,16 @@ const MainPage = () => {
       // 서울 좌표 (기본값)
       const lat = 37.5665;
       const lng = 126.978;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new Date();
+      const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
       try {
         // getCurrentWeatherRange로 오늘 하루만 가져오기
         const weatherResult = await getCurrentWeatherRange({
           lat,
           lng,
-          startDate: today,
-          endDate: today,
+          startDate: todayString,
+          endDate: todayString,
         });
 
         if (cancelled) return;
@@ -456,29 +459,23 @@ const MainPage = () => {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
 
-        const firstDayStr = firstDay.toISOString().slice(0, 10);
-        const lastDayStr = lastDay.toISOString().slice(0, 10);
+        // 로컬 시간 기준으로 날짜 문자열 생성
+        const firstDayStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+        const lastDayStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay.getDate()).padStart(2, "0")}`;
 
         const weatherMap = {};
-        const todayStr = today.toISOString().slice(0, 10);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
         try {
           // 과거 날씨 데이터 (이번 달 첫날부터 어제까지)
           if (firstDayStr < todayStr) {
             const pastEndDate = new Date(today);
             pastEndDate.setDate(pastEndDate.getDate() - 1);
-            const pastEndStr = pastEndDate.toISOString().slice(0, 10);
+            const pastEndStr = `${pastEndDate.getFullYear()}-${String(pastEndDate.getMonth() + 1).padStart(2, "0")}-${String(pastEndDate.getDate()).padStart(2, "0")}`;
 
             // 과거 데이터 범위가 이번 달 범위와 겹치는 경우만 요청
             // 10월 1일 데이터 누락 방지를 위해 firstDayStr부터 시작
             if (firstDayStr <= pastEndStr) {
-              console.log("getPastWeatherRange 호출 파라미터:", {
-                lat,
-                lng,
-                startDate: firstDayStr, // 10월 1일부터
-                endDate: pastEndStr,
-              });
-
               const pastWeatherData = await getPastWeatherRange({
                 lat,
                 lng,
@@ -502,13 +499,6 @@ const MainPage = () => {
 
           // 현재/미래 날씨 데이터 (오늘부터 이번 달 마지막까지)
           if (todayStr <= lastDayStr) {
-            console.log("getCurrentWeatherRange 호출 파라미터:", {
-              lat,
-              lng,
-              startDate: todayStr,
-              endDate: lastDayStr,
-            });
-
             const currentWeatherData = await getCurrentWeatherRange({
               lat,
               lng,
@@ -516,18 +506,10 @@ const MainPage = () => {
               endDate: lastDayStr,
             });
 
-            console.log("getCurrentWeatherRange 응답 데이터:", currentWeatherData);
-
             // 현재/미래 데이터 매핑 (이번 달에 속하는 날짜만)
             currentWeatherData.time.forEach((dateStr, index) => {
               // 이번 달에 속하는 날짜인지 확인
               if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
-                console.log(`날짜 ${dateStr} 매핑:`, {
-                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
-                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
-                  wcode: currentWeatherData.weathercode[index],
-                });
-
                 weatherMap[dateStr] = {
                   tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
                   tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
@@ -540,8 +522,8 @@ const MainPage = () => {
           console.warn("날씨 데이터 조회 실패, 기본값 사용:", error);
 
           // 실패 시 이번 달 모든 날짜에 기본값 설정
-          for (let date = new Date(firstDay); date <= lastDay; date.setDate(date.getDate() + 1)) {
-            const dateString = date.toISOString().slice(0, 10);
+          for (let dateNum = 1; dateNum <= lastDay.getDate(); dateNum++) {
+            const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(dateNum).padStart(2, "0")}`;
             weatherMap[dateString] = {
               tmax: 20,
               tmin: 15,
@@ -552,7 +534,6 @@ const MainPage = () => {
 
         if (cancelled) return;
 
-        console.log("변환된 날씨 데이터:", weatherMap);
         setWeatherData(weatherMap);
       } catch (error) {
         if (!cancelled) {
@@ -582,7 +563,6 @@ const MainPage = () => {
 
       try {
         const response = await clothesService.getUserClothes();
-        console.log("최근 착용한 옷 응답:", response);
         if (cancelled) {
           return;
         }
@@ -616,6 +596,8 @@ const MainPage = () => {
     const container = scrollRef.current;
     if (!container) return;
 
+    let lastActiveIndex = -1; // 이전 활성 인덱스 추적
+
     const handleScroll = () => {
       const cards = container.querySelectorAll(`.${styles.calendarCard}`);
       const containerRect = container.getBoundingClientRect();
@@ -643,6 +625,11 @@ const MainPage = () => {
       });
 
       setActiveCalendarIndex(closestIndex);
+
+      // 활성 인덱스가 변경된 경우에만 로그
+      if (closestIndex !== lastActiveIndex && calendarData[closestIndex]) {
+        lastActiveIndex = closestIndex;
+      }
     };
 
     handleScroll();
@@ -650,6 +637,7 @@ const MainPage = () => {
 
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -671,12 +659,10 @@ const MainPage = () => {
             : Array.isArray(response)
               ? response
               : [];
-        console.log("스냅 게시물 데이터:", items);
         if (!items.length) {
           setSnaps([]);
           return;
         }
-
         const adapted = items.map((item, index) => ({
           id: item.postId || item.id || `snap-${index}`,
           image:
@@ -829,22 +815,12 @@ const MainPage = () => {
       // 10월 1일 디버깅
       if (day.id === "2025-10-01") {
         const testIcon = getWeatherIcon(weather?.wcode);
-        console.log("🔍 10월 1일 날씨 데이터 디버깅:", {
-          dayId: day.id,
-          weatherData: weather,
-          wcode: weather?.wcode,
-          returnedIcon: testIcon,
-          rainyIconPath: rainyIcon,
-          sunnyIconPath: sunnyIcon,
-          iconComparison:
-            testIcon === rainyIcon ? "rainyIcon" : testIcon === sunnyIcon ? "sunnyIcon" : "other",
-          allWeatherData: Object.keys(weatherData),
-        });
       }
 
       const weatherIcon = weather ? getWeatherIcon(weather.wcode) : sunnyIcon;
       const weatherLabel = weather ? getWeatherLabel(weather.wcode) : "맑음";
-      const temperature = weather ? `${weather.tmax}°` : "20°";
+      // 온도는 tmax와 tmin의 평균값으로 표시
+      const temperature = weather ? `${Math.round((weather.tmax + weather.tmin) / 2)}°` : "20°";
 
       return {
         ...day,
@@ -857,6 +833,51 @@ const MainPage = () => {
       };
     });
   }, [dailyLooks, weatherData]);
+
+  // 페이지 로드 시 오늘 날짜로 스크롤
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || !calendarData.length) return;
+
+    // 약간의 지연을 두어 렌더링 완료 후 스크롤
+    const timer = setTimeout(() => {
+      // 오늘 날짜 찾기 (date 필드로 직접 찾기)
+      const today = new Date();
+      const todayDate = today.getDate();
+
+      // date 필드로 오늘 날짜 찾기 (하루 추가해서 올바른 포커스)
+      const targetDate = todayDate + 1; // 하루 추가
+      const todayIndex = calendarData.findIndex((day) => day.date === targetDate);
+
+      // 카드 너비 + 간격 계산 (대략적으로)
+      if (todayIndex !== -1) {
+        // 카드 너비 + 간격 계산 (대략적으로)
+        const cardWidth = 90; // CSS에서 설정된 카드 너비
+        const gap = 12; // CSS gap 값
+        const scrollPosition = todayIndex * (cardWidth + gap);
+
+        // 중앙 정렬을 위해 컨테이너 너비의 절반만큼 빼기
+        const centerOffset = container.clientWidth / 2 - cardWidth / 2;
+        const finalScrollPosition = Math.max(0, scrollPosition - centerOffset);
+
+        container.scrollTo({
+          left: finalScrollPosition,
+          behavior: "smooth",
+        });
+
+        // 활성 인덱스도 함께 업데이트
+        setActiveCalendarIndex(todayIndex);
+
+        // 스크롤 완료 후 실제 활성 인덱스 확인
+        setTimeout(() => {
+          // 스크롤 완료 후 처리 로직
+        }, 150);
+      }
+    }, 100); // 100ms 지연
+
+    return () => clearTimeout(timer);
+  }, [calendarData]);
+
   const canNavigateSnap = snaps.length > 0;
 
   const resolveShortcutCodes = useCallback(
@@ -929,8 +950,11 @@ const MainPage = () => {
 
   const handleCalendarCardClick = useCallback(
     (day) => {
+      // 네비게이션 전에 한 번 더 확인
+      const navigationPath = `/calendar/${day.id}`;
+
       // 해당 날짜로 달력 페이지에 이동 (URL 경로에 날짜 포함)
-      navigate(`/calendar/${day.id}`); // /calendar/2025-10-13 형식
+      navigate(navigationPath);
     },
     [navigate],
   );
@@ -949,7 +973,9 @@ const MainPage = () => {
                     alt={getWeatherLabel(todayWeather.wcode)}
                     className={styles.weatherIcon}
                   />
-                  <span className={styles.temperature}>{todayWeather.tmax}°</span>
+                  <span className={styles.temperature}>
+                    {Math.round((todayWeather.tmax + todayWeather.tmin) / 2)}°
+                  </span>
                 </>
               ) : (
                 <>

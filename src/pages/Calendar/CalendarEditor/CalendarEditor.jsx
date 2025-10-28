@@ -52,7 +52,9 @@ const CalendarEditor = () => {
   useEffect(() => {
     const statuses = Object.values(loadStatusMap);
 
-    if (statuses.length > 0 && statuses.every((s) => s === "loaded")) {
+    if (statuses.length === 0) {
+      setIsLoading(false);
+    } else if (statuses.every((s) => s === "loaded")) {
       setIsLoading(false);
     } else {
       setIsLoading(true);

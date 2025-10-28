@@ -26,7 +26,6 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
     isLoading: isLoadingSummary,
   } = useDailylookSummaryQuery(isYearMonth ? date : undefined);
 
-  console.log("summary", summary);
   const { clearClothes } = useClothesStore();
 
   const trimDate = (datetime) => datetime.split(" ")[0];
@@ -84,15 +83,12 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
         />
       )}
       <div className={cx("summaryRow")}>
-        {/* 총 데일리룩 수 */}
         <button type="button" className={cx("summaryCard")} disabled>
           <div className={cx("summaryTitle")}>데일리룩</div>
           <div className={cx("summaryCount", "accent")}>
             {summary?.data?.totalDailyLookCount ?? 0}개
           </div>
         </button>
-
-        {/* 가장 많이 입은 옷 */}
         <button
           type="button"
           className={cx("summaryCard")}

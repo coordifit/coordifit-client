@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
 
 import { Layer, Rect, Stage } from "react-konva";
@@ -18,6 +18,8 @@ import { CANVAS_CONFIG } from "@/constants/calendar";
 import { useClothesStore } from "@/stores/clothesStore";
 import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
 import { getCanvasPosition } from "@/utils/canvasUtils";
+import { formatDateString } from "@/utils/calendarUtils";
+import Weather from "../Weather/Weather";
 
 const CalendarEditor = () => {
   const [closetModal, setClosetModal] = useState(false);
@@ -40,6 +42,11 @@ const CalendarEditor = () => {
     useClothesStore();
   const { data: dailyLook = { data: {} } } = useDailyLookByDateQuery(date);
 
+  const isExisting = useMemo(() => {
+    const d = dailyLook?.data || {};
+    return Boolean(d.dailyLookId ?? d.dailylookId); // 하나라도 있으면 기존 레코드 존재
+  }, [dailyLook]);
+
   useBeforeUnload((e) => {
     if (!isSaving && isDirty) {
       e.preventDefault();
@@ -53,7 +60,7 @@ const CalendarEditor = () => {
 
       pastClothesRef.current = pastClothes;
       setClothes(pastClothes);
-      setDescription(dailyLook.data.description);
+      setDescription(dailyLook.data.description || "");
     }
   }, [dailyLook]);
 
@@ -110,7 +117,8 @@ const CalendarEditor = () => {
         formData.append("description", description);
         formData.append("items", JSON.stringify(clothes));
 
-        await api.post(`/daily-look/date/${date}`, formData);
+        const method = isExisting ? api.put : api.post;
+        await method(`/daily-look/date/${date}`, formData);
 
         pastClothesRef.current = clothes;
         setIsDirty(false);
@@ -122,6 +130,7 @@ const CalendarEditor = () => {
 
         setTimeout(() => {
           queryClient.invalidateQueries(["dailyLook", date]);
+          queryClient.invalidateQueries(["dailyLooks", date.slice(0.7)]);
         }, 0);
 
         setSelectedId(prev);
@@ -133,7 +142,10 @@ const CalendarEditor = () => {
 
   return (
     <div className={styles.wrapper}>
-      <header className={styles.header}></header>
+      <header className={styles.header}>
+        <span className={styles.headerTitle}>{formatDateString(date)}</span>
+        <Weather targetDate={new Date(date)} />
+      </header>
       <div className={styles.editorRow}>
         <input
           className={styles.input}

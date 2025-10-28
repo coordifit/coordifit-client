@@ -57,9 +57,7 @@ const Weather = ({ targetDate }) => {
   return (
     <div className={styles.badge}>
       <span className={styles.icon}>{iconByCode(wcode)}</span>
-      <span className={styles.text}>
-        최고 {tmax}° / 최저 {tmin}°
-      </span>
+      <span className={styles.text}>{`${tmax}°C /${tmin}°C`}</span>
     </div>
   );
 };

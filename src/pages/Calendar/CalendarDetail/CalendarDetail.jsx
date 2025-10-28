@@ -74,7 +74,7 @@ const CalendarDetail = () => {
               className={cx("emptyImage")}
               draggable={false}
             />
-            <p className={styles.message}>아직 등록된 코디가 없어요.</p>
+            <p className={styles.message}>{"아직 등록된 데일리룩이 없어요."}</p>
 
             <Button size="large" onClick={handleAddDailyLook}>
               데일리룩 만들기

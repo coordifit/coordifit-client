@@ -85,10 +85,6 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
     <>
       {isOpen && <div className={cn("sheetOverlay")} onClick={() => onClose(false)} />}
       <div className={cn("sheet", { sheetOpen: isOpen })}>
-        <button className={cn("sheetClose")} onClick={() => onClose(false)}>
-          닫기
-        </button>
-        {/* 옷 / 코드 선택 탭바 */}
         <section className={cn("tabBar")}>
           {CLOSET_TABS.map((tab) => (
             <button
@@ -125,7 +121,7 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
               </div>
             </div>
 
-            {mainCategory !== "all" && (
+            {mainCategory !== "all" ? (
               <div className={cn("subCategoryList")}>
                 {subCategories.map((sub) => (
                   <button
@@ -141,11 +137,13 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                   </button>
                 ))}
               </div>
+            ) : (
+              <div className={cn("emptySubCategory")}></div>
             )}
           </section>
         )}
 
-        <div className={cn("sheetBody")}>
+        <div className={cn("sheetBody", { coordiTab: isCoordiTab })}>
           {isLoading && <div className={cn("loading")}>불러오는 중…</div>}
           <div className={cn("closetGrid")}>
             {isCoordiTab ? (
@@ -188,13 +186,17 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                 {filteredItems.map((item) => {
                   const isAdded = clothes.some((c) => c.clothesId === item.clothesId);
 
-                  console.log("clothes item", item);
                   return (
                     <button
                       key={item.clothesId}
-                      className={cn("closetCard", { disabledCard: isAdded })}
-                      onClick={() => onAdd(item)}
-                      disabled={isAdded}
+                      className={cn("closetCard", { activeCard: isAdded })}
+                      onClick={() => {
+                        if (isAdded) {
+                          onRemove(item.clothesId);
+                        } else {
+                          onAdd(item);
+                        }
+                      }}
                     >
                       <img src={item.imageUrl} alt={item.name} className={cn("closetImg")} />
                       <div className={cn("closetInfo")}>

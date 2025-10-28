@@ -28,6 +28,8 @@ const CalendarEditor = () => {
   const [description, setDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadStatusMap, setLoadStatusMap] = useState({});
 
   const pastClothesRef = useRef([]);
   const stageRef = useRef(null);
@@ -47,12 +49,15 @@ const CalendarEditor = () => {
     return Boolean(d.dailyLookId ?? d.dailylookId); // 하나라도 있으면 기존 레코드 존재
   }, [dailyLook]);
 
-  useBeforeUnload((e) => {
-    if (!isSaving && isDirty) {
-      e.preventDefault();
-      e.returnValue = "";
+  useEffect(() => {
+    const statuses = Object.values(loadStatusMap);
+
+    if (statuses.length > 0 && statuses.every((s) => s === "loaded")) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
     }
-  });
+  }, [loadStatusMap]);
 
   useEffect(() => {
     if (dailyLook?.data?.canvasJson) {
@@ -73,29 +78,44 @@ const CalendarEditor = () => {
     setIsDirty((prev) => (prev !== dirtyNow ? dirtyNow : prev));
   }, [clothes, description, dailyLook?.data?.description]);
 
+  const handleLoadStatus = (id, status) => {
+    setLoadStatusMap((prev) => ({ ...prev, [id]: status }));
+  };
+
   const addToCanvas = (item) => {
     const pos =
       item.x != null && item.y != null
         ? { x: item.x, y: item.y, scale: 1 }
         : getCanvasPosition(item.categoryCode);
 
-    const obj = {
-      instanceId: `${item.clothesId}-${Date.now()}`,
-      clothesId: item.clothesId,
-      imageUrl: item.imageUrl,
-      name: item.name,
-      categoryCode: item.categoryCode,
-      x: pos.x,
-      y: pos.y,
-      scaleX: pos.scale ?? 1,
-      scaleY: pos.scale ?? 1,
-      rotation: item.rotation ?? 0,
-      ...(item.width && { width: item.width }),
-      ...(item.height && { height: item.height }),
-    };
+    const img = new Image();
+    img.src = item.imageUrl;
+    img.onload = () => {
+      const maxWidth = 350;
+      let scale = 1;
 
-    addClothes(obj);
-    setSelectedId(obj.clothesId);
+      if (img.width > maxWidth) {
+        scale = maxWidth / img.width;
+      }
+
+      const konvaObject = {
+        instanceId: `${item.clothesId}-${Date.now()}`,
+        clothesId: item.clothesId,
+        imageUrl: item.imageUrl,
+        name: item.name,
+        categoryCode: item.categoryCode,
+        x: pos.x,
+        y: pos.y,
+        scaleX: (pos.scale ?? 1) * scale,
+        scaleY: (pos.scale ?? 1) * scale,
+        rotation: item.rotation ?? 0,
+        ...(item.width && { width: item.width }),
+        ...(item.height && { height: item.height }),
+      };
+
+      addClothes(konvaObject);
+      setSelectedId(konvaObject.clothesId);
+    };
   };
 
   const removeSelected = () => {
@@ -152,6 +172,14 @@ const CalendarEditor = () => {
         <Weather targetDate={new Date(date)} />
       </header>
       <div className={styles.editorRow}>
+        {isLoading && (
+          <div className={styles["canvas-loading-center"]}>
+            <div className={styles["loading-blur-box"]}>
+              <div className={styles.spinner} />
+              <p className={styles["loading-text"]}>이미지 추가 중...</p>
+            </div>
+          </div>
+        )}
         <input
           className={styles.input}
           placeholder="오늘의 데일리룩에 대한 코멘트를 남겨주세요."
@@ -182,6 +210,7 @@ const CalendarEditor = () => {
                   isSelected={item.clothesId === selectedId}
                   onSelect={() => setSelectedId(item.clothesId)}
                   onChange={(next) => updateClothes(item.clothesId, next)}
+                  onLoad={handleLoadStatus}
                 />
               ))}
             </Layer>

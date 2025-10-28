@@ -3,7 +3,7 @@ import styles from "./CanvasItem.module.css";
 import useImage from "use-image";
 import { Image, Transformer } from "react-konva";
 
-const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
+const CanvasItem = ({ obj, isSelected, onSelect, onChange, onLoad }) => {
   const bustRef = useRef(Date.now());
 
   const stableSrc = useMemo(() => {
@@ -16,6 +16,12 @@ const CanvasItem = ({ obj, isSelected, onSelect, onChange }) => {
   const shapeRef = useRef(null);
   const trRef = useRef(null);
   const MIN_SIZE = 10;
+
+  useEffect(() => {
+    if (onLoad) {
+      onLoad(obj.clothesId, status);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (isSelected && trRef.current && shapeRef.current && status === "loaded") {

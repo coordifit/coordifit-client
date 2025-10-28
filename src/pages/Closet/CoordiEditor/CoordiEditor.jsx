@@ -29,6 +29,8 @@ const CoordiEditor = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadStatusMap, setLoadStatusMap] = useState({});
 
   const pastClothesRef = useRef([]);
   const queryClient = useQueryClient();
@@ -61,6 +63,16 @@ const CoordiEditor = () => {
   const { data: coordi = { data: {} } } = useCoordiByIdQuery(coordiId);
 
   useEffect(() => {
+    const statuses = Object.values(loadStatusMap);
+
+    if (statuses.length > 0 && statuses.every((s) => s === "loaded")) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+  }, [loadStatusMap]);
+
+  useEffect(() => {
     if (coordi?.data?.canvasJson) {
       const pastClothes = JSON.parse(coordi.data.canvasJson);
 
@@ -88,24 +100,44 @@ const CoordiEditor = () => {
     setIsModalOpen(false);
   };
 
+  const handleLoadStatus = (id, status) => {
+    setLoadStatusMap((prev) => ({ ...prev, [id]: status }));
+  };
+
   const addToCanvas = (item) => {
-    const pos = getCanvasPosition(item.categoryCode);
+    const pos =
+      item.x != null && item.y != null
+        ? { x: item.x, y: item.y, scale: 1 }
+        : getCanvasPosition(item.categoryCode);
 
-    const konvaObject = {
-      instanceId: `${item.clothesId}-${Date.now()}`,
-      clothesId: item.clothesId,
-      imageUrl: item.imageUrl,
-      name: item.name,
-      categoryCode: item.categoryCode,
-      x: pos.x,
-      y: pos.y,
-      scaleX: pos.scale,
-      scaleY: pos.scale,
-      rotation: item.roation,
+    const img = new Image();
+    img.src = item.imageUrl;
+    img.onload = () => {
+      const maxWidth = 350;
+      let scale = 1;
+
+      if (img.width > maxWidth) {
+        scale = maxWidth / img.width;
+      }
+
+      const konvaObject = {
+        instanceId: `${item.clothesId}-${Date.now()}`,
+        clothesId: item.clothesId,
+        imageUrl: item.imageUrl,
+        name: item.name,
+        categoryCode: item.categoryCode,
+        x: pos.x,
+        y: pos.y,
+        scaleX: (pos.scale ?? 1) * scale,
+        scaleY: (pos.scale ?? 1) * scale,
+        rotation: item.rotation ?? 0,
+        ...(item.width && { width: item.width }),
+        ...(item.height && { height: item.height }),
+      };
+
+      addCoordiItem(konvaObject);
+      setSelectedId(konvaObject.clothesId);
     };
-
-    addCoordiItem(konvaObject);
-    setSelectedId(konvaObject.clothesId);
   };
 
   const removeSelected = () => {
@@ -160,6 +192,14 @@ const CoordiEditor = () => {
     <div className={cn("wrapper")}>
       <header className={cn("header")}></header>
       <div className={cn("editorRow")}>
+        {isLoading && (
+          <div className={cn("canvas-loading-center")}>
+            <div className={cn("loading-blur-box")}>
+              <div className={cn("spinner")} />
+              <p className={cn("loading-text")}>이미지 추가 중...</p>
+            </div>
+          </div>
+        )}
         <div className={cn("canvasCard")}>
           <Stage
             ref={stageRef}
@@ -184,6 +224,7 @@ const CoordiEditor = () => {
                   isSelected={item.clothesId === selectedId}
                   onSelect={() => setSelectedId(item.clothesId)}
                   onChange={(next) => updateCoordiItem(item.clothesId, next)}
+                  onLoad={handleLoadStatus}
                 />
               ))}
             </Layer>

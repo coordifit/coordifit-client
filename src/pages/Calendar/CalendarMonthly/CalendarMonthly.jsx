@@ -26,7 +26,6 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
     isLoading: isLoadingSummary,
   } = useDailylookSummaryQuery(isYearMonth ? date : undefined);
 
-  console.log("summary", summary);
   const { clearClothes } = useClothesStore();
 
   const trimDate = (datetime) => datetime.split(" ")[0];

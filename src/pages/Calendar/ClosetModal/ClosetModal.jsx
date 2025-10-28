@@ -143,7 +143,7 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
           </section>
         )}
 
-        <div className={cn("sheetBody")}>
+        <div className={cn("sheetBody", { coordiTab: isCoordiTab })}>
           {isLoading && <div className={cn("loading")}>불러오는 중…</div>}
           <div className={cn("closetGrid")}>
             {isCoordiTab ? (
@@ -186,7 +186,6 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                 {filteredItems.map((item) => {
                   const isAdded = clothes.some((c) => c.clothesId === item.clothesId);
 
-                  console.log("clothes item", item);
                   return (
                     <button
                       key={item.clothesId}

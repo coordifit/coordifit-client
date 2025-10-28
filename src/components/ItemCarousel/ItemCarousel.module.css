@@ -12,6 +12,10 @@
   overflow-x: auto;
 }
 
+.usedList::-webkit-scrollbar {
+  display: none;
+}
+
 .panelTitle {
   font-size: 12px;
   font-weight: 700;
@@ -33,6 +37,11 @@
   border-radius: 10px;
   cursor: pointer;
   flex-shrink: 0;
+  width: 40%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 }
 
 .usedItemActive {

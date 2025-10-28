@@ -27,6 +27,18 @@
   scroll-snap-type: x mandatory;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  position: relative;
+}
+
+.categoryScroller::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(153, 153, 153, 0.2);
+  border-radius: 1px;
 }
 
 .categoryScroller::-webkit-scrollbar {
@@ -38,23 +50,11 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  margin-top: 92px;
+  margin-top: 72px;
   min-width: 52px;
   scroll-snap-align: start;
   position: relative;
   padding-bottom: 16px;
-}
-
-.categoryItem::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 2px;
-  background: rgba(153, 153, 153, 0.2);
-  border-radius: 1px;
 }
 
 .categoryButton {
@@ -163,6 +163,13 @@
   overflow-y: auto;
   background-color: #fafafa;
   padding-bottom: 80px; /* 하단 탭을 위한 여백 */
+  /* 스크롤바 숨김 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.contentArea::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Webkit */
 }
 
 /* 게시물 헤더 (개수 + 정렬) */
@@ -294,7 +301,9 @@
   height: 100%;
   object-fit: cover;
 }
-
+.webkit-scrollbar {
+  display: none;
+}
 /* 마이페이지와 동일한 스타일이므로 postInfo 관련 스타일 제거 */
 .postInfo {
   display: none;

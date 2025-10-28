@@ -112,13 +112,20 @@ const AvatarSelectionPage = () => {
 
         {avatars.map((avatar) => (
           <div key={avatar.id} className={styles.avatarCardWrapper}>
-            <button
-              type="button"
+            <div
               className={clsx(
                 styles.avatarCard,
                 pendingAvatarId === avatar.id && styles.avatarCardActive,
               )}
               onClick={() => setPendingAvatarId(avatar.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setPendingAvatarId(avatar.id);
+                }
+              }}
             >
               <div className={styles.avatarImageWrapper}>
                 <img src={avatar.imageUrl} alt={avatar.name} className={styles.avatarImage} />
@@ -136,7 +143,7 @@ const AvatarSelectionPage = () => {
                 </button>
               </div>
               <span className={styles.avatarName}>{avatar.name}</span>
-            </button>
+            </div>
           </div>
         ))}
 

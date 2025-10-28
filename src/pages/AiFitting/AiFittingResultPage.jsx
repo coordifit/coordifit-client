@@ -33,28 +33,50 @@ const AiFittingResultPage = () => {
   const analysisAbortControllerRef = useRef(null);
   const isMountedRef = useRef(true);
 
-  const selectedAvatar = useMemo(
-    () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
-    [avatars, selectedAvatarId],
-  );
+  const selectedAvatar = useMemo(() => {
+    // navigation state에서 전달된 아바타 정보 우선 사용
+    if (location.state?.selectedAvatar) {
+      return location.state.selectedAvatar;
+    }
+    // 그 다음 store에서 조회
+    return avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null;
+  }, [avatars, selectedAvatarId, location.state?.selectedAvatar]);
 
-  const selectedItems = useMemo(
-    () =>
-      Object.entries(clothingSelection)
-        .filter(([, item]) => Boolean(item))
-        .map(([type, item]) => ({
-          type,
-          ...item,
-        })),
-    [clothingSelection],
-  );
+  const selectedItems = useMemo(() => {
+    // navigation state에서 전달된 의류 선택 정보 우선 사용
+    const clothingData = location.state?.clothingSelection || clothingSelection;
+
+    return Object.entries(clothingData)
+      .filter(([, item]) => Boolean(item))
+      .map(([type, item]) => ({
+        type,
+        ...item,
+      }));
+  }, [clothingSelection, location.state?.clothingSelection]);
 
   useEffect(() => {
+    console.log("🔍 AiFittingResultPage 상태 체크:", {
+      selectedAvatar: !!selectedAvatar,
+      selectedItems: selectedItems.length,
+      fromState: !!location.state?.selectedAvatar,
+      fromStore: !!avatars.find((avatar) => avatar.id === selectedAvatarId),
+      clothingFromState: !!location.state?.clothingSelection,
+      clothingFromStore: Object.keys(clothingSelection).length,
+    });
+
     if (!selectedAvatar || selectedItems.length === 0) {
       console.warn("⚠️ 아바타 또는 의류 선택이 없습니다. /ai-fitting 으로 리다이렉트");
       navigate("/ai-fitting");
     }
-  }, [navigate, selectedAvatar, selectedItems]);
+  }, [
+    navigate,
+    selectedAvatar,
+    selectedItems,
+    location.state,
+    avatars,
+    selectedAvatarId,
+    clothingSelection,
+  ]);
 
   useEffect(
     () => () => {

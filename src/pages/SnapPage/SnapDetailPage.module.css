@@ -188,6 +188,7 @@
   gap: 12px;
   width: 240px;
   background: white;
+  flex-shrink: 0; /* 컨테이너 크기 유지 */
 }
 
 .productImage {
@@ -195,10 +196,13 @@
   height: 60px;
   border-radius: 6px;
   object-fit: cover;
+  flex-shrink: 0; /* 이미지 크기 고정 */
 }
 
 .productInfo {
   flex: 1;
+  min-width: 0; /* flex 아이템이 줄어들 수 있도록 */
+  overflow: hidden; /* 내용이 넘치지 않도록 */
 }
 
 .productName {
@@ -210,13 +214,18 @@
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
-  white-space: pre-wrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .productPrice {
   font-size: 12px;
   font-weight: 700;
   color: #333333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .noProductSection {

@@ -31,8 +31,9 @@
   width: 100%;
   flex-direction: column;
   gap: 5px;
-  padding: 20px;
+  padding: 0 20px;
   padding-top: 0;
+  overflow: hidden;
 }
 
 .empty-image {
@@ -88,8 +89,8 @@
 
 /* 빈 이미지 */
 .emptyImage {
-  width: 160px;
-  height: 160px;
+  width: 230px;
+  height: 230px;
   object-fit: contain;
   filter: grayscale(100%);
   opacity: 0.85;
@@ -99,7 +100,7 @@
 /* 안내 멘트 */
 .message {
   margin: 0;
-  font-size: 15px;
+  font-size: 18px;
   color: #666;
   text-align: center;
   line-height: 1.4;

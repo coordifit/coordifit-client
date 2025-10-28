@@ -153,16 +153,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(135deg, #111, #333);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
   &:disabled {
     cursor: not-allowed;
     background: #ddd;

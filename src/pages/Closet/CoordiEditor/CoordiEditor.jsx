@@ -30,6 +30,7 @@ const CoordiEditor = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
+  const pastClothesRef = useRef([]);
   const queryClient = useQueryClient();
   const stageRef = useRef(null);
   const navigate = useNavigate();
@@ -47,9 +48,13 @@ const CoordiEditor = () => {
   const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
 
   useBeforeUnload((e) => {
+    e.preventDefault();
+
     if (!isSaving && isDirty) {
-      e.preventDefault();
-      e.returnValue = "";
+      open();
+    } else {
+      clearCoordiItems();
+      navigate(-1);
     }
   });
 
@@ -59,11 +64,21 @@ const CoordiEditor = () => {
     if (coordi?.data?.canvasJson) {
       const pastClothes = JSON.parse(coordi.data.canvasJson);
 
+      pastClothesRef.current = pastClothes;
       setCoordiItems(pastClothes);
       setDescription(coordi.data.description || "");
       setCoordiName(coordi.data.coordiName || "");
     }
   }, [coordi]);
+
+  useEffect(() => {
+    const sameClothes = JSON.stringify(pastClothesRef.current) === JSON.stringify(coordiItems);
+    const sameName = (coordi?.data?.coordiName || "") === coordiName;
+    const sameDesc = (coordi?.data?.description || "") === description;
+    const dirtyNow = !(sameClothes && sameDesc && sameName);
+
+    setIsDirty((prev) => (prev !== dirtyNow ? dirtyNow : prev));
+  }, [coordi, coordiItems, coordi?.data?.coordiName, coordi?.data?.description]);
 
   const handleClickSave = () => {
     setIsModalOpen(true);
@@ -124,6 +139,7 @@ const CoordiEditor = () => {
           await api.post(`/coordi`, formData);
         }
 
+        pastClothesRef.current = coordiItems;
         setIsDirty(false);
         clearCoordiItems();
 
@@ -217,6 +233,7 @@ const CoordiEditor = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
+              clearCoordiItems();
               navigate(-1);
             }}
             style="secondary"
@@ -232,25 +249,24 @@ const CoordiEditor = () => {
           children={
             <>
               <div className={styles.field}>
-                <label className={styles.label}>제목</label>
+                <label className={styles.label}>코디 제목</label>
                 <input
                   className={styles.input}
-                  placeholder="코디의 제목을 입력해주세요."
+                  placeholder="예) 오피스 캐주얼 룩"
                   value={coordiName}
                   onChange={(e) => setCoordiName(e.target.value)}
                 />
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label}>설명</label>
+                <label className={styles.label}>상세 설명</label>
                 <input
                   className={styles.input}
-                  placeholder="코디 상세 설명을 입력해주세요"
+                  placeholder="코디의 포인트나 특징을 자유롭게 써주세요"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
-
               <button
                 className={styles.saveButton}
                 onClick={saveImage}
@@ -282,7 +298,7 @@ const CoordiEditor = () => {
               </button>
             </>
           }
-          children={"변경 사항이 저장되지 않았습니다\n 계속 이동할까요?"}
+          children={"변경 사항이 저장되지 않았습니다.\n\n계속 이동할까요?"}
         />
       )}
     </div>

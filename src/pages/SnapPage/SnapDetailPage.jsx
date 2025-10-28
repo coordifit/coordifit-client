@@ -30,6 +30,7 @@ const SnapDetailPage = () => {
   const [loadingLikes, setLoadingLikes] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [expandedReplies, setExpandedReplies] = useState(new Set());
+  const [expandedComments, setExpandedComments] = useState(new Set());
   const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -187,6 +188,18 @@ const SnapDetailPage = () => {
 
   const handleToggleReplies = (commentId) => {
     setExpandedReplies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleToggleCommentExpansion = (commentId) => {
+    setExpandedComments((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(commentId)) {
         newSet.delete(commentId);
@@ -454,7 +467,19 @@ const SnapDetailPage = () => {
                 >
                   {postDetail.comments[0].nickname}
                 </span>
-                <span className={styles.commentText}>{postDetail.comments[0].content}</span>
+                <span
+                  className={`${styles.commentText} ${
+                    expandedComments.has(postDetail.comments[0].commentId)
+                      ? styles.expanded
+                      : styles.collapsed
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleCommentExpansion(postDetail.comments[0].commentId);
+                  }}
+                >
+                  {postDetail.comments[0].content}
+                </span>
               </div>
             </div>
           </>
@@ -563,7 +588,16 @@ const SnapDetailPage = () => {
                               </span>
                             </div>
 
-                            <div className={styles.modalCommentText}>{comment.content}</div>
+                            <div
+                              className={`${styles.modalCommentText} ${
+                                expandedComments.has(comment.commentId)
+                                  ? styles.expanded
+                                  : styles.collapsed
+                              }`}
+                              onClick={() => handleToggleCommentExpansion(comment.commentId)}
+                            >
+                              {comment.content}
+                            </div>
 
                             <div className={styles.modalCommentActions}>
                               <button
@@ -638,7 +672,16 @@ const SnapDetailPage = () => {
                                     </span>
                                   </div>
 
-                                  <div className={styles.modalCommentText}>{reply.content}</div>
+                                  <div
+                                    className={`${styles.modalCommentText} ${
+                                      expandedComments.has(reply.commentId)
+                                        ? styles.expanded
+                                        : styles.collapsed
+                                    }`}
+                                    onClick={() => handleToggleCommentExpansion(reply.commentId)}
+                                  >
+                                    {reply.content}
+                                  </div>
                                 </div>
 
                                 <div className={styles.commentLikeSection}>

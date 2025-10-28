@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./OcrResultPage.module.css";
 import editIcon from "@/assets/images/editpencil.png";
@@ -17,8 +17,35 @@ const OcrResultPage = () => {
 
   const { originalImage, ocrData, analysisResult } = location.state || {};
 
+  // sessionStorage에서 데이터 복원 (뒤로가기 시)
+  const restoredData = useMemo(() => {
+    if (!originalImage && !ocrData && !analysisResult) {
+      const savedData = sessionStorage.getItem("ocrResultData");
+      if (savedData) {
+        try {
+          return JSON.parse(savedData);
+        } catch (error) {
+          console.error("저장된 OCR 데이터 복원 실패:", error);
+        }
+      }
+    }
+    return null;
+  }, [originalImage, ocrData, analysisResult]);
+
+  // 실제 사용할 데이터 결정
+  const finalOriginalImage = originalImage || restoredData?.originalImage;
+  const finalOcrData = ocrData || restoredData?.ocrData;
+  const finalAnalysisResult = analysisResult || restoredData?.analysisResult;
+
   // 상품 데이터를 상태로 관리
-  const [products, setProducts] = useState(() => analysisResult?.data?.products || []);
+  const [products, setProducts] = useState(() => finalAnalysisResult?.data?.products || []);
+
+  // 선택된 아이템 복원
+  useEffect(() => {
+    if (restoredData?.selectedItems) {
+      setSelectedItems(restoredData.selectedItems);
+    }
+  }, [restoredData]);
 
   // 받은 데이터 상세 로그
   console.log("📊 OcrResultPage 받은 데이터:", {
@@ -41,8 +68,8 @@ const OcrResultPage = () => {
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollLeft = scrollRef.current.scrollLeft;
-      const containerWidth = scrollRef.current.clientWidth; // 동적 컴테이너 너비
-      const newPage = Math.round(scrollLeft / containerWidth);
+      const itemWidth = 320; // resultItem의 너비
+      const newPage = Math.round(scrollLeft / itemWidth);
       setCurrentPage(newPage);
     }
   };
@@ -153,25 +180,45 @@ const OcrResultPage = () => {
   };
 
   const handleAddToCloset = () => {
+    console.log("🚀 handleAddToCloset 실행됨");
+    console.log("선택된 아이템들:", selectedItems);
+
     if (selectedItems.length === 0) {
       alert("추가할 상품을 선택해주세요.");
       return;
     }
 
     const selectedProducts = selectedItems.map((index) => products[index]);
+    console.log("선택된 상품들:", selectedProducts);
 
-    // TODO: 선택된 상품들을 옷장에 추가하는 로직
-    console.log("옷장에 추가할 상품들:", selectedProducts);
+    // OCR 결과 데이터를 sessionStorage에 저장 (뒤로가기 시 복원용)
+    sessionStorage.setItem(
+      "ocrResultData",
+      JSON.stringify({
+        originalImage: finalOriginalImage,
+        ocrData: finalOcrData,
+        analysisResult: finalAnalysisResult,
+        selectedItems: selectedItems,
+      }),
+    );
 
-    alert(`${selectedItems.length}개 상품이 옷장에 추가되었습니다!`);
-    navigate("/closet");
+    // 선택된 상품들을 옷장 등록 페이지로 전달
+    console.log("네비게이션 시작: /closet/register");
+    navigate("/closet/register", {
+      state: {
+        ocrProducts: selectedProducts,
+        isMultipleRegistration: selectedProducts.length > 1,
+        // originalImage 제거 - 이미지 데이터가 없음
+      },
+    });
+    console.log("네비게이션 완료");
   };
 
   const handleRetry = () => {
     navigate("/closet/ocr");
   };
 
-  if (!analysisResult) {
+  if (!finalAnalysisResult) {
     return (
       <div className={styles.container}>
         <div className={styles.content}>
@@ -193,9 +240,9 @@ const OcrResultPage = () => {
 
         <h3 className={styles.sectionTitle}>실물 사진</h3>
         <div className={styles.originalImageSection}>
-          {originalImage && (
+          {finalOriginalImage && finalOriginalImage instanceof File && (
             <img
-              src={URL.createObjectURL(originalImage)}
+              src={URL.createObjectURL(finalOriginalImage)}
               alt="원본 영수증 이미지"
               className={styles.originalImage}
             />

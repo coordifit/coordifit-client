@@ -224,6 +224,7 @@
   font-weight: 600;
   color: #78a4d1;
   padding: 6px 0;
+  padding-left: 50px;
 }
 
 .input:focus {
@@ -316,7 +317,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  z-index: 20;
+  z-index: 100;
 }
 
 .sheet {

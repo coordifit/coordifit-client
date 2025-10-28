@@ -285,16 +285,18 @@
 }
 
 .card {
-  position: relative;
+  aspect-ratio: 3 / 4;
   width: 100%;
-  height: 160px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 12px 5px 10px;
-  border: 1px solid rgba(170, 178, 200, 0.2); /* #AAB2C8 20% */
+  justify-content: flex-start;
   background: #fff;
+  border: 1px solid rgba(170, 178, 200, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 12px 6px 10px;
+  box-sizing: border-box;
   cursor: pointer;
   transition: border-color 0.2s ease;
 }
@@ -375,8 +377,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1; /* 두 줄 제한 */
+  overflow: hidden;
+  text-overflow: ellipsis;
   -webkit-box-orient: vertical;
 }
 

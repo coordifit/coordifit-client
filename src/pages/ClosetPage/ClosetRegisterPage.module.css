@@ -220,11 +220,12 @@
   border: none;
   background: transparent;
   text-align: right;
+  font-family: "Pretendard", sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #78a4d1;
   padding: 6px 0;
-  padding-left: 50px;
+  padding-left: 35px;
 }
 
 .input:focus {

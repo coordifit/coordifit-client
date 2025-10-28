@@ -107,8 +107,53 @@ const ClosetRegisterPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!isFormValid) {
-      alert("필수 항목을 모두 입력해주세요.");
+    if (photoPreviews.length === 0) {
+      alert("사진을 1장 이상 등록해주세요.");
+      return;
+    }
+
+    if (formData.name.trim().length === 0) {
+      alert("이름을 입력해주세요.");
+      return;
+    }
+
+    if (formData.name.trim().length > 100) {
+      alert("이름은 100자 이내로 입력해주세요.");
+      return;
+    }
+
+    if (!formData.category || !formData.subCategory) {
+      alert("카테고리를 선택해주세요.");
+      return;
+    }
+
+    if (formData.brand.trim().length === 0) {
+      alert("브랜드를 입력해주세요.");
+      return;
+    }
+
+    if (formData.brand.trim().length > 100) {
+      alert("브랜드는 100자 이내로 입력해주세요.");
+      return;
+    }
+
+    if (formData.size && formData.size.length > 20) {
+      alert("사이즈는 20자 이내로 입력해주세요.");
+      return;
+    }
+
+    if (formData.price && formData.price.length > 10) {
+      alert("가격은 10자리 이내로 입력해주세요.");
+      return;
+    }
+
+    if (formData.purchaseLink && formData.purchaseLink.length > 1000) {
+      alert("구매링크는 1000자 이내로 입력해주세요.");
+      return;
+    }
+
+    if (formData.description && formData.description.length > 1000) {
+      alert("설명은 1000자 이내로 입력해주세요.");
       return;
     }
 

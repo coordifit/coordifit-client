@@ -58,7 +58,21 @@ const clampFutureLimit = (startDate, endDate, limitDays = 16) => {
 
   return { start, end };
 };
+
+const formatDateString = (dateString) => {
+  const date = new Date(dateString);
+
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const dayName = dayNames[date.getDay()];
+
+  return `${month}월 ${day}일 (${dayName})`;
+};
+
 export {
+  formatDateString,
   formatDate,
   formatYearMonth,
   addDays,

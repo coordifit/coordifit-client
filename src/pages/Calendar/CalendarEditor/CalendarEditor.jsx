@@ -18,6 +18,8 @@ import { CANVAS_CONFIG } from "@/constants/calendar";
 import { useClothesStore } from "@/stores/clothesStore";
 import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
 import { getCanvasPosition } from "@/utils/canvasUtils";
+import { formatDateString } from "@/utils/calendarUtils";
+import Weather from "../Weather/Weather";
 
 const CalendarEditor = () => {
   const [closetModal, setClosetModal] = useState(false);
@@ -133,7 +135,10 @@ const CalendarEditor = () => {
 
   return (
     <div className={styles.wrapper}>
-      <header className={styles.header}></header>
+      <header className={styles.header}>
+        <span className={styles.headerTitle}>{formatDateString(date)}</span>
+        <Weather targetDate={new Date(date)} />
+      </header>
       <div className={styles.editorRow}>
         <input
           className={styles.input}

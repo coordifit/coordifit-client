@@ -47,6 +47,11 @@ const ClosetPage = () => {
     localStorage.setItem("closet_sortType", sortType);
   }, [sortType]);
 
+  const sortedCoordi = useMemo(() => {
+    if (!coordi?.data) return [];
+    return sortType === "oldest" ? [...coordi.data].reverse() : coordi.data;
+  }, [coordi.data, sortType]);
+
   // Handle clicks outside addCard to close modal
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -357,7 +362,8 @@ const ClosetPage = () => {
         </section>
       )}
       {/* 유틸리티 바 */}
-      <div className={styles.utilityRow}>
+
+      <div className={clsx(styles.utilityRow, isCoordiTab && styles.coordiUtilRow)}>
         <button
           type="button"
           className={clsx(styles.selectToggle, isSelecting && styles.cancelSelect)}
@@ -377,58 +383,82 @@ const ClosetPage = () => {
         <div ref={sortRef} className={styles.sortWrapper}>
           <button
             type="button"
-            className={styles.sortButton}
+            className={clsx(styles.sortButton, isCoordiTab && styles.coordiSort)}
             onClick={() => setIsSortOpen((prev) => !prev)}
           >
-            {sortType === "purchase"
-              ? "구매일순"
-              : sortType === "wear"
-                ? "입은횟수순"
-                : "최근착용순"}
+            {isCoordiTab
+              ? sortType === "newest"
+                ? "최근 생성순"
+                : "오래된 생성순"
+              : sortType === "purchase"
+                ? "구매일순"
+                : sortType === "wear"
+                  ? "입은횟수순"
+                  : "최근착용순"}
             <span className={styles.sortArrow} aria-hidden />
           </button>
 
-          {isSortOpen && (
-            <ul className={styles.sortDropdown}>
-              <li
-                className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
-                onClick={() => {
-                  setSortType("recent");
-                  setIsSortOpen(false);
-                }}
-              >
-                최근착용순
-              </li>
-              <li
-                className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
-                onClick={() => {
-                  setSortType("wear");
-                  setIsSortOpen(false);
-                }}
-              >
-                입은횟수순
-              </li>
-              <li
-                className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
-                onClick={() => {
-                  setSortType("purchase");
-                  setIsSortOpen(false);
-                }}
-              >
-                구매일순
-              </li>
-            </ul>
-          )}
+          {isSortOpen &&
+            (isCoordiTab ? (
+              <ul className={styles.sortDropdown}>
+                <li
+                  className={clsx(styles.sortOption, sortType === "newest" && styles.activeSort)}
+                  onClick={() => {
+                    setSortType("newest");
+                    setIsSortOpen(false);
+                  }}
+                >
+                  최근 생성순
+                </li>
+                <li
+                  className={clsx(styles.sortOption, sortType === "oldest" && styles.activeSort)}
+                  onClick={() => {
+                    setSortType("oldest");
+                    setIsSortOpen(false);
+                  }}
+                >
+                  오래된 생성순
+                </li>
+              </ul>
+            ) : (
+              <ul className={styles.sortDropdown}>
+                <li
+                  className={clsx(styles.sortOption, sortType === "recent" && styles.activeSort)}
+                  onClick={() => {
+                    setSortType("recent");
+                    setIsSortOpen(false);
+                  }}
+                >
+                  최근착용순
+                </li>
+                <li
+                  className={clsx(styles.sortOption, sortType === "wear" && styles.activeSort)}
+                  onClick={() => {
+                    setSortType("wear");
+                    setIsSortOpen(false);
+                  }}
+                >
+                  입은횟수순
+                </li>
+                <li
+                  className={clsx(styles.sortOption, sortType === "purchase" && styles.activeSort)}
+                  onClick={() => {
+                    setSortType("purchase");
+                    setIsSortOpen(false);
+                  }}
+                >
+                  구매일순
+                </li>
+              </ul>
+            ))}
         </div>
       </div>
-
+      {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
       <section className={styles.gridSection}>
-        {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
-
         <div className={styles.grid}>
           {isCoordiTab ? (
             <>
-              {coordi.data.map((item) => {
+              {sortedCoordi.map((item) => {
                 const imageSrc =
                   viewMode === "ai"
                     ? item.aiImageUrl || noAiImage
@@ -472,6 +502,21 @@ const ClosetPage = () => {
                   </article>
                 );
               })}
+              <article
+                className={clsx(
+                  styles.card,
+                  isCoordiTab && `${styles.cardSelectable} ${styles.coordiAddCard}`,
+                )}
+              >
+                <button
+                  type="button"
+                  className={clsx(styles.addCardButton)}
+                  onClick={handleClickCoordiEditor}
+                >
+                  <span className={styles.addIcon}>＋</span>
+                  <span className={styles.addLabel}>아이템 추가</span>
+                </button>
+              </article>
             </>
           ) : (
             <>

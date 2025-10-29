@@ -535,3 +535,206 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* 480px 이상에서는 360x800 기준으로 고정 (반응형 제한) */
+@media (min-width: 480px) {
+  .page {
+    max-width: 360px;
+  }
+
+  .pageContent {
+    max-width: 360px;
+  }
+
+  .bottomArea {
+    max-width: 360px;
+  }
+
+  .avatarPanel {
+    width: 288px; /* 80vw → 고정 */
+    height: 240px; /* 30vh → 고정 */
+    padding: 32px 48px; /* 4vh 6vw → 고정 */
+    border-radius: 18px; /* 5vw → 고정 */
+    gap: 8px; /* 1vh → 고정 */
+  }
+
+  .avatarPreviewButton {
+    width: 216px; /* 60vw → 고정 */
+    height: 240px; /* 30vh → 고정 */
+    border-radius: 14.4px; /* 4vw → 고정 */
+  }
+
+  .avatarPreviewImage {
+    width: 216px; /* 60vw → 고정 */
+    height: 240px; /* 30vh → 고정 */
+    border-radius: 14.4px; /* 4vw → 고정 */
+  }
+
+  .avatarPlaceholderIcon {
+    width: 72px; /* 20vw → 고정 */
+    height: 80px; /* 10vh → 고정 */
+  }
+
+  .avatarHeading {
+    font-size: 12.6px; /* 3.5vw → 고정 */
+    line-height: 18px; /* 5vw → 고정 */
+  }
+
+  .avatarAction {
+    font-size: 10.8px; /* 3vw → 고정 */
+    padding: 9px 28.8px; /* 2.5vw 8vw → 고정 */
+  }
+
+  .selectionSection {
+    gap: 16px; /* 2vh → 고정 */
+    margin-top: 16px; /* 2vh → 고정 */
+  }
+
+  .sectionHeader {
+    margin-top: 8px; /* 1vh → 고정 */
+    padding: 0 7.2px; /* 2vw → 고정 */
+  }
+
+  .sectionTitle {
+    font-size: 16.2px; /* 4.5vw → 고정 */
+    line-height: 25.2px; /* 7vw → 고정 */
+  }
+
+  .backToSelectionButton {
+    padding: 5.4px 10.8px; /* 1.5vw 3vw → 고정 */
+    border-radius: 7.2px; /* 2vw → 고정 */
+    font-size: 12.6px; /* 3.5vw → 고정 */
+  }
+
+  .selectionList {
+    gap: 12px; /* 1.5vh → 고정 */
+    padding: 0 7.2px; /* 2vw → 고정 */
+  }
+
+  .selectionCard {
+    gap: 14.4px; /* 4vw → 고정 */
+    height: 80px; /* 10vh → 고정 */
+    padding: 0 18px 0 14.4px; /* 5vw 4vw → 고정 */
+    border-radius: 7.2px; /* 2vw → 고정 */
+  }
+
+  .selectionIconWrapper {
+    width: 36px; /* 10vw → 고정 */
+    height: 36px; /* 10vw → 고정 */
+  }
+
+  .selectionIcon {
+    width: 21.6px; /* 6vw → 고정 */
+    height: 21.6px; /* 6vw → 고정 */
+  }
+
+  .selectionThumbnailWrapper {
+    width: 36px; /* 10vw → 고정 */
+    height: 36px; /* 10vw → 고정 */
+    border-radius: 7.2px; /* 2vw → 고정 */
+  }
+
+  .selectionInfo {
+    gap: 3.6px; /* 1vw → 고정 */
+  }
+
+  .selectionLabel {
+    font-size: 14.4px; /* 4vw → 고정 */
+    line-height: 21.6px; /* 6vw → 고정 */
+  }
+
+  .selectionSummary {
+    font-size: 12.6px; /* 3.5vw → 고정 */
+    max-width: 180px; /* 50vw → 고정 */
+  }
+
+  .selectionChevronIcon {
+    width: 21.6px; /* 6vw → 고정 */
+    height: 21.6px; /* 6vw → 고정 */
+  }
+
+  .closetPanel {
+    border-radius: 18px; /* 5vw → 고정 */
+    max-height: 480px; /* 60vh → 고정 */
+    min-height: 200px; /* 25vh → 고정 */
+    padding: 0 7.2px; /* 2vw → 고정 */
+  }
+
+  .subCategoryTabs {
+    gap: 7.2px; /* 2vw → 고정 */
+    margin-bottom: 7.2px; /* 2vw → 고정 */
+    padding-bottom: 3.6px; /* 1vw → 고정 */
+  }
+
+  .subCategoryButton {
+    padding: 7.2px 10.8px 5.4px 10.8px; /* 2vw 3vw 1.5vw 3vw → 고정 */
+    font-size: 12.6px; /* 3.5vw → 고정 */
+  }
+
+  .closetGrid {
+    max-height: calc(90px + 10px); /* 25vw → 90px 고정 */
+  }
+
+  .closetCard {
+    gap: 9px; /* 2.5vw → 고정 */
+  }
+
+  .closetThumbnail {
+    width: 90px; /* 25vw → 고정 */
+    height: 90px; /* 25vw → 고정 */
+    border-radius: 18px; /* 5vw → 고정 */
+  }
+
+  .emptyState {
+    margin-top: 64px; /* 8vh → 고정 */
+    font-size: 12.6px; /* 3.5vw → 고정 */
+  }
+
+  .backButton {
+    height: 48px; /* 6vh → 고정 */
+    border-radius: 10.8px; /* 3vw → 고정 */
+    font-size: 13.68px; /* 3.8vw → 고정 */
+    margin-bottom: 7.2px; /* 2vw → 고정 */
+  }
+
+  .bottomArea {
+    padding: 16px 7.2px; /* 2vh 2vw → 고정 */
+  }
+
+  .footerButton {
+    height: 56px; /* 7vh → 고정 */
+    font-size: 14.4px; /* 4vw → 고정 */
+  }
+
+  .confirmButtonBottom {
+    width: 324px; /* 90vw → 고정 */
+    bottom: 96px; /* 12vh → 고정 */
+    height: 56px; /* 7vh → 고정 */
+    border-radius: 10.8px; /* 3vw → 고정 */
+    font-size: 14.4px; /* 4vw → 고정 */
+  }
+
+  .loadingContent {
+    padding: 28.8px 25.2px; /* 8vw 7vw → 고정 */
+    border-radius: 14.4px; /* 4vw → 고정 */
+    gap: 10.8px; /* 3vw → 고정 */
+  }
+
+  .loadingSpinner {
+    width: 32.4px; /* 9vw → 고정 */
+    height: 32.4px; /* 9vw → 고정 */
+    border: 2.88px solid #d1d5db; /* 0.8vw → 고정 */
+  }
+
+  .loadingMessage {
+    font-size: 12.6px; /* 3.5vw → 고정 */
+  }
+
+  /* 미디어 쿼리 내에서 2줄 그리드 처리 */
+  @media (min-height: 720px) {
+    .closetGrid {
+      grid-template-rows: repeat(2, auto);
+      max-height: calc(2 * (90px + 10px)); /* 2줄 높이로 변경 */
+    }
+  }
+}

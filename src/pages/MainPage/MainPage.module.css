@@ -501,6 +501,15 @@
   flex-direction: column;
   align-items: flex-start;
   overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.clothesCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .clothesImageWrapper {
@@ -521,6 +530,8 @@
   flex-direction: column;
   gap: 2px;
   padding: 6px 4px 8px;
+  width: 100%;
+  min-width: 0; /* flex 아이템이 축소될 수 있도록 */
 }
 
 .brand {
@@ -528,6 +539,10 @@
   font-weight: 600;
   font-size: 10px;
   color: #444444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .clothesName {
@@ -535,13 +550,21 @@
   font-weight: 400;
   font-size: 10px;
   color: #666666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .price {
   font-family: "Pretendard Variable", sans-serif;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   color: #333333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 /* ✅ 이미지 없을 때 텍스트 표시 */
 .imagePlaceholder {

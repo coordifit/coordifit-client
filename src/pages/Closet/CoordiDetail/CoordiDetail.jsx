@@ -42,7 +42,12 @@ const CoordiDetail = () => {
       categoryCode: obj.categoryCode,
     }));
 
-    navigate("/ai-fitting", { state: { clothesItems } });
+    navigate("/ai-fitting", {
+      state: {
+        cordiId: coordi.data.coordiId,
+        clothesItems,
+      },
+    });
   };
 
   const handleDeleteClick = async () => {

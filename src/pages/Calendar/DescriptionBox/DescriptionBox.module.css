@@ -8,7 +8,12 @@
   font-size: 12px;
   line-height: 1.7;
   color: #333;
-  white-space: pre-wrap;
+
+  width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 }
 
 .placeholderBox {

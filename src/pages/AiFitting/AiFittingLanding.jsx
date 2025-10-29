@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 import styles from "./AiFittingLanding.module.css";
@@ -45,6 +45,8 @@ const AiFittingLanding = () => {
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
+
+  const location = useLocation();
 
   // 페이지 벗어날 때 AI 피팅 상태 초기화
   useEffect(() => {
@@ -104,6 +106,16 @@ const AiFittingLanding = () => {
 
     loadClothes();
   }, [userId]);
+
+  useEffect(() => {
+    const locatedData = location.state;
+
+    if (!locatedData) return;
+
+    console.log("locatedData", locatedData);
+
+    // TODO: location 에서 받아온 데이터를 updateClothingSelection 업데이트
+  }, [location.state, updateClothingSelection]);
 
   useEffect(() => {
     if (!avatars.length) return;
@@ -179,6 +191,12 @@ const AiFittingLanding = () => {
 
   const handleConfirmSelection = () => {
     if (!activeClothingType || !highlightedItem) return;
+
+    console.log(
+      "어떤 아이템을 업데이트하는지 선택된 아이템들",
+      activeClothingType,
+      highlightedItem,
+    );
     updateClothingSelection(activeClothingType, highlightedItem);
     setActiveClothingType(null);
     setActiveSubCategory("all");
@@ -218,7 +236,6 @@ const AiFittingLanding = () => {
         state: {
           imageBase64,
           durationMs,
-          // 아바타와 의류 정보도 함께 전달
           selectedAvatarId,
           clothingSelection,
           selectedAvatar: avatars.find((avatar) => avatar.id === selectedAvatarId),
@@ -244,6 +261,9 @@ const AiFittingLanding = () => {
     }
   };
 
+  console.log("myClothes 에서 옷 아이디를 찾아서 아이템가져오자", myClothes);
+
+  console.log("리렌더링후 선택된 옷상태", clothingSelection);
   return (
     <div className={styles.page}>
       <div className={styles.pageContent}>

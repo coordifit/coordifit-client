@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../../services/axiosInstance";
+import commonCodeService from "@/services/commonCodeService";
 import styles from "./CommonCodePage.module.css";
 
 const CommonCodePage = () => {
@@ -27,8 +27,13 @@ const CommonCodePage = () => {
   const loadCommonCodes = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/common-codes");
-      setCommonCodes(response.data);
+      const response = await commonCodeService.getCommonCodes();
+
+      if (response.success && response.data) {
+        setCommonCodes(response.data);
+      } else {
+        setError(response.message || "공통코드 조회에 실패했습니다.");
+      }
     } catch (err) {
       setError(err.response?.data?.message || "공통코드 조회에 실패했습니다.");
     } finally {
@@ -70,17 +75,21 @@ const CommonCodePage = () => {
 
   const updateCommonCode = async (codeId, codeName, isActive) => {
     try {
-      await api.put(`/common-codes/${codeId}`, {
+      const response = await commonCodeService.updateCommonCode(codeId, {
         codeName: codeName,
         isActive: isActive,
-        updatedBy: "U000001", // 실제로는 로그인한 사용자 ID
       });
 
-      loadCommonCodes();
-      return true;
+      if (response.success) {
+        alert("코드가 성공적으로 업데이트되었습니다.");
+        loadCommonCodes();
+      } else {
+        alert(response.message || "코드 업데이트에 실패했습니다.");
+        throw new Error(response.message || "코드 업데이트에 실패했습니다.");
+      }
     } catch (error) {
-      console.error("코드 업데이트 중 오류:", error);
-      return false;
+      setError(error.response?.data?.message || error.message || "코드 업데이트에 실패했습니다.");
+      throw error;
     }
   };
 
@@ -92,12 +101,11 @@ const CommonCodePage = () => {
 
     setIsUpdatingCode(true);
     try {
-      const success = await updateCommonCode(code.codeId, editCodeName.trim(), code.isActive);
-
-      if (success) {
-        setEditingCode(null);
-        setEditCodeName("");
-      }
+      await updateCommonCode(code.codeId, editCodeName.trim(), code.isActive);
+      setEditingCode(null);
+      setEditCodeName("");
+    } catch (error) {
+      setError(error.response?.data?.message || error.message || "코드 업데이트에 실패했습니다.");
     } finally {
       setIsUpdatingCode(false);
     }
@@ -111,11 +119,16 @@ const CommonCodePage = () => {
   const handleDeleteCode = async (code) => {
     if (window.confirm(`'${code.codeName}' 코드를 삭제하시겠습니까?`)) {
       try {
-        await api.delete(`/common-codes/${code.codeId}`);
-        alert("코드가 성공적으로 삭제되었습니다.");
-        loadCommonCodes();
+        const response = await commonCodeService.deleteCommonCode(code.codeId);
+
+        if (response.success) {
+          alert("코드가 성공적으로 삭제되었습니다.");
+          loadCommonCodes();
+        } else {
+          alert(response.message || "코드 삭제에 실패했습니다.");
+        }
       } catch (error) {
-        console.error("코드 삭제 중 오류:", error);
+        setError(error.response?.data?.message || "코드 삭제에 실패했습니다.");
       }
     }
   };
@@ -133,20 +146,23 @@ const CommonCodePage = () => {
 
     setIsAddingCode(true);
     try {
-      await api.post("/common-codes", {
+      const response = await commonCodeService.createCommonCode({
         codeName: newCodeName.trim(),
         parentCodeId: isRootCode ? null : selectedParentCode,
         isActive: "Y",
-        createdBy: "U000001", // 실제로는 로그인한 사용자 ID
       });
 
-      alert("코드가 성공적으로 추가되었습니다.");
-      setSelectedParentCode("");
-      setNewCodeName("");
-      setIsRootCode(false);
-      loadCommonCodes(); // 목록 새로고침
+      if (response.success) {
+        alert("코드가 성공적으로 추가되었습니다.");
+        setSelectedParentCode("");
+        setNewCodeName("");
+        setIsRootCode(false);
+        loadCommonCodes();
+      } else {
+        alert(response.message || "코드 추가에 실패했습니다.");
+      }
     } catch (error) {
-      alert(error.response?.data?.message || "코드 추가 중 오류가 발생했습니다.");
+      setError(error.response?.data?.message || "코드 추가에 실패했습니다.");
     } finally {
       setIsAddingCode(false);
     }

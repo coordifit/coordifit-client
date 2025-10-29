@@ -41,15 +41,13 @@
   transition: transform 0.3s ease;
 }
 
-/* 빨간색으로 보이게 */
 .red-icon path {
   fill: red;
 }
 
-/* 모달 열릴 때 (isOpen=true) */
 .dateButton.open .arrowIcon {
-  transform: rotate(180deg); /* ▼ → ▲ */
-  color: #000; /* 살짝 진하게 */
+  transform: rotate(180deg);
+  color: #000;
 }
 
 .arrowIcon {

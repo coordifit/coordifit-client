@@ -151,7 +151,9 @@ const SnapUploadCompletePage = () => {
                 <div className={styles.productText}>
                   <div className={styles.brandName}>{product.brand}</div>
                   <div className={styles.productName}>{product.name}</div>
-                  <div className={styles.price}>{product.price.toLocaleString()}원</div>
+                  <div className={styles.price}>
+                    {product.price ? `${product.price.toLocaleString()}원` : ""}
+                  </div>
                 </div>
               </div>
             ))}

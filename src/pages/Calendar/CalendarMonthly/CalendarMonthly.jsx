@@ -30,7 +30,16 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
 
   const trimDate = (datetime) => datetime.split(" ")[0];
 
-  if (isLoading) return <h1>로딩 중...</h1>;
+  if (isLoading) {
+    return (
+      <div className={cx("loadingWrap")} role="status" aria-live="polite" aria-busy="true">
+        <div className={cx("spinner")} aria-hidden="true" />
+        <p className={cx("loadingTitle")}>달력 데이터를 불러오는 중</p>
+        <p className={cx("loadingSub")}>잠시만 기다려 주세요…</p>
+      </div>
+    );
+  }
+
   if (error)
     return (
       <>

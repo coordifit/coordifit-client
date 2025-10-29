@@ -6,6 +6,81 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-top: -12px;
+}
+
+/* 다중 등록 헤더 스타일 */
+.multipleHeader {
+  position: fixed;
+  top: 68px; /* Header 높이만큼 아래에 위치 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 360px; /* Layout과 동일한 최대 너비 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 16px 12px;
+  height: 70px;
+  z-index: 40;
+}
+
+.progressInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.productName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progressText {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.navigationButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.navButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.navButton:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.arrowIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .header {
@@ -62,6 +137,11 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding-bottom: 80px;
+}
+
+/* 다중 등록일 때 상단 여백 추가 */
+.page.withMultipleHeader .form {
+  margin-top: 82px; /* multipleHeader 높이(70px) + 여백(12px) */
 }
 
 .form::-webkit-scrollbar {

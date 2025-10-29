@@ -34,6 +34,9 @@ jobs:
       - name: Create env file For Inject .env values
         run: |
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+          echo "VITE_FASTAPI_URL=${{ secrets.VITE_FASTAPI_URL }}" >> .env
+          echo "VITE_KAKAO_REST_API_KEY=${{ secrets.VITE_KAKAO_REST_API_KEY }}" >> .env
+          echo "VITE_KAKAO_REDIRECT_URI=${{ secrets.VITE_KAKAO_REDIRECT_URI }}" >> .env
 
       - name: Build (Vite)
         run: npm run build

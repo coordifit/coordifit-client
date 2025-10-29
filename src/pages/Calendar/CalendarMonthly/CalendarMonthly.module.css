@@ -166,13 +166,19 @@
 }
 
 .loadingWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  width: 100%;
-
   gap: 10px;
   text-align: center;
   color: #0f172a;

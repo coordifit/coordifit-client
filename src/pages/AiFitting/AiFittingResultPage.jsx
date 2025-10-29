@@ -30,6 +30,7 @@ const AiFittingResultPage = () => {
   const [analysisData, setAnalysisData] = useState(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const analysisAbortControllerRef = useRef(null);
   const isMountedRef = useRef(true);
 
@@ -212,10 +213,18 @@ const AiFittingResultPage = () => {
     });
   };
 
+  const handleImageClick = () => {
+    setIsImageModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsImageModalOpen(false);
+  };
+
   return (
     <div className={styles.page}>
       <section className={styles.main}>
-        <div className={styles.resultImageWrapper}>
+        <div className={styles.resultImageWrapper} onClick={handleImageClick}>
           <img src={resultImageSrc} alt="AI로 생성된 코디 결과" className={styles.resultImage} />
         </div>
 
@@ -314,6 +323,27 @@ const AiFittingResultPage = () => {
           })}
         </div>
       </section>
+
+      {/* 이미지 확대 모달 */}
+      {isImageModalOpen && (
+        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <img
+              src={resultImageSrc}
+              alt="AI로 생성된 코디 결과 (확대)"
+              className={styles.modalImage}
+            />
+            <button
+              type="button"
+              className={styles.modalCloseButton}
+              onClick={handleCloseModal}
+              aria-label="모달 닫기"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

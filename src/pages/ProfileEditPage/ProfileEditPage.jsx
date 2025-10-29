@@ -26,16 +26,16 @@ const ProfileEditPage = () => {
   const [file, setFile] = useState(null);
   const [fileImage, setFileImage] = useState(null);
   const fileInputRef = useRef(null);
-  const [isEditing, setIsEditing] = useState(null); // 현재 수정 중인 필드
-  const [isGenderModalOpen, setGenderModalOpen] = useState(false); // 성별 모달
+  const [isEditing, setIsEditing] = useState(null);
+  const [isGenderModalOpen, setGenderModalOpen] = useState(false);
 
-  // ✅ 공통코드로 성별 목록 로드
   const loadGenderCodes = async () => {
-    const genderCodes = await commonCodeService.getCommonCodesByParentCodeId("A10002");
-    setGenderOptions(genderCodes);
+    const response = await commonCodeService.getCommonCodesByParentCodeId("A10002");
+    if (response.success && response.data) {
+      setGenderOptions(response.data);
+    }
   };
 
-  // ✅ 프로필 저장
   const handleSave = async (event) => {
     event.preventDefault();
 

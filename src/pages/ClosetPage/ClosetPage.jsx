@@ -65,16 +65,17 @@ const ClosetPage = () => {
     const fetchTabs = async () => {
       try {
         const response = await CommonCodeService.getCommonCodesByParentCodeId("B10002");
-        const tabsData = Object.values(response).map((tab) => ({
-          id: tab.codeId,
-          label: tab.codeName,
-        }));
+        if (response.success && response.data) {
+          const tabsData = response.data.map((tab) => ({
+            id: tab.codeId,
+            label: tab.codeName,
+          }));
 
-        setTabs(tabsData);
+          setTabs(tabsData);
 
-        // 첫 번째 탭을 기본 활성 탭으로 설정
-        if (tabsData.length > 0) {
-          setActiveTab(tabsData[0].id);
+          if (tabsData.length > 0) {
+            setActiveTab(tabsData[0].id);
+          }
         }
       } catch (err) {
         console.error("탭 데이터 로드 실패:", err);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./OcrAnalyzingPage.module.css";
 import autoAwesomeIcon from "@/assets/images/auto_awesome.png";
@@ -9,19 +9,15 @@ const OcrAnalyzingPage = () => {
   const location = useLocation();
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState("ocr"); // 'ocr', 'chatgpt', 'complete'
+  const isAnalyzing = useRef(false); // 중복 실행 방지
 
   const selectedFile = location.state?.selectedFile;
 
-  useEffect(() => {
-    if (!selectedFile) {
-      navigate("/closet/ocr");
-      return;
-    }
+  const analyzeImage = useCallback(async () => {
+    if (!selectedFile || isAnalyzing.current) return;
 
-    analyzeImage();
-  }, [selectedFile]);
+    isAnalyzing.current = true;
 
-  const analyzeImage = async () => {
     try {
       // 1단계: OCR 텍스트 추출
       setCurrentStep("ocr");
@@ -35,7 +31,7 @@ const OcrAnalyzingPage = () => {
 
       setProgress(60);
 
-      // 2단계: ChatGPT로 상품 정보 분석 (OCR 결과 전체를 전달)
+      // 2단계: ChatGPT로 상품 정보 분석 (즉시 처리)
       setCurrentStep("chatgpt");
 
       const chatgptResult = await ocrService.analyzeOcrResult(ocrResult.data.results);
@@ -50,23 +46,34 @@ const OcrAnalyzingPage = () => {
       console.log("🎯 결과 페이지로 전달할 데이터:", {
         originalImage: selectedFile,
         ocrData: ocrResult.data,
-        analysisResult: chatgptResult.data, // Spring Boot ApiResponseDto 구조 그대로 전달
+        analysisResult: chatgptResult.data,
       });
 
-      // 분석 완료 후 즉시 결과 페이지로 이동
+      // 즉시 이동 (딜레이 제거)
       navigate("/closet/ocr/result", {
         state: {
           originalImage: selectedFile,
           ocrData: ocrResult.data,
-          analysisResult: chatgptResult.data, // Spring Boot ApiResponseDto 구조 그대로 전달
+          analysisResult: chatgptResult.data,
         },
       });
     } catch (error) {
       console.error("분석 실패:", error);
       alert(`분석에 실패했습니다: ${error.message}`);
       navigate("/closet/ocr");
+    } finally {
+      isAnalyzing.current = false;
     }
-  };
+  }, [selectedFile, navigate]);
+
+  useEffect(() => {
+    if (!selectedFile) {
+      navigate("/closet/ocr");
+      return;
+    }
+
+    analyzeImage();
+  }, [selectedFile, analyzeImage]);
 
   const handleBack = () => {
     navigate("/closet/ocr");

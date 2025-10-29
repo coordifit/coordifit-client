@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import commonCodeService from "../../services/commonCodeService";
 import clothesService from "@/services/clothesService";
@@ -16,6 +16,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import { useQueryClient } from "@tanstack/react-query";
 import ImagePlusIcon from "@/assets/images/imageplusicon.png";
+import ArrowLeftIcon from "@/assets/images/arrow-left.png";
+import ArrowRightIcon from "@/assets/images/arrow-right.png";
 
 const MAX_PHOTOS = 5;
 
@@ -29,6 +31,22 @@ const CATEGORY_ICON_MAP = {
 
 const ClosetRegisterPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // OCR에서 전달받은 데이터
+  const {
+    ocrProducts: initialOcrProducts,
+    isMultipleRegistration,
+    originalImage,
+  } = location.state || {};
+
+  // 다중 등록을 위한 현재 인덱스 상태
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  // OCR 상품 목록을 state로 관리 (등록 완료 시 제거하기 위해)
+  const [ocrProducts, setOcrProducts] = useState(initialOcrProducts || []);
+
+  // 현재 상품 데이터 가져오기
+  const currentProduct = ocrProducts?.[currentProductIndex];
 
   const [formData, setFormData] = useState({
     name: "",
@@ -99,6 +117,44 @@ const ClosetRegisterPage = () => {
     loadCategories();
   }, []);
 
+  // OCR 데이터로 폼 초기화
+  useEffect(() => {
+    if (currentProduct) {
+      setFormData((prev) => ({
+        ...prev,
+        name: currentProduct.name || "",
+        brand: currentProduct.brand || "",
+        size: currentProduct.size || "",
+        price: currentProduct.price || "",
+        purchaseDate: currentProduct.purchaseDate || "",
+        purchaseLink: currentProduct.purchaseLink || "",
+        description: currentProduct.description || "",
+      }));
+
+      // 원본 이미지가 있다면 미리보기로 설정
+      if (originalImage && currentProductIndex === 0) {
+        setPhotoPreviews([originalImage]);
+      }
+    }
+  }, [currentProduct, currentProductIndex, originalImage]);
+
+  // 다중 등록에서 상품 변경 시 사진과 폼 데이터 초기화
+  useEffect(() => {
+    if (isMultipleRegistration && currentProductIndex > 0) {
+      // 사진 데이터 초기화
+      setPhotoPreviews([]);
+      setPhotoFiles([]);
+
+      // 카테고리 상태 초기화
+      setFormData((prev) => ({
+        ...prev,
+        category: "",
+        subCategory: "",
+      }));
+      setActiveMainCategory(null);
+    }
+  }, [currentProductIndex, isMultipleRegistration]);
+
   const handleCategorySelect = (mainCodeId, subCodeId) => {
     setFormData((prev) => ({
       ...prev,
@@ -106,6 +162,19 @@ const ClosetRegisterPage = () => {
       subCategory: subCodeId,
     }));
     setIsCategorySheetOpen(false);
+  };
+
+  // 다중 상품 네비게이션 함수들
+  const goToPreviousProduct = () => {
+    if (currentProductIndex > 0) {
+      setCurrentProductIndex((prev) => prev - 1);
+    }
+  };
+
+  const goToNextProduct = () => {
+    if (currentProductIndex < ocrProducts.length - 1) {
+      setCurrentProductIndex((prev) => prev + 1);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -180,8 +249,47 @@ const ClosetRegisterPage = () => {
       const response = await clothesService.createClothes(clothesData);
 
       if (response.success) {
-        alert("옷이 성공적으로 등록되었습니다!");
-        navigate("/closet");
+        // 다중 등록의 경우 등록된 상품을 목록에서 제거
+        if (isMultipleRegistration) {
+          // 현재 상품을 목록에서 제거
+          const updatedProducts = ocrProducts.filter((_, index) => index !== currentProductIndex);
+          setOcrProducts(updatedProducts);
+
+          if (updatedProducts.length > 0) {
+            // 남은 상품이 있는 경우
+            alert("옷이 성공적으로 등록되었습니다! 다음 상품을 등록해주세요.");
+
+            // 폼 초기화
+            setFormData({
+              name: "",
+              brand: "",
+              size: "",
+              price: "",
+              purchaseDate: "",
+              purchaseLink: "",
+              description: "",
+              category: "",
+              subCategory: "",
+            });
+            setPhotoPreviews([]);
+            setPhotoFiles([]);
+            setActiveMainCategory(null);
+
+            // 인덱스 조정: 현재 인덱스가 배열 길이보다 크거나 같으면 마지막 인덱스로
+            if (currentProductIndex >= updatedProducts.length) {
+              setCurrentProductIndex(updatedProducts.length - 1);
+            }
+            // 인덱스가 유효하면 그대로 유지 (자동으로 다음 상품으로 이동)
+          } else {
+            // 모든 상품 등록 완료
+            alert("모든 상품이 성공적으로 등록되었습니다!");
+            navigate("/closet");
+          }
+        } else {
+          // 단일 등록인 경우
+          alert("옷이 성공적으로 등록되었습니다!");
+          navigate("/closet");
+        }
       } else {
         alert(response.message || "등록에 실패했습니다.");
       }
@@ -221,7 +329,42 @@ const ClosetRegisterPage = () => {
   }
 
   return (
-    <div className={styles.page}>
+    <div
+      className={clsx(
+        styles.page,
+        isMultipleRegistration && ocrProducts.length > 1 && styles.withMultipleHeader,
+      )}
+    >
+      {/* 다중 등록 진행 상황 헤더 */}
+      {isMultipleRegistration && ocrProducts.length > 1 && (
+        <div className={styles.multipleHeader}>
+          <div className={styles.progressInfo}>
+            <span className={styles.productName}>{currentProduct?.name || "상품명 없음"}</span>
+            <span className={styles.progressText}>
+              {currentProductIndex + 1}/{ocrProducts.length}
+            </span>
+          </div>
+          <div className={styles.navigationButtons}>
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={goToPreviousProduct}
+              disabled={currentProductIndex === 0}
+            >
+              <img src={ArrowLeftIcon} alt="이전" className={styles.arrowIcon} />
+            </button>
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={goToNextProduct}
+              disabled={currentProductIndex === ocrProducts.length - 1}
+            >
+              <img src={ArrowRightIcon} alt="다음" className={styles.arrowIcon} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <form className={styles.form} onSubmit={handleSubmit}>
         {/* 사진 업로드 */}
         <section className={styles.photoSection}>
@@ -398,7 +541,11 @@ const ClosetRegisterPage = () => {
           disabled={!isFormValid || isSubmitting}
           onClick={handleSubmit} // ✅ 직접 실행 (form 밖이므로)
         >
-          {isSubmitting ? "등록 중..." : "등록하기"}
+          {isSubmitting
+            ? "등록 중..."
+            : isMultipleRegistration && ocrProducts.length > 1
+              ? `등록하기 ${currentProductIndex + 1}/${ocrProducts.length}`
+              : "등록하기"}
         </button>
       </div>
       {isCategorySheetOpen && (

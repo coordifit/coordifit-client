@@ -21,6 +21,13 @@
   flex-direction: column;
   overflow-y: auto;
   height: calc(100vh - 140px);
+  /* 스크롤바 숨김 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.content::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Webkit */
 }
 
 .resultTitle {
@@ -115,17 +122,18 @@
   display: flex;
   gap: 0px;
   overflow-x: auto;
+  overflow-y: auto; /* 세로 스크롤 기능 유지 */
   padding: 0;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
   width: 100%;
 }
 
 .productCards::-webkit-scrollbar {
-  display: none;
+  display: none; /* Chrome/Safari/Webkit */
 }
 
 .pageIndicator {
@@ -151,7 +159,7 @@
   border-radius: 12px;
   padding: 16px 0;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
   width: 100%;
   max-width: 320px;
   min-width: 320px;
@@ -160,6 +168,9 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
   margin: 0 auto;
+  transform: translateZ(0); /* 하드웨어 가속 */
+  will-change: transform; /* 성능 최적화 */
+  contain: layout style paint; /* 페인팅 최적화 */
 }
 
 .purchaseDate {

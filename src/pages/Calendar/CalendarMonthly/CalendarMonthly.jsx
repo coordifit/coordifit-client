@@ -113,8 +113,6 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
             )}
           </div>
         </button>
-
-        {/* 이번달 많이 입은 옷 */}
         <button
           type="button"
           className={cx("summaryCard")}

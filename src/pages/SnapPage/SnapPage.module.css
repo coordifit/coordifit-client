@@ -332,3 +332,31 @@
 .stats span {
   display: none;
 }
+
+/* 480px 이상에서는 360px 기준으로 고정 (반응형 제한) */
+@media (min-width: 480px) {
+  .page {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .categoryContainer {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .contentArea {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .postHeader {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .postList {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+}

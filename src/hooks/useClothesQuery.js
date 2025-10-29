@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 
 import clothesService from "@/services/clothesService";
 
-export const useClothesQuery = (options = {}, categoryId = null, subCategoryId = null) => {
+export const useClothesQuery = (options = {}) => {
   return useQuery({
-    queryKey: ["clothes", categoryId, subCategoryId],
+    queryKey: ["clothes"],
     queryFn: () => clothesService.getUserClothes(),
     staleTime: 1000 * 60 * 5,
     onError: (error) => {

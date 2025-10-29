@@ -696,7 +696,7 @@
   font-size: 13px;
   color: #555;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 
 .sortOption:hover {
@@ -761,36 +761,6 @@
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-.addButton {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: calc(100vw - 40px);
-
-  padding: 12px 24px;
-  border: none;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #222, #444);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.2px;
-  cursor: pointer;
-
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    transform: translateX(-50%) scale(1.05);
-    background: linear-gradient(135deg, #111, #333);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-  }
-
-  &:active {
-    transform: translateX(-50%) scale(0.97);
-  }
-}
 
 .viewTabButton {
   padding: 8px 20px;
@@ -847,6 +817,8 @@
 
 /* 버튼 스타일 */
 .addButton {
+  position: relative;
+  bottom: -167px;
   width: 100%;
   padding: 12px 16px;
   border: none;
@@ -860,7 +832,7 @@
   transition:
     transform 0.15s ease,
     box-shadow 0.2s ease,
-    background 0.2s ease;
+    background-color 0.2s ease;
 
   &:hover {
     transform: translateY(-1px);
@@ -870,5 +842,4 @@
   &:active {
     transform: scale(0.98);
   }
-  bottom: 89px;
 }

@@ -35,7 +35,14 @@ const CoordiDetail = () => {
   };
 
   const handleAIFitClick = () => {
-    navigate("/ai-fitting", { state: { coordi } });
+    const clothesItems = JSON.parse(coordi.data.canvasJson).map((obj) => ({
+      clothesId: obj.clothesId,
+      imageUrl: obj.imageUrl,
+      name: obj.name,
+      categoryCode: obj.categoryCode,
+    }));
+
+    navigate("/ai-fitting", { state: { clothesItems } });
   };
 
   const handleDeleteClick = async () => {

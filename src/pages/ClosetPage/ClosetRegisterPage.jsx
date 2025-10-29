@@ -14,6 +14,7 @@ import EnrollIcon from "@/assets/images/enrollicon.png";
 import CalendarIcon from "@/assets/images/calendaricon.png";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import { useQueryClient } from "@tanstack/react-query";
 import ImagePlusIcon from "@/assets/images/imageplusicon.png";
 import ArrowLeftIcon from "@/assets/images/arrow-left.png";
 import ArrowRightIcon from "@/assets/images/arrow-right.png";
@@ -62,6 +63,8 @@ const ClosetRegisterPage = () => {
   const [subCategoriesMap, setSubCategoriesMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files || []);
@@ -219,6 +222,7 @@ const ClosetRegisterPage = () => {
         files: photoFiles,
       };
 
+      queryClient.invalidateQueries(["clothes"]);
       const response = await clothesService.createClothes(clothesData);
 
       if (response.success) {

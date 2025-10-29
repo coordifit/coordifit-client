@@ -10,6 +10,7 @@ import BottomIcon from "@/assets/images/bottomicon.png";
 import ShoesIcon from "@/assets/images/shoesicon.png";
 import OuterIcon from "@/assets/images/outericon.png";
 import AccessoriesIcon from "@/assets/images/accessoriesicon.png";
+import { useQueryClient } from "@tanstack/react-query";
 import ImagePlusIcon from "@/assets/images/imageplusicon.png";
 
 const ClosetDetailPage = () => {
@@ -20,6 +21,8 @@ const ClosetDetailPage = () => {
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const queryClient = useQueryClient();
 
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategoriesMap, setSubCategoriesMap] = useState({});
@@ -195,6 +198,8 @@ const ClosetDetailPage = () => {
           deletedFileIds: deletedFileIds, // 삭제할 이미지 fileId 목록
           files: newFiles, // 새로 추가할 이미지 파일
         };
+
+        queryClient.invalidateQueries(["clothes"]);
 
         const response = await clothesService.updateClothes(itemId, updateData);
 

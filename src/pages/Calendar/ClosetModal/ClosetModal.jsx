@@ -163,6 +163,11 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                             categoryName: CATEGORIES[clothes.categoryCode].ko,
                             imageUrl: clothes.imageUrl,
                             name: clothes.name,
+                            width: clothes.width,
+                            height: clothes.height,
+                            x: clothes.x,
+                            y: clothes.y,
+                            rotation: clothes.rotation,
                           };
 
                           onAdd(parseCoordiItem);

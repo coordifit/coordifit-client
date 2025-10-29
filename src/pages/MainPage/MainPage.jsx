@@ -948,6 +948,13 @@ const MainPage = () => {
     }
   }, []);
 
+  const handleClothesItemClick = useCallback(
+    (clothesId) => {
+      navigate(`/closet/item/${clothesId}`);
+    },
+    [navigate],
+  );
+
   const handleCalendarCardClick = useCallback(
     (day) => {
       // 네비게이션 전에 한 번 더 확인
@@ -1200,7 +1207,12 @@ const MainPage = () => {
               ))
             : formattedClothes.length > 0
               ? formattedClothes.map((item) => (
-                  <div className={styles.clothesCard} key={item.clothesId}>
+                  <div
+                    className={styles.clothesCard}
+                    key={item.clothesId}
+                    onClick={() => handleClothesItemClick(item.clothesId)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <div className={styles.clothesImageWrapper}>
                       {item.imageUrl ? (
                         <img src={item.imageUrl} alt={`${item.name} 이미지`} />

@@ -17,6 +17,7 @@ import clothesService from "@/services/clothesService";
 import chevronDown from "@/assets/images/chevron-down.svg";
 import userIcon from "@/assets/images/usericon.png";
 import { requestAiFitting } from "@/services/avatars.js";
+import { CATEGORIES } from "@/constants/category";
 
 const AiFittingLanding = () => {
   const navigate = useNavigate();
@@ -46,9 +47,10 @@ const AiFittingLanding = () => {
     [avatars, selectedAvatarId],
   );
 
+  const [coordiId, setCoordiId] = useState("");
+
   const location = useLocation();
 
-  // 페이지 벗어날 때 AI 피팅 상태 초기화
   useEffect(() => {
     return () => {
       // 컴포넌트 언마운트 시 상태 초기화
@@ -112,10 +114,23 @@ const AiFittingLanding = () => {
 
     if (!locatedData) return;
 
-    console.log("locatedData", locatedData);
+    const validCategories = ["B20001", "B20002", "B20003"];
 
-    // TODO: location 에서 받아온 데이터를 updateClothingSelection 업데이트
-  }, [location.state, updateClothingSelection]);
+    const filteredCategoryData = locatedData.clothesItems.filter((item) =>
+      validCategories.includes(CATEGORIES[item.categoryCode].parent),
+    );
+
+    if (filteredCategoryData.length !== 0 && myClothes.length !== 0) {
+      const clothesMap = new Map(myClothes.map((item) => [item.id, item]));
+
+      const transData = filteredCategoryData.map((clothes) => clothesMap.get(clothes.clothesId));
+
+      setCoordiId(locatedData.coordiId);
+      transData.forEach((addTarget) => {
+        updateClothingSelection(addTarget.category, addTarget);
+      });
+    }
+  }, [location.state, updateClothingSelection, myClothes]);
 
   useEffect(() => {
     if (!avatars.length) return;
@@ -239,6 +254,7 @@ const AiFittingLanding = () => {
           selectedAvatarId,
           clothingSelection,
           selectedAvatar: avatars.find((avatar) => avatar.id === selectedAvatarId),
+          ...(coordiId && { coordiId }),
         },
       });
     } catch (error) {

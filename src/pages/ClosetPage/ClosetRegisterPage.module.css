@@ -11,15 +11,20 @@
 
 /* 다중 등록 헤더 스타일 */
 .multipleHeader {
-  position: relative;
+  position: fixed;
+  top: 68px; /* Header 높이만큼 아래에 위치 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 360px; /* Layout과 동일한 최대 너비 */
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
-  margin: 0 -32px 12px -32px;
-  padding: 16px 32px;
+  padding: 16px 12px;
   height: 70px;
+  z-index: 40;
 }
 
 .progressInfo {
@@ -132,6 +137,11 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding-bottom: 80px;
+}
+
+/* 다중 등록일 때 상단 여백 추가 */
+.page.withMultipleHeader .form {
+  margin-top: 82px; /* multipleHeader 높이(70px) + 여백(12px) */
 }
 
 .form::-webkit-scrollbar {

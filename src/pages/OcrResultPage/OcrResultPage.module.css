@@ -159,7 +159,7 @@
   border-radius: 12px;
   padding: 16px 0;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
   width: 100%;
   max-width: 320px;
   min-width: 320px;
@@ -168,6 +168,9 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
   margin: 0 auto;
+  transform: translateZ(0); /* 하드웨어 가속 */
+  will-change: transform; /* 성능 최적화 */
+  contain: layout style paint; /* 페인팅 최적화 */
 }
 
 .purchaseDate {

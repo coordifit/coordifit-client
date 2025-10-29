@@ -1,3 +1,25 @@
+/* CSS 변수로 반응형 제어 */
+:root {
+  --scale-factor: 1;
+  --base-width: 360px;
+  --base-height: 800px;
+}
+
+/* 480px 이상에서는 스케일 고정 */
+@media (min-width: 480px) {
+  :root {
+    --scale-factor: 1;
+  }
+
+  .page,
+  .pageContent,
+  .bottomArea {
+    max-width: var(--base-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .page {
   width: 100vw;
   max-width: min(400px, 100%);
@@ -32,22 +54,22 @@
 }
 
 .avatarPanel {
-  width: 80vw;
-  height: 30vh;
-  padding: 4vh 6vw;
+  width: min(80vw, 288px);
+  height: min(30vh, 240px);
+  padding: min(4vh, 32px) min(6vw, 48px);
   background: #f3f4f6;
-  border-radius: 5vw;
+  border-radius: min(5vw, 18px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1vh;
+  gap: min(1vh, 8px);
   margin: 0 auto;
 }
 
 .avatarPreviewButton {
-  width: 60vw;
-  height: 30vh;
-  border-radius: 4vw;
+  width: min(60vw, 216px);
+  height: min(30vh, 240px);
+  border-radius: min(4vw, 14.4px);
   background: #f3f4f6;
   border: none;
   padding: 0;
@@ -71,15 +93,15 @@
 }
 
 .avatarPreviewImage {
-  width: 60vw;
-  height: 30vh;
-  border-radius: 4vw;
+  width: min(60vw, 216px);
+  height: min(30vh, 240px);
+  border-radius: min(4vw, 14.4px);
   object-fit: cover;
 }
 
 .avatarPlaceholderIcon {
-  width: 20vw;
-  height: 10vh;
+  width: min(20vw, 72px);
+  height: min(10vh, 80px);
   object-fit: contain;
   opacity: 0.9;
 }
@@ -93,8 +115,8 @@
 
 .avatarHeading {
   font-weight: 700;
-  font-size: 3.5vw;
-  line-height: 5vw;
+  font-size: min(3.5vw, 12.6px);
+  line-height: min(5vw, 18px);
   color: #4b5563;
 }
 
@@ -114,8 +136,8 @@
   color: #ffffff;
   font-family: "Pretendard", sans-serif;
   font-weight: 600;
-  font-size: 3vw;
-  padding: 2.5vw 8vw;
+  font-size: min(3vw, 10.8px);
+  padding: min(2.5vw, 9px) min(8vw, 28.8px);
   cursor: pointer;
   transition:
     opacity 0.2s ease,
@@ -129,8 +151,8 @@
 .selectionSection {
   display: flex;
   flex-direction: column;
-  gap: 2vh;
-  margin-top: 2vh;
+  gap: min(2vh, 16px);
+  margin-top: min(2vh, 16px);
   width: 100%;
 }
 
@@ -138,27 +160,27 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1vh;
-  padding: 0 2vw;
+  margin-top: min(1vh, 8px);
+  padding: 0 min(2vw, 7.2px);
 }
 
 .sectionTitle {
   margin: 0;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 4.5vw;
+  font-size: min(4.5vw, 16.2px);
   font-weight: 600;
-  line-height: 7vw;
+  line-height: min(7vw, 25.2px);
   color: #333333;
 }
 
 .backToSelectionButton {
-  padding: 1.5vw 3vw;
+  padding: min(1.5vw, 5.4px) min(3vw, 10.8px);
   border: 1px solid #d1d5db;
-  border-radius: 2vw;
+  border-radius: min(2vw, 7.2px);
   background: #ffffff;
   color: #6b7280;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 3.5vw;
+  font-size: min(3.5vw, 12.6px);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -172,19 +194,19 @@
 .selectionList {
   display: flex;
   flex-direction: column;
-  gap: 1.5vh;
-  padding: 0 2vw;
+  gap: min(1.5vh, 12px);
+  padding: 0 min(2vw, 7.2px);
 }
 
 .selectionCard {
   display: flex;
   align-items: center;
-  gap: 4vw;
+  gap: min(4vw, 14.4px);
   width: 100%;
-  height: 10vh;
-  padding: 0 5vw 0 4vw;
+  height: min(10vh, 80px);
+  padding: 0 min(5vw, 18px) 0 min(4vw, 14.4px);
   border: none;
-  border-radius: 2vw;
+  border-radius: min(2vw, 7.2px);
   background: #f3f4f6;
   cursor: pointer;
   text-align: left;
@@ -201,8 +223,8 @@
 }
 
 .selectionIconWrapper {
-  width: 10vw;
-  height: 10vw;
+  width: min(10vw, 36px);
+  height: min(10vw, 36px);
   border-radius: 9999px;
   background: #ffffff;
   display: flex;
@@ -212,15 +234,15 @@
 }
 
 .selectionIcon {
-  width: 6vw;
-  height: 6vw;
+  width: min(6vw, 21.6px);
+  height: min(6vw, 21.6px);
   object-fit: contain;
 }
 
 .selectionThumbnailWrapper {
-  width: 10vw;
-  height: 10vw;
-  border-radius: 2vw;
+  width: min(10vw, 36px);
+  height: min(10vw, 36px);
+  border-radius: min(2vw, 7.2px);
   overflow: hidden;
   background: #ffffff;
   flex-shrink: 0;
@@ -236,32 +258,32 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1vw;
+  gap: min(1vw, 3.6px);
 }
 
 .selectionLabel {
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 4vw;
+  font-size: min(4vw, 14.4px);
   font-weight: 600;
-  line-height: 6vw;
+  line-height: min(6vw, 21.6px);
   color: #333333;
 }
 
 .selectionSummary {
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 3.5vw;
+  font-size: min(3.5vw, 12.6px);
   font-weight: 500;
   line-height: 20px;
   color: #6b7280;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 50vw;
+  max-width: min(50vw, 180px);
 }
 
 .selectionChevronIcon {
-  width: 6vw;
-  height: 6vw;
+  width: min(6vw, 21.6px);
+  height: min(6vw, 21.6px);
   flex-shrink: 0;
   transform: rotate(-90deg);
   transition: transform 0.2s ease;
@@ -275,12 +297,12 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-radius: 5vw;
+  border-radius: min(5vw, 18px);
   flex: 1;
-  overflow: hidden; /* 전체 패널 스크롤 제거 */
-  max-height: 60vh;
-  min-height: 25vh;
-  padding: 0 2vw;
+  overflow: hidden;
+  max-height: min(60vh, 480px);
+  min-height: min(25vh, 200px);
+  padding: 0 min(2vw, 7.2px);
 }
 
 .categoryTabs {
@@ -291,17 +313,17 @@
 
 .categoryMainLabel {
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 4vw;
+  font-size: min(4vw, 14.4px);
   font-weight: 700;
   color: #111827;
 }
 
 .subCategoryTabs {
   display: flex;
-  gap: 2vw;
+  gap: min(2vw, 7.2px);
   overflow-x: auto;
-  margin-bottom: 2vw;
-  padding-bottom: 1vw;
+  margin-bottom: min(2vw, 7.2px);
+  padding-bottom: min(1vw, 3.6px);
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -313,9 +335,9 @@
 .subCategoryButton {
   border: none;
   background: transparent;
-  padding: 2vw 3vw 1.5vw 3vw;
+  padding: min(2vw, 7.2px) min(3vw, 10.8px) min(1.5vw, 5.4px) min(3vw, 10.8px);
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 3.5vw;
+  font-size: min(3.5vw, 12.6px);
   font-weight: 600;
   color: #9ca3af;
   cursor: pointer;
@@ -335,35 +357,33 @@
 .closetGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto; /* 기본(720px 미만) 1줄 */
-  gap: 10px; /* 고정 간격 10px */
+  grid-template-rows: auto;
+  gap: 10px;
   justify-items: center;
-  overflow-y: auto; /* 그리드 내에서만 스크롤 */
+  overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(25vw + 10px); /* 기본 1줄 높이 */
+  max-height: calc(min(25vw, 90px) + 10px);
   padding-bottom: 10px;
-  /* 스크롤바 숨김 */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* 화면 높이 720px 이상일 때 2줄로 변경 */
 @media (min-height: 720px) {
   .closetGrid {
-    grid-template-rows: repeat(2, auto); /* 2줄로 변경 */
-    max-height: calc(2 * (25vw + 10px)); /* 2줄 높이로 변경 */
+    grid-template-rows: repeat(2, auto);
+    max-height: calc(2 * (min(25vw, 90px) + 10px));
   }
 }
 
 .closetGrid::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Webkit */
+  display: none;
 }
 
 .closetCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2.5vw;
+  gap: min(2.5vw, 9px);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -371,9 +391,9 @@
 }
 
 .closetThumbnail {
-  width: 25vw;
-  height: 25vw;
-  border-radius: 5vw;
+  width: min(25vw, 90px);
+  height: min(25vw, 90px);
+  border-radius: min(5vw, 18px);
   background: #f3f4f6;
   display: flex;
   align-items: center;
@@ -399,8 +419,8 @@
 
 .emptyState {
   margin: 0;
-  margin-top: 8vh;
-  font-size: 3.5vw;
+  margin-top: min(8vh, 64px);
+  font-size: min(3.5vw, 12.6px);
   color: #9ca3af;
   text-align: center;
 }
@@ -412,17 +432,17 @@
 
 .backButton {
   width: 100%;
-  height: 6vh;
+  height: min(6vh, 48px);
   border: 2px solid #e5e7eb;
-  border-radius: 3vw;
+  border-radius: min(3vw, 10.8px);
   background: #ffffff;
   color: #6b7280;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 3.8vw;
+  font-size: min(3.8vw, 13.68px);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 2vw;
+  margin-bottom: min(2vw, 7.2px);
 }
 
 .backButton:hover {
@@ -432,18 +452,18 @@
 
 .footer {
   margin-top: auto;
-  padding-top: 2vw;
+  padding-top: min(2vw, 7.2px);
 }
 
 .footerButton {
   width: 100%;
-  height: 7vh;
+  height: min(7vh, 56px);
   border: none;
   border-radius: 12px;
   background: #333333;
   color: #ffffff;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 4vw;
+  font-size: min(4vw, 14.4px);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -476,21 +496,21 @@
 }
 
 .loadingContent {
-  padding: 8vw 7vw;
-  border-radius: 4vw;
+  padding: min(8vw, 28.8px) min(7vw, 25.2px);
+  border-radius: min(4vw, 14.4px);
   background: rgba(255, 255, 255, 0.92);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3vw;
+  gap: min(3vw, 10.8px);
   box-shadow: 0px 24px 48px rgba(15, 23, 42, 0.25);
 }
 
 .loadingSpinner {
-  width: 9vw;
-  height: 9vw;
+  width: min(9vw, 32.4px);
+  height: min(9vw, 32.4px);
   border-radius: 50%;
-  border: 0.8vw solid #d1d5db;
+  border: min(0.8vw, 2.88px) solid #d1d5db;
   border-top-color: #333333;
   animation: loading-spin 1s linear infinite;
 }
@@ -498,7 +518,7 @@
 .loadingMessage {
   margin: 0;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 3.5vw;
+  font-size: min(3.5vw, 12.6px);
   font-weight: 600;
   color: #111827;
 }
@@ -514,17 +534,17 @@
 
 .confirmButtonBottom {
   position: fixed;
-  width: 90vw;
-  bottom: 12vh; /* AI 옷입히기 버튼과 같은 높이에 위치 */
+  width: min(90vw, 324px);
+  bottom: min(12vh, 96px);
   left: 50%;
   transform: translateX(-50%);
-  height: 7vh;
+  height: min(7vh, 56px);
   border: none;
-  border-radius: 3vw;
+  border-radius: min(3vw, 10.8px);
   background: #333333;
   color: #ffffff;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
-  font-size: 4vw;
+  font-size: min(4vw, 14.4px);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -534,207 +554,4 @@
 .confirmButtonBottom:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* 480px 이상에서는 360x800 기준으로 고정 (반응형 제한) */
-@media (min-width: 480px) {
-  .page {
-    max-width: 360px;
-  }
-
-  .pageContent {
-    max-width: 360px;
-  }
-
-  .bottomArea {
-    max-width: 360px;
-  }
-
-  .avatarPanel {
-    width: 288px; /* 80vw → 고정 */
-    height: 240px; /* 30vh → 고정 */
-    padding: 32px 48px; /* 4vh 6vw → 고정 */
-    border-radius: 18px; /* 5vw → 고정 */
-    gap: 8px; /* 1vh → 고정 */
-  }
-
-  .avatarPreviewButton {
-    width: 216px; /* 60vw → 고정 */
-    height: 240px; /* 30vh → 고정 */
-    border-radius: 14.4px; /* 4vw → 고정 */
-  }
-
-  .avatarPreviewImage {
-    width: 216px; /* 60vw → 고정 */
-    height: 240px; /* 30vh → 고정 */
-    border-radius: 14.4px; /* 4vw → 고정 */
-  }
-
-  .avatarPlaceholderIcon {
-    width: 72px; /* 20vw → 고정 */
-    height: 80px; /* 10vh → 고정 */
-  }
-
-  .avatarHeading {
-    font-size: 12.6px; /* 3.5vw → 고정 */
-    line-height: 18px; /* 5vw → 고정 */
-  }
-
-  .avatarAction {
-    font-size: 10.8px; /* 3vw → 고정 */
-    padding: 9px 28.8px; /* 2.5vw 8vw → 고정 */
-  }
-
-  .selectionSection {
-    gap: 16px; /* 2vh → 고정 */
-    margin-top: 16px; /* 2vh → 고정 */
-  }
-
-  .sectionHeader {
-    margin-top: 8px; /* 1vh → 고정 */
-    padding: 0 7.2px; /* 2vw → 고정 */
-  }
-
-  .sectionTitle {
-    font-size: 16.2px; /* 4.5vw → 고정 */
-    line-height: 25.2px; /* 7vw → 고정 */
-  }
-
-  .backToSelectionButton {
-    padding: 5.4px 10.8px; /* 1.5vw 3vw → 고정 */
-    border-radius: 7.2px; /* 2vw → 고정 */
-    font-size: 12.6px; /* 3.5vw → 고정 */
-  }
-
-  .selectionList {
-    gap: 12px; /* 1.5vh → 고정 */
-    padding: 0 7.2px; /* 2vw → 고정 */
-  }
-
-  .selectionCard {
-    gap: 14.4px; /* 4vw → 고정 */
-    height: 80px; /* 10vh → 고정 */
-    padding: 0 18px 0 14.4px; /* 5vw 4vw → 고정 */
-    border-radius: 7.2px; /* 2vw → 고정 */
-  }
-
-  .selectionIconWrapper {
-    width: 36px; /* 10vw → 고정 */
-    height: 36px; /* 10vw → 고정 */
-  }
-
-  .selectionIcon {
-    width: 21.6px; /* 6vw → 고정 */
-    height: 21.6px; /* 6vw → 고정 */
-  }
-
-  .selectionThumbnailWrapper {
-    width: 36px; /* 10vw → 고정 */
-    height: 36px; /* 10vw → 고정 */
-    border-radius: 7.2px; /* 2vw → 고정 */
-  }
-
-  .selectionInfo {
-    gap: 3.6px; /* 1vw → 고정 */
-  }
-
-  .selectionLabel {
-    font-size: 14.4px; /* 4vw → 고정 */
-    line-height: 21.6px; /* 6vw → 고정 */
-  }
-
-  .selectionSummary {
-    font-size: 12.6px; /* 3.5vw → 고정 */
-    max-width: 180px; /* 50vw → 고정 */
-  }
-
-  .selectionChevronIcon {
-    width: 21.6px; /* 6vw → 고정 */
-    height: 21.6px; /* 6vw → 고정 */
-  }
-
-  .closetPanel {
-    border-radius: 18px; /* 5vw → 고정 */
-    max-height: 480px; /* 60vh → 고정 */
-    min-height: 200px; /* 25vh → 고정 */
-    padding: 0 7.2px; /* 2vw → 고정 */
-  }
-
-  .subCategoryTabs {
-    gap: 7.2px; /* 2vw → 고정 */
-    margin-bottom: 7.2px; /* 2vw → 고정 */
-    padding-bottom: 3.6px; /* 1vw → 고정 */
-  }
-
-  .subCategoryButton {
-    padding: 7.2px 10.8px 5.4px 10.8px; /* 2vw 3vw 1.5vw 3vw → 고정 */
-    font-size: 12.6px; /* 3.5vw → 고정 */
-  }
-
-  .closetGrid {
-    max-height: calc(90px + 10px); /* 25vw → 90px 고정 */
-  }
-
-  .closetCard {
-    gap: 9px; /* 2.5vw → 고정 */
-  }
-
-  .closetThumbnail {
-    width: 90px; /* 25vw → 고정 */
-    height: 90px; /* 25vw → 고정 */
-    border-radius: 18px; /* 5vw → 고정 */
-  }
-
-  .emptyState {
-    margin-top: 64px; /* 8vh → 고정 */
-    font-size: 12.6px; /* 3.5vw → 고정 */
-  }
-
-  .backButton {
-    height: 48px; /* 6vh → 고정 */
-    border-radius: 10.8px; /* 3vw → 고정 */
-    font-size: 13.68px; /* 3.8vw → 고정 */
-    margin-bottom: 7.2px; /* 2vw → 고정 */
-  }
-
-  .bottomArea {
-    padding: 16px 7.2px; /* 2vh 2vw → 고정 */
-  }
-
-  .footerButton {
-    height: 56px; /* 7vh → 고정 */
-    font-size: 14.4px; /* 4vw → 고정 */
-  }
-
-  .confirmButtonBottom {
-    width: 324px; /* 90vw → 고정 */
-    bottom: 96px; /* 12vh → 고정 */
-    height: 56px; /* 7vh → 고정 */
-    border-radius: 10.8px; /* 3vw → 고정 */
-    font-size: 14.4px; /* 4vw → 고정 */
-  }
-
-  .loadingContent {
-    padding: 28.8px 25.2px; /* 8vw 7vw → 고정 */
-    border-radius: 14.4px; /* 4vw → 고정 */
-    gap: 10.8px; /* 3vw → 고정 */
-  }
-
-  .loadingSpinner {
-    width: 32.4px; /* 9vw → 고정 */
-    height: 32.4px; /* 9vw → 고정 */
-    border: 2.88px solid #d1d5db; /* 0.8vw → 고정 */
-  }
-
-  .loadingMessage {
-    font-size: 12.6px; /* 3.5vw → 고정 */
-  }
-
-  /* 미디어 쿼리 내에서 2줄 그리드 처리 */
-  @media (min-height: 720px) {
-    .closetGrid {
-      grid-template-rows: repeat(2, auto);
-      max-height: calc(2 * (90px + 10px)); /* 2줄 높이로 변경 */
-    }
-  }
 }

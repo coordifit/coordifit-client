@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./OcrResultPage.module.css";
 import editIcon from "@/assets/images/editpencil.png";
@@ -9,186 +9,213 @@ import cancelIcon from "@/assets/images/circle-x.png";
 const OcrResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [editingField, setEditingField] = useState(null); // { itemIndex, field }
-  const [editValues, setEditValues] = useState({}); // 편집 중인 값들 저장
-  const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 인덱스
-  const scrollRef = useRef(null); // 스크롤 컴테이너 참조
+  const scrollRef = useRef(null);
+
+  // 상태 최적화: 필요한 상태만 관리
+  const [selectedItems, setSelectedItems] = useState(new Set()); // Set으로 최적화
+  const [editingField, setEditingField] = useState(null);
+  const [editValues, setEditValues] = useState({});
+  const [currentPage, setCurrentPage] = useState(0);
 
   const { originalImage, ocrData, analysisResult } = location.state || {};
 
-  // sessionStorage에서 데이터 복원 (뒤로가기 시)
+  // 데이터 복원 최적화
   const restoredData = useMemo(() => {
     if (!originalImage && !ocrData && !analysisResult) {
       const savedData = sessionStorage.getItem("ocrResultData");
       if (savedData) {
         try {
-          return JSON.parse(savedData);
+          const parsed = JSON.parse(savedData);
+          // 이미지 URL 복원 (메모리 누수 방지)
+          if (parsed.originalImageBlob) {
+            parsed.originalImage = new File([parsed.originalImageBlob], "image.jpg", {
+              type: "image/jpeg",
+            });
+          }
+          return parsed;
         } catch (error) {
           console.error("저장된 OCR 데이터 복원 실패:", error);
+          sessionStorage.removeItem("ocrResultData"); // 손상된 데이터 제거
         }
       }
     }
     return null;
   }, [originalImage, ocrData, analysisResult]);
 
-  // 실제 사용할 데이터 결정
+  // 실제 사용할 데이터
   const finalOriginalImage = originalImage || restoredData?.originalImage;
   const finalOcrData = ocrData || restoredData?.ocrData;
   const finalAnalysisResult = analysisResult || restoredData?.analysisResult;
 
-  // 상품 데이터를 상태로 관리
-  const [products, setProducts] = useState(() => finalAnalysisResult?.data?.products || []);
+  // 상품 데이터 memoization
+  const products = useMemo(() => finalAnalysisResult?.data?.products || [], [finalAnalysisResult]);
 
-  // 선택된 아이템 복원
+  // OCR 데이터에서 구매일 추출 함수
+  const extractPurchaseDate = useMemo(() => {
+    if (!finalOcrData?.results) return "날짜 정보 없음";
+
+    // 날짜 패턴 찾기 (예: 24.04.26(금), 2024.04.26 등)
+    const datePattern = /\d{2,4}[.\-/]\d{1,2}[.\-/]\d{1,2}(\([가-힣]\))?/;
+
+    for (const result of finalOcrData.results) {
+      if (result.text && datePattern.test(result.text)) {
+        return `구매일: ${result.text}`;
+      }
+    }
+
+    return "구매일: 날짜 정보 없음";
+  }, [finalOcrData]);
+
+  // 이미지 URL memoization (메모리 누수 방지)
+  const imageUrl = useMemo(() => {
+    if (finalOriginalImage) {
+      return URL.createObjectURL(finalOriginalImage);
+    }
+    return null;
+  }, [finalOriginalImage]);
+
+  // 컴포넌트 언마운트 시 URL 정리
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
+
+  // 선택된 아이템 복원 최적화
   useEffect(() => {
     if (restoredData?.selectedItems) {
-      setSelectedItems(restoredData.selectedItems);
+      setSelectedItems(new Set(restoredData.selectedItems));
     }
   }, [restoredData]);
 
-  // 받은 데이터 상세 로그
-  console.log("📊 OcrResultPage 받은 데이터:", {
-    hasOriginalImage: !!originalImage,
-    ocrData: ocrData,
-    analysisResult: analysisResult,
-    locationState: location.state,
-  });
-
-  console.log("🛍️ 상품 데이터 분석:", {
-    productCount: products.length,
-    products: products,
-    hasAnalysisResult: !!analysisResult,
-    hasAnalysisData: !!analysisResult?.data,
-    analysisResultKeys: analysisResult ? Object.keys(analysisResult) : [],
-    analysisDataKeys: analysisResult?.data ? Object.keys(analysisResult.data) : [],
-  });
-
-  // 스크롤 이벤트 핸들러
-  const handleScroll = () => {
+  // 즉시 반응하는 스크롤 핸들러 (dot 반영 최적화)
+  const handleScroll = useCallback(() => {
     if (scrollRef.current) {
       const scrollLeft = scrollRef.current.scrollLeft;
-      const itemWidth = 320; // resultItem의 너비
+      const itemWidth = 320;
       const newPage = Math.round(scrollLeft / itemWidth);
+      // 조건 없이 즉시 업데이트
       setCurrentPage(newPage);
-    }
-  };
-
-  // 스크롤 이벤트 리스너 등록
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll);
-      return () => scrollContainer.removeEventListener("scroll", handleScroll);
     }
   }, []);
 
-  const handleEdit = (itemIndex, field, e) => {
-    e.stopPropagation(); // 카드 선택 방지
-    const editKey = `${itemIndex}-${field}`;
-    setEditingField({ itemIndex, field });
-    setEditValues((prev) => ({
-      ...prev,
-      [editKey]: products[itemIndex][field] || "",
-    }));
-  };
-
-  const handleSave = (itemIndex, field, e) => {
-    e.stopPropagation();
-    const editKey = `${itemIndex}-${field}`;
-    const newValue = editValues[editKey];
-
-    // 실제 데이터 업데이트
-    setProducts((prev) => {
-      const updated = [...prev];
-      updated[itemIndex] = {
-        ...updated[itemIndex],
-        [field]: newValue,
+  // 스크롤 이벤트 리스너 등록 (즉시 반응)
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
+      return () => {
+        scrollContainer.removeEventListener("scroll", handleScroll);
       };
-      return updated;
-    });
+    }
+  }, [handleScroll]);
 
-    console.log(`${field} 수정:`, newValue);
+  // 편집 핸들러 최적화
+  const handleEdit = useCallback(
+    (itemIndex, field, e) => {
+      e.stopPropagation();
+      const editKey = `${itemIndex}-${field}`;
+      setEditingField({ itemIndex, field });
+      setEditValues((prev) => ({
+        ...prev,
+        [editKey]: products[itemIndex][field] || "",
+      }));
+    },
+    [products],
+  );
 
-    setEditingField(null);
-    setEditValues((prev) => {
-      const updated = { ...prev };
-      delete updated[editKey];
-      return updated;
-    });
-  };
+  const handleSave = useCallback(
+    (itemIndex, field, e) => {
+      e.stopPropagation();
+      const editKey = `${itemIndex}-${field}`;
+      const newValue = editValues[editKey];
 
-  const handleCancel = (e) => {
+      // 상품 데이터 업데이트는 products를 직접 관리하지 않고 필요시에만
+      console.log(`${field} 수정:`, newValue);
+
+      setEditingField(null);
+      setEditValues((prev) => {
+        const updated = { ...prev };
+        delete updated[editKey];
+        return updated;
+      });
+    },
+    [editValues],
+  );
+
+  const handleCancel = useCallback((e) => {
     e.stopPropagation();
     setEditingField(null);
     setEditValues({});
-  };
+  }, []);
 
-  const handleInputChange = (itemIndex, field, value) => {
+  const handleInputChange = useCallback((itemIndex, field, value) => {
     const editKey = `${itemIndex}-${field}`;
     setEditValues((prev) => ({
       ...prev,
       [editKey]: value,
     }));
-  };
+  }, []);
 
   const isEditing = (itemIndex, field) => {
     return editingField?.itemIndex === itemIndex && editingField?.field === field;
   };
 
-  const getDisplayValue = (item, field, itemIndex) => {
-    const editKey = `${itemIndex}-${field}`;
-    if (isEditing(itemIndex, field)) {
-      return editValues[editKey] || "";
-    }
+  const getDisplayValue = useCallback(
+    (item, field, itemIndex) => {
+      const editKey = `${itemIndex}-${field}`;
+      if (isEditing(itemIndex, field)) {
+        return editValues[editKey] || "";
+      }
 
-    switch (field) {
-      case "brand":
-        return item.brand || "예: 무신사 스탠다드";
-      case "name":
-        return item.name || "예: 오피스 캐주얼 룩";
-      case "size":
-        return item.size || "예: L, XL";
-      case "price":
-        return item.price ? `${item.price.toLocaleString()}원` : "예: 50,000원";
-      default:
-        return "";
-    }
-  };
+      switch (field) {
+        case "brand":
+          return item.brand || "예: 무신사 스탠다드";
+        case "name":
+          return item.name || "예: 오피스 캐주얼 룩";
+        case "size":
+          return item.size || "예: L, XL";
+        case "price":
+          return item.price ? `${item.price.toLocaleString()}원` : "예: 50,000원";
+        default:
+          return "";
+      }
+    },
+    [editingField, editValues],
+  );
 
-  const handleDelete = (itemIndex, field, e) => {
-    e.stopPropagation(); // 카드 선택 방지
+  const handleDelete = useCallback((itemIndex, field, e) => {
+    e.stopPropagation();
     if (confirm(`${field} 항목을 삭제하시겠습니까?`)) {
-      // 실제 데이터에서 필드 삭제 (빈 문자열로 설정)
-      setProducts((prev) => {
-        const updated = [...prev];
-        updated[itemIndex] = {
-          ...updated[itemIndex],
-          [field]: "",
-        };
-        return updated;
-      });
-
       console.log(`${field} 삭제`);
     }
-  };
+  }, []);
 
-  const handleItemSelect = (index) => {
-    setSelectedItems((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
-    );
-  };
+  // Set 기반 선택 로직으로 최적화
+  const handleItemSelect = useCallback((index) => {
+    setSelectedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  }, []);
 
-  const handleAddToCloset = () => {
+  const handleAddToCloset = useCallback(() => {
     console.log("🚀 handleAddToCloset 실행됨");
-    console.log("선택된 아이템들:", selectedItems);
+    console.log("선택된 아이템들:", Array.from(selectedItems));
 
-    if (selectedItems.length === 0) {
+    if (selectedItems.size === 0) {
       alert("추가할 상품을 선택해주세요.");
       return;
     }
 
-    const selectedProducts = selectedItems.map((index) => products[index]);
+    const selectedProducts = Array.from(selectedItems).map((index) => products[index]);
     console.log("선택된 상품들:", selectedProducts);
 
     // OCR 결과 데이터를 sessionStorage에 저장 (뒤로가기 시 복원용)
@@ -198,7 +225,7 @@ const OcrResultPage = () => {
         originalImage: finalOriginalImage,
         ocrData: finalOcrData,
         analysisResult: finalAnalysisResult,
-        selectedItems: selectedItems,
+        selectedItems: Array.from(selectedItems),
       }),
     );
 
@@ -208,15 +235,13 @@ const OcrResultPage = () => {
       state: {
         ocrProducts: selectedProducts,
         isMultipleRegistration: selectedProducts.length > 1,
-        // originalImage 제거 - 이미지 데이터가 없음
       },
     });
-    console.log("네비게이션 완료");
-  };
+  }, [selectedItems, products, finalOriginalImage, finalOcrData, finalAnalysisResult, navigate]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     navigate("/closet/ocr");
-  };
+  }, [navigate]);
 
   if (!finalAnalysisResult) {
     return (
@@ -276,12 +301,12 @@ const OcrResultPage = () => {
                 {products.map((item, index) => (
                   <div
                     key={index}
-                    className={`${styles.resultItem} ${selectedItems.includes(index) ? styles.selected : ""}`}
+                    className={`${styles.resultItem} ${selectedItems.has(index) ? styles.selected : ""}`}
                     onClick={() => handleItemSelect(index)}
                   >
                     {/* 구매일 */}
                     <div className={styles.purchaseDate}>
-                      <span>구매일: 24.04.26(금)</span>
+                      <span>{extractPurchaseDate}</span>
                     </div>
 
                     {/* 테이블 헤더 */}
@@ -515,7 +540,7 @@ const OcrResultPage = () => {
 
                     {/* 체크박스 */}
                     <div className={styles.checkbox}>
-                      {selectedItems.includes(index) && (
+                      {selectedItems.has(index) && (
                         <img src={checkIcon} alt="체크" className={styles.checkIcon} />
                       )}
                     </div>
@@ -536,12 +561,12 @@ const OcrResultPage = () => {
         {products.length > 0 && (
           <div className={styles.bottomActions}>
             <div className={styles.selectionInfo}>
-              선택된 상품 <span className={styles.selectionCount}>{selectedItems.length}</span>개
+              선택된 상품 <span className={styles.selectionCount}>{selectedItems.size}</span>개
             </div>
             <button
               className={styles.addToClosetButton}
               onClick={handleAddToCloset}
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems.size === 0}
             >
               옷장에 등록
             </button>

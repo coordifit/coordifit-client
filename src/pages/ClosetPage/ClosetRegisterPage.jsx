@@ -34,10 +34,16 @@ const ClosetRegisterPage = () => {
   const location = useLocation();
 
   // OCR에서 전달받은 데이터
-  const { ocrProducts, isMultipleRegistration, originalImage } = location.state || {};
+  const {
+    ocrProducts: initialOcrProducts,
+    isMultipleRegistration,
+    originalImage,
+  } = location.state || {};
 
   // 다중 등록을 위한 현재 인덱스 상태
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  // OCR 상품 목록을 state로 관리 (등록 완료 시 제거하기 위해)
+  const [ocrProducts, setOcrProducts] = useState(initialOcrProducts || []);
 
   // 현재 상품 데이터 가져오기
   const currentProduct = ocrProducts?.[currentProductIndex];
@@ -131,6 +137,23 @@ const ClosetRegisterPage = () => {
       }
     }
   }, [currentProduct, currentProductIndex, originalImage]);
+
+  // 다중 등록에서 상품 변경 시 사진과 폼 데이터 초기화
+  useEffect(() => {
+    if (isMultipleRegistration && currentProductIndex > 0) {
+      // 사진 데이터 초기화
+      setPhotoPreviews([]);
+      setPhotoFiles([]);
+
+      // 카테고리 상태 초기화
+      setFormData((prev) => ({
+        ...prev,
+        category: "",
+        subCategory: "",
+      }));
+      setActiveMainCategory(null);
+    }
+  }, [currentProductIndex, isMultipleRegistration]);
 
   const handleCategorySelect = (mainCodeId, subCodeId) => {
     setFormData((prev) => ({
@@ -226,31 +249,45 @@ const ClosetRegisterPage = () => {
       const response = await clothesService.createClothes(clothesData);
 
       if (response.success) {
-        // 다중 등록의 경우 다음 상품으로 이동 또는 완료
-        if (isMultipleRegistration && currentProductIndex < ocrProducts.length - 1) {
-          alert("옷이 성공적으로 등록되었습니다! 다음 상품을 등록해주세요.");
-          // 폼 초기화
-          setFormData({
-            name: "",
-            brand: "",
-            size: "",
-            price: "",
-            purchaseDate: "",
-            purchaseLink: "",
-            description: "",
-            category: "",
-            subCategory: "",
-          });
-          setPhotoPreviews([]);
-          setPhotoFiles([]);
-          // 다음 상품으로 이동
-          setCurrentProductIndex((prev) => prev + 1);
+        // 다중 등록의 경우 등록된 상품을 목록에서 제거
+        if (isMultipleRegistration) {
+          // 현재 상품을 목록에서 제거
+          const updatedProducts = ocrProducts.filter((_, index) => index !== currentProductIndex);
+          setOcrProducts(updatedProducts);
+
+          if (updatedProducts.length > 0) {
+            // 남은 상품이 있는 경우
+            alert("옷이 성공적으로 등록되었습니다! 다음 상품을 등록해주세요.");
+
+            // 폼 초기화
+            setFormData({
+              name: "",
+              brand: "",
+              size: "",
+              price: "",
+              purchaseDate: "",
+              purchaseLink: "",
+              description: "",
+              category: "",
+              subCategory: "",
+            });
+            setPhotoPreviews([]);
+            setPhotoFiles([]);
+            setActiveMainCategory(null);
+
+            // 인덱스 조정: 현재 인덱스가 배열 길이보다 크거나 같으면 마지막 인덱스로
+            if (currentProductIndex >= updatedProducts.length) {
+              setCurrentProductIndex(updatedProducts.length - 1);
+            }
+            // 인덱스가 유효하면 그대로 유지 (자동으로 다음 상품으로 이동)
+          } else {
+            // 모든 상품 등록 완료
+            alert("모든 상품이 성공적으로 등록되었습니다!");
+            navigate("/closet");
+          }
         } else {
-          // 단일 등록이거나 마지막 상품인 경우
-          const message = isMultipleRegistration
-            ? "모든 상품이 성공적으로 등록되었습니다!"
-            : "옷이 성공적으로 등록되었습니다!";
-          alert(message);
+          // 단일 등록인 경우
+          alert("옷이 성공적으로 등록되었습니다!");
           navigate("/closet");
         }
       } else {
@@ -292,9 +329,14 @@ const ClosetRegisterPage = () => {
   }
 
   return (
-    <div className={styles.page}>
+    <div
+      className={clsx(
+        styles.page,
+        isMultipleRegistration && ocrProducts.length > 1 && styles.withMultipleHeader,
+      )}
+    >
       {/* 다중 등록 진행 상황 헤더 */}
-      {isMultipleRegistration && (
+      {isMultipleRegistration && ocrProducts.length > 1 && (
         <div className={styles.multipleHeader}>
           <div className={styles.progressInfo}>
             <span className={styles.productName}>{currentProduct?.name || "상품명 없음"}</span>
@@ -501,7 +543,7 @@ const ClosetRegisterPage = () => {
         >
           {isSubmitting
             ? "등록 중..."
-            : isMultipleRegistration
+            : isMultipleRegistration && ocrProducts.length > 1
               ? `등록하기 ${currentProductIndex + 1}/${ocrProducts.length}`
               : "등록하기"}
         </button>

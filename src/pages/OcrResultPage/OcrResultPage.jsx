@@ -6,70 +6,128 @@ import trashIcon from "@/assets/images/trash.png";
 import checkIcon from "@/assets/images/checkicon.png";
 import cancelIcon from "@/assets/images/circle-x.png";
 
+// IndexedDB 헬퍼 함수들
+const DB_NAME = "OcrDataDB";
+const STORE_NAME = "ocrData";
+
+const openDB = () => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+  });
+};
+
+const saveToIndexedDB = async (key, value) => {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    store.put(value, key);
+
+    return new Promise((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } catch (error) {
+    console.error("IndexedDB 저장 실패:", error);
+    throw error;
+  }
+};
+
+const loadFromIndexedDB = async (key) => {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction([STORE_NAME], "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.get(key);
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("IndexedDB 로드 실패:", error);
+    return null;
+  }
+};
+
 const OcrResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const scrollRef = useRef(null);
 
   // 상태 최적화: 필요한 상태만 관리
-  const [selectedItems, setSelectedItems] = useState(new Set()); // Set으로 최적화
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const [editingField, setEditingField] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
+  const [isDataLoading, setIsDataLoading] = useState(false);
 
   const { originalImage, ocrData, analysisResult } = location.state || {};
 
-  // 데이터 복원 최적화
-  const restoredData = useMemo(() => {
-    if (!originalImage && !ocrData && !analysisResult) {
-      const savedData = sessionStorage.getItem("ocrResultData");
-      if (savedData) {
+  // 실제 사용할 데이터
+  const [finalOriginalImage, setFinalOriginalImage] = useState(originalImage);
+  const [finalOcrData, setFinalOcrData] = useState(ocrData);
+  const [finalAnalysisResult, setFinalAnalysisResult] = useState(analysisResult);
+
+  // IndexedDB에서 데이터 복원
+  useEffect(() => {
+    const restoreData = async () => {
+      if (!originalImage && !ocrData && !analysisResult) {
+        setIsDataLoading(true);
         try {
-          const parsed = JSON.parse(savedData);
-          // 이미지 URL 복원 (메모리 누수 방지)
-          if (parsed.originalImageBlob) {
-            parsed.originalImage = new File([parsed.originalImageBlob], "image.jpg", {
-              type: "image/jpeg",
-            });
-          }
-          return parsed;
+          // IndexedDB에서 데이터 로드
+          const savedImage = await loadFromIndexedDB("originalImage");
+          const savedOcrData = await loadFromIndexedDB("ocrData");
+          const savedAnalysisResult = await loadFromIndexedDB("analysisResult");
+          const savedSelectedItems = await loadFromIndexedDB("selectedItems");
+
+          if (savedImage) setFinalOriginalImage(savedImage);
+          if (savedOcrData) setFinalOcrData(savedOcrData);
+          if (savedAnalysisResult) setFinalAnalysisResult(savedAnalysisResult);
+          if (savedSelectedItems) setSelectedItems(new Set(savedSelectedItems));
         } catch (error) {
-          console.error("저장된 OCR 데이터 복원 실패:", error);
-          sessionStorage.removeItem("ocrResultData"); // 손상된 데이터 제거
+          console.error("데이터 복원 실패:", error);
+        } finally {
+          setIsDataLoading(false);
         }
       }
-    }
-    return null;
+    };
+
+    restoreData();
   }, [originalImage, ocrData, analysisResult]);
 
-  // 실제 사용할 데이터
-  const finalOriginalImage = originalImage || restoredData?.originalImage;
-  const finalOcrData = ocrData || restoredData?.ocrData;
-  const finalAnalysisResult = analysisResult || restoredData?.analysisResult;
-
-  // 상품 데이터 memoization
   const products = useMemo(() => finalAnalysisResult?.data?.products || [], [finalAnalysisResult]);
 
-  // OCR 데이터에서 구매일 추출 함수
   const extractPurchaseDate = useMemo(() => {
     if (!finalOcrData?.results) return "날짜 정보 없음";
-
-    // 날짜 패턴 찾기 (예: 24.04.26(금), 2024.04.26 등)
     const datePattern = /\d{2,4}[.\-/]\d{1,2}[.\-/]\d{1,2}(\([가-힣]\))?/;
-
     for (const result of finalOcrData.results) {
       if (result.text && datePattern.test(result.text)) {
         return `구매일: ${result.text}`;
       }
     }
-
     return "구매일: 날짜 정보 없음";
   }, [finalOcrData]);
 
-  // 이미지 URL memoization (메모리 누수 방지)
+  // 이미지 URL memoization
   const imageUrl = useMemo(() => {
-    if (finalOriginalImage) {
-      return URL.createObjectURL(finalOriginalImage);
+    if (finalOriginalImage && finalOriginalImage instanceof File) {
+      try {
+        return URL.createObjectURL(finalOriginalImage);
+      } catch (error) {
+        console.error("createObjectURL 실패:", error);
+        return null;
+      }
     }
     return null;
   }, [finalOriginalImage]);
@@ -78,30 +136,23 @@ const OcrResultPage = () => {
   useEffect(() => {
     return () => {
       if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
+        try {
+          URL.revokeObjectURL(imageUrl);
+        } catch (e) {}
       }
     };
   }, [imageUrl]);
 
-  // 선택된 아이템 복원 최적화
-  useEffect(() => {
-    if (restoredData?.selectedItems) {
-      setSelectedItems(new Set(restoredData.selectedItems));
-    }
-  }, [restoredData]);
-
-  // 즉시 반응하는 스크롤 핸들러 (dot 반영 최적화)
+  // 스크롤 핸들러
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
       const scrollLeft = scrollRef.current.scrollLeft;
       const itemWidth = 320;
       const newPage = Math.round(scrollLeft / itemWidth);
-      // 조건 없이 즉시 업데이트
       setCurrentPage(newPage);
     }
   }, []);
 
-  // 스크롤 이벤트 리스너 등록 (즉시 반응)
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (scrollContainer) {
@@ -112,7 +163,7 @@ const OcrResultPage = () => {
     }
   }, [handleScroll]);
 
-  // 편집 핸들러 최적화
+  // 편집 핸들러
   const handleEdit = useCallback(
     (itemIndex, field, e) => {
       e.stopPropagation();
@@ -131,10 +182,7 @@ const OcrResultPage = () => {
       e.stopPropagation();
       const editKey = `${itemIndex}-${field}`;
       const newValue = editValues[editKey];
-
-      // 상품 데이터 업데이트는 products를 직접 관리하지 않고 필요시에만
       console.log(`${field} 수정:`, newValue);
-
       setEditingField(null);
       setEditValues((prev) => {
         const updated = { ...prev };
@@ -193,7 +241,6 @@ const OcrResultPage = () => {
     }
   }, []);
 
-  // Set 기반 선택 로직으로 최적화
   const handleItemSelect = useCallback((index) => {
     setSelectedItems((prev) => {
       const newSet = new Set(prev);
@@ -206,7 +253,7 @@ const OcrResultPage = () => {
     });
   }, []);
 
-  const handleAddToCloset = useCallback(() => {
+  const handleAddToCloset = useCallback(async () => {
     console.log("🚀 handleAddToCloset 실행됨");
     console.log("선택된 아이템들:", Array.from(selectedItems));
 
@@ -218,30 +265,57 @@ const OcrResultPage = () => {
     const selectedProducts = Array.from(selectedItems).map((index) => products[index]);
     console.log("선택된 상품들:", selectedProducts);
 
-    // OCR 결과 데이터를 sessionStorage에 저장 (뒤로가기 시 복원용)
-    sessionStorage.setItem(
-      "ocrResultData",
-      JSON.stringify({
-        originalImage: finalOriginalImage,
-        ocrData: finalOcrData,
-        analysisResult: finalAnalysisResult,
-        selectedItems: Array.from(selectedItems),
-      }),
-    );
+    try {
+      // IndexedDB에 데이터 저장 (File 객체 그대로 저장 가능)
+      await saveToIndexedDB("originalImage", finalOriginalImage);
+      await saveToIndexedDB("ocrData", finalOcrData);
+      await saveToIndexedDB("analysisResult", finalAnalysisResult);
+      await saveToIndexedDB("selectedItems", Array.from(selectedItems));
 
-    // 선택된 상품들을 옷장 등록 페이지로 전달
-    console.log("네비게이션 시작: /closet/register");
-    navigate("/closet/register", {
-      state: {
-        ocrProducts: selectedProducts,
-        isMultipleRegistration: selectedProducts.length > 1,
-      },
-    });
+      // 상품 정보만 navigation state로 전달
+      navigate("/closet/register", {
+        state: {
+          ocrProducts: selectedProducts,
+          isMultipleRegistration: selectedProducts.length > 1,
+        },
+      });
+    } catch (error) {
+      console.error("데이터 저장 실패:", error);
+      // 저장 실패해도 일단 이동
+      navigate("/closet/register", {
+        state: {
+          ocrProducts: selectedProducts,
+          isMultipleRegistration: selectedProducts.length > 1,
+        },
+      });
+    }
   }, [selectedItems, products, finalOriginalImage, finalOcrData, finalAnalysisResult, navigate]);
 
   const handleRetry = useCallback(() => {
     navigate("/closet/ocr");
   }, [navigate]);
+
+  useEffect(() => {
+    // 데이터 복원 완료 후 인디케이터 동기화
+    if (!isDataLoading && scrollRef.current && products.length > 0) {
+      const scrollLeft = scrollRef.current.scrollLeft;
+      const itemWidth = 320;
+      const newPage = Math.round(scrollLeft / itemWidth);
+      setCurrentPage(newPage);
+    }
+  }, [isDataLoading, products.length]);
+
+  if (isDataLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <div style={{ textAlign: "center", padding: "50px" }}>
+            <p>데이터를 불러오는 중...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!finalAnalysisResult) {
     return (
@@ -265,16 +339,11 @@ const OcrResultPage = () => {
 
         <h3 className={styles.sectionTitle}>실물 사진</h3>
         <div className={styles.originalImageSection}>
-          {finalOriginalImage && finalOriginalImage instanceof File && (
-            <img
-              src={URL.createObjectURL(finalOriginalImage)}
-              alt="원본 영수증 이미지"
-              className={styles.originalImage}
-            />
+          {imageUrl && (
+            <img src={imageUrl} alt="원본 영수증 이미지" className={styles.originalImage} />
           )}
         </div>
 
-        {/* 총 개수 메시지 - 실물 사진 바로 아래 */}
         <div className={styles.countMessage}>
           <p className={styles.countText}>총 {products.length}건의 구매 물건이 감지되었습니다.</p>
           <p className={styles.instructionText}>
@@ -285,7 +354,6 @@ const OcrResultPage = () => {
         <div className={styles.resultSection}>
           {products.length > 0 ? (
             <div className={styles.productsContainer}>
-              {/* 페이지 인디케이터를 카드 위에 배치 */}
               {products.length > 1 && (
                 <div className={styles.pageIndicator}>
                   {products.map((_, index) => (
@@ -304,18 +372,15 @@ const OcrResultPage = () => {
                     className={`${styles.resultItem} ${selectedItems.has(index) ? styles.selected : ""}`}
                     onClick={() => handleItemSelect(index)}
                   >
-                    {/* 구매일 */}
                     <div className={styles.purchaseDate}>
                       <span>{extractPurchaseDate}</span>
                     </div>
 
-                    {/* 테이블 헤더 */}
                     <div className={styles.tableHeader}>
                       <div className={styles.headerCell}>Filed</div>
                       <div className={styles.headerCell}>Value</div>
                     </div>
 
-                    {/* 데이터 행들 */}
                     <div className={styles.tableBody}>
                       {/* 브랜드 행 */}
                       <div className={styles.tableRow}>
@@ -538,7 +603,6 @@ const OcrResultPage = () => {
                       </div>
                     </div>
 
-                    {/* 체크박스 */}
                     <div className={styles.checkbox}>
                       {selectedItems.has(index) && (
                         <img src={checkIcon} alt="체크" className={styles.checkIcon} />

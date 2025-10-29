@@ -7,10 +7,10 @@ const getCanvasPosition = (categoryCode) => {
   const parentCategory = CATEGORIES[categoryCode].parent;
 
   const map = {
-    B20001: { x: centerX - 80, y: centerY - 220, scale: 0.5 },
-    B20004: { x: centerX - 200, y: centerY - 120, scale: 0.5 },
-    B20002: { x: centerX - 80, y: centerY - 30, scale: 0.5 },
-    B20003: { x: centerX - 40, y: centerY + 70, scale: 0.4 },
+    B20001: { x: centerX - 20, y: centerY - 170, scale: 0.5 },
+    B20002: { x: centerX - 20, y: centerY - 40, scale: 0.5 },
+    B20003: { x: centerX - 20, y: centerY + 60, scale: 0.4 },
+    B20004: { x: centerX - 150, y: centerY - 120, scale: 0.5 },
     B20005: { x: centerX - 150, y: centerY + 80, scale: 0.3 },
   };
 

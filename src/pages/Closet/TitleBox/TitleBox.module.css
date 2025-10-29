@@ -9,7 +9,12 @@
   color: #222;
   letter-spacing: -0.2px;
   line-height: 1.6;
-  white-space: pre-wrap;
+
+  width: 53%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 }
 
 .placeholderBox {

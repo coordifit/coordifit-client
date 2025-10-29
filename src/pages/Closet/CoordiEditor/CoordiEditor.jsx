@@ -18,6 +18,8 @@ import { api } from "@/services/axiosInstance";
 import Button from "@/components/Button/Button";
 
 const cn = classNames.bind(styles);
+const MAX_NAME_LEN = 30;
+const MAX_DESC_LEN = 200;
 
 const CoordiEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -26,9 +28,12 @@ const CoordiEditor = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [description, setDescription] = useState("");
   const [coordiName, setCoordiName] = useState("");
+  const [errors, setErrors] = useState({ name: "", desc: "" });
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadStatusMap, setLoadStatusMap] = useState({});
 
   const pastClothesRef = useRef([]);
   const queryClient = useQueryClient();
@@ -61,6 +66,18 @@ const CoordiEditor = () => {
   const { data: coordi = { data: {} } } = useCoordiByIdQuery(coordiId);
 
   useEffect(() => {
+    const statuses = Object.values(loadStatusMap);
+
+    if (statuses.length === 0) {
+      setIsLoading(false);
+    } else if (statuses.every((s) => s === "loaded")) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+  }, [loadStatusMap]);
+
+  useEffect(() => {
     if (coordi?.data?.canvasJson) {
       const pastClothes = JSON.parse(coordi.data.canvasJson);
 
@@ -80,6 +97,34 @@ const CoordiEditor = () => {
     setIsDirty((prev) => (prev !== dirtyNow ? dirtyNow : prev));
   }, [coordi, coordiItems, coordi?.data?.coordiName, coordi?.data?.description]);
 
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    if (value.length > MAX_NAME_LEN) {
+      setErrors((prev) => ({
+        ...prev,
+        name: `제목은 ${MAX_NAME_LEN}자 이하로 입력해주세요.`,
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, name: "" }));
+    }
+    setCoordiName(value);
+  };
+
+  const isInvalid = !!errors.name || !!errors.desc || !coordiName.trim() || !description.trim();
+
+  const handleDescChange = (e) => {
+    const value = e.target.value;
+    if (value.length > MAX_DESC_LEN) {
+      setErrors((prev) => ({
+        ...prev,
+        desc: `상세 설명은 ${MAX_DESC_LEN}자 이하로 입력해주세요.`,
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, desc: "" }));
+    }
+    setDescription(value);
+  };
+
   const handleClickSave = () => {
     setIsModalOpen(true);
   };
@@ -88,24 +133,44 @@ const CoordiEditor = () => {
     setIsModalOpen(false);
   };
 
+  const handleLoadStatus = (id, status) => {
+    setLoadStatusMap((prev) => ({ ...prev, [id]: status }));
+  };
+
   const addToCanvas = (item) => {
-    const pos = getCanvasPosition(item.categoryCode);
+    const pos =
+      item.x != null && item.y != null
+        ? { x: item.x, y: item.y, scale: 1 }
+        : getCanvasPosition(item.categoryCode);
 
-    const konvaObject = {
-      instanceId: `${item.clothesId}-${Date.now()}`,
-      clothesId: item.clothesId,
-      imageUrl: item.imageUrl,
-      name: item.name,
-      categoryCode: item.categoryCode,
-      x: pos.x,
-      y: pos.y,
-      scaleX: pos.scale,
-      scaleY: pos.scale,
-      rotation: item.roation,
+    const img = new Image();
+    img.src = item.imageUrl;
+    img.onload = () => {
+      const maxWidth = 350;
+      let scale = 1;
+
+      if (img.width > maxWidth) {
+        scale = maxWidth / img.width;
+      }
+
+      const konvaObject = {
+        instanceId: `${item.clothesId}-${Date.now()}`,
+        clothesId: item.clothesId,
+        imageUrl: item.imageUrl,
+        name: item.name,
+        categoryCode: item.categoryCode,
+        x: pos.x,
+        y: pos.y,
+        scaleX: (pos.scale ?? 1) * scale,
+        scaleY: (pos.scale ?? 1) * scale,
+        rotation: item.rotation ?? 0,
+        ...(item.width && { width: item.width }),
+        ...(item.height && { height: item.height }),
+      };
+
+      addCoordiItem(konvaObject);
+      setSelectedId(konvaObject.clothesId);
     };
-
-    addCoordiItem(konvaObject);
-    setSelectedId(konvaObject.clothesId);
   };
 
   const removeSelected = () => {
@@ -160,6 +225,14 @@ const CoordiEditor = () => {
     <div className={cn("wrapper")}>
       <header className={cn("header")}></header>
       <div className={cn("editorRow")}>
+        {isLoading && (
+          <div className={cn("canvas-loading-center")}>
+            <div className={cn("loading-blur-box")}>
+              <div className={cn("spinner")} />
+              <p className={cn("loading-text")}>이미지 추가 중...</p>
+            </div>
+          </div>
+        )}
         <div className={cn("canvasCard")}>
           <Stage
             ref={stageRef}
@@ -184,6 +257,7 @@ const CoordiEditor = () => {
                   isSelected={item.clothesId === selectedId}
                   onSelect={() => setSelectedId(item.clothesId)}
                   onChange={(next) => updateCoordiItem(item.clothesId, next)}
+                  onLoad={handleLoadStatus}
                 />
               ))}
             </Layer>
@@ -248,29 +322,31 @@ const CoordiEditor = () => {
           onClose={handleClickCancel}
           children={
             <>
-              <div className={styles.field}>
-                <label className={styles.label}>코디 제목</label>
+              <div className={cn("field")}>
+                <label className={cn("label")}>코디 제목</label>
                 <input
-                  className={styles.input}
+                  className={cn("input")}
                   placeholder="예) 오피스 캐주얼 룩"
                   value={coordiName}
-                  onChange={(e) => setCoordiName(e.target.value)}
+                  onChange={handleNameChange}
                 />
+                {errors.name && <p className={cn("error")}>{errors.name}</p>}
               </div>
 
-              <div className={styles.field}>
-                <label className={styles.label}>상세 설명</label>
+              <div className={cn("field")}>
+                <label className={cn("label")}>상세 설명</label>
                 <input
-                  className={styles.input}
+                  className={cn("input")}
                   placeholder="코디의 포인트나 특징을 자유롭게 써주세요"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={handleDescChange}
                 />
+                {errors.desc && <p className={cn("error")}>{errors.desc}</p>}
               </div>
               <button
-                className={styles.saveButton}
+                className={cn("saveButton")}
                 onClick={saveImage}
-                disabled={isSaving || !coordiName.trim() || !description.trim()}
+                disabled={isSaving || isInvalid}
               >
                 {isSaving ? "저장 중..." : "저장하기"}
               </button>

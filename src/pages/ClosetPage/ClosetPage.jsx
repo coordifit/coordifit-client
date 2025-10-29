@@ -465,7 +465,9 @@ const ClosetPage = () => {
                       )}
                     </div>
                     <div className={styles.cardContent}>
-                      <p className={styles.cardName}>{item.coordiName}</p>
+                      <p className={`${styles.cardName} ${styles.coordiCardName}`}>
+                        {item.coordiName}
+                      </p>
                     </div>
                   </article>
                 );

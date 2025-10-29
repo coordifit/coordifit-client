@@ -32,8 +32,8 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
 
   if (isLoading) {
     return (
-      <div className={cx("loadingWrap")} role="status" aria-live="polite" aria-busy="true">
-        <div className={cx("spinner")} aria-hidden="true" />
+      <div className={cx("loadingWrap")}>
+        <div className={cx("spinner")} />
         <p className={cx("loadingTitle")}>달력 데이터를 불러오는 중</p>
         <p className={cx("loadingSub")}>잠시만 기다려 주세요…</p>
       </div>

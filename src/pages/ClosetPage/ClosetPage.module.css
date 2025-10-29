@@ -389,6 +389,10 @@
   -webkit-box-orient: vertical;
 }
 
+.coordiCardName {
+  margin-top: 13px;
+}
+
 .cardMeta {
   width: 100%;
   font-size: 8px;

@@ -5,6 +5,8 @@ import styles from "./AiFittingResultPage.module.css";
 import { useAiFittingStore } from "@/stores/aiFittingStore";
 import autoAwesomeIcon from "@/assets/images/auto_awesome.png";
 import { requestFittingAnalysis } from "@/services/avatars.js";
+import { api } from "@/services/axiosInstance";
+import { useQueryClient } from "@tanstack/react-query";
 
 const fallbackResultImage =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80";
@@ -20,8 +22,16 @@ const AiFittingResultPage = () => {
   const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
   const clothingSelection = useAiFittingStore((state) => state.clothingSelection);
   const resetAiFittingState = useAiFittingStore((state) => state.resetAiFittingState);
-
+  const { targetCoordiId, setTargetCoordiId, resetTargetCoordiId } = useAiFittingStore();
+  const [isLoading, setIsLoading] = useState();
   const location = useLocation();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (location.state?.targetCoordiId && !targetCoordiId) {
+      setTargetCoordiId(location.state.targetCoordiId);
+    }
+  }, [location.state]);
 
   // ✅ data 혹은 imageBase64 둘 다 대응
   const imageBase64 = location.state?.imageBase64 || location.state?.data?.imageBase64 || null;
@@ -234,14 +244,53 @@ const AiFittingResultPage = () => {
         </div>
 
         <div className={styles.actionRow}>
-          <button type="button" className={styles.saveButton}>
+          <button
+            type="button"
+            className={styles.saveButton}
+            onClick={async () => {
+              setIsLoading(true);
+              try {
+                if (targetCoordiId) {
+                  const cleanBase64 = imageBase64.replace(/\s+/g, "");
+                  const dataUrl = `data:image/png;base64,${cleanBase64}`;
+
+                  await api.put(`/coordi/${targetCoordiId}/ai-image`, { dataUrl });
+                  queryClient.invalidateQueries(["coordi", targetCoordiId]);
+                  navigate(`/closet/coordi/${targetCoordiId}`);
+                } else {
+                  const fittingItems = Object.values(location.state.clothingSelection).filter(
+                    (obj) => !!obj,
+                  );
+
+                  navigate("/closet/coordi/editor", {
+                    state: {
+                      clothesItems: fittingItems,
+                      dataUrl: imageBase64,
+                    },
+                  });
+                }
+              } catch (error) {
+                console.error(error);
+              } finally {
+                resetTargetCoordiId();
+                setIsLoading(false);
+              }
+            }}
+          >
             코디에 저장하기
           </button>
           <button type="button" className={styles.retryButton} onClick={handleRetry}>
             다른 옷 입히기
           </button>
         </div>
-
+        {isLoading && (
+          <div className={styles.loadingOverlay}>
+            <div className={styles.loadingBox}>
+              <div className={styles.spinner}></div>
+              <p className={styles.loadingText}>이미지를 저장 중입니다...</p>
+            </div>
+          </div>
+        )}
         <button
           type="button"
           className={`${styles.analysisToggle} ${showAnalysis ? styles.active : ""}`}

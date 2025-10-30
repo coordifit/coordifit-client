@@ -48,16 +48,6 @@ const CoordiEditor = () => {
   const { coordiId } = useParams();
   const location = useLocation();
 
-  useEffect(() => {
-    if (location.state?.dataUrl) {
-      setAiExists(true);
-    }
-
-    if (location.state?.clothesList) {
-      console.log("location.state?.clothesList", location.state?.clothesList);
-    }
-  }, [location]);
-
   const {
     coordiItems,
     setCoordiItems,
@@ -82,7 +72,7 @@ const CoordiEditor = () => {
       clearCoordiItems();
       setDescription("");
       setCoordiName("");
-      navigate(-1);
+      navigate("/closet", { state: { isCoordiTab: true } });
     }
   });
 
@@ -110,7 +100,6 @@ const CoordiEditor = () => {
       setCoordiName(coordi.data.coordiName || "");
     }
 
-    console.log("coordidata", coordi.data);
     if (coordi?.data?.aiImageUrl) {
       setAiImageUrl(coordi?.data?.aiImageUrl);
       setAiExists(true);
@@ -198,6 +187,18 @@ const CoordiEditor = () => {
     };
   };
 
+  useEffect(() => {
+    if (location.state?.dataUrl) {
+      setAiExists(true);
+    }
+
+    if (location.state?.clothesItems) {
+      location.state.clothesItems.forEach((itemData) => {
+        addToCanvas(itemData.apiData);
+      });
+    }
+  }, [location.state]);
+
   const removeSelected = () => {
     if (!selectedId) return;
     removeCooridItem(selectedId);
@@ -223,7 +224,6 @@ const CoordiEditor = () => {
         formData.append("coordiName", coordiName);
         formData.append("canvasJson", JSON.stringify(coordiItems));
 
-        console.log("canvasJson", JSON.stringify(coordiItems));
         if (coordiId) {
           if (aiExists && !aiImageUrl) {
             const cleanBase64 = location.state.dataUrl.value.replace(/\s+/g, "");
@@ -252,7 +252,7 @@ const CoordiEditor = () => {
         setDescription("");
 
         setTimeout(() => {
-          navigate("/closet", { replace: true });
+          navigate("/closet", { replace: true, state: { isCoordiTab: true } });
         }, 0);
 
         queryClient.invalidateQueries(["coordis"]);
@@ -358,7 +358,6 @@ const CoordiEditor = () => {
               type="text"
               name="description"
               className={cn("descInput", errors.desc && "error")}
-              defaultValue={description}
               value={description}
               placeholder="설명을 입력하세요 (최대 200자)"
               onChange={(e) => {
@@ -443,7 +442,7 @@ const CoordiEditor = () => {
           ) : aiExists ? (
             <>
               <img
-                src={aiImageUrl}
+                src={aiImageUrl || `data:image/png;base64,${location.state?.dataUrl}`}
                 alt="" // 장식용
                 className={cn("aiLayer")}
               />
@@ -491,7 +490,7 @@ const CoordiEditor = () => {
               clearCoordiItems();
               setDescription("");
               setCoordiName("");
-              navigate(-1);
+              navigate("/closet", { state: { isCoordiTab: true } });
             }}
             style="secondary"
           >

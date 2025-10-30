@@ -5,7 +5,6 @@ import styles from "./ClosetPage.module.css";
 import CommonCodeService from "@/services/commonCodeService";
 import clothesService from "@/services/clothesService";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
-import CheckIcon from "@/assets/images/checkicon.png";
 import AddItemModal from "@/components/AddItemModal/AddItemModal";
 import clothsenrollIcon from "@/assets/images/clothsenroll.png";
 import paymentIcon from "@/assets/images/payment.png";
@@ -107,11 +106,6 @@ const ClosetPage = () => {
     if (location.state && mainCategories.length > 0) {
       const { selectedMainCategory, selectedSubCategory } = location.state;
 
-      console.log("MainPage에서 전달받은 카테고리:", {
-        selectedMainCategory,
-        selectedSubCategory,
-      });
-
       // 메인 카테고리 설정
       if (selectedMainCategory && selectedMainCategory !== "all") {
         const validMainCategory = mainCategories.find((cat) => cat.codeId === selectedMainCategory);
@@ -130,6 +124,10 @@ const ClosetPage = () => {
           }
         }
       }
+    }
+
+    if (location.state?.isCoordiTab) {
+      setActiveTab("B20007");
     }
   }, [location.state, mainCategories, subCategoriesMap]);
 
@@ -220,7 +218,19 @@ const ClosetPage = () => {
     }
 
     if (viewMode === "ai" && !item.aiImageUrl) {
-      navigate("/ai-fitting");
+      const clothesItems = JSON.parse(item.canvasJson).map((obj) => ({
+        clothesId: obj.clothesId,
+        imageUrl: obj.imageUrl,
+        name: obj.name,
+        categoryCode: obj.categoryCode,
+      }));
+
+      navigate("/ai-fitting", {
+        state: {
+          coordiId: item.coordiId,
+          clothesItems: clothesItems,
+        },
+      });
     } else {
       navigate(`/closet/coordi/${item.coordiId}`);
     }
@@ -478,7 +488,6 @@ const ClosetPage = () => {
                         alt={item.coordiName}
                         className={viewMode === "ai" ? aiImageStyle : styles.cardImage}
                       />
-                      {console.log("item", item)}
                       {viewMode === "ai" && !item.aiImageUrl && (
                         <button
                           type="button"

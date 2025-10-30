@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { TbShirt } from "react-icons/tb";
 import classNames from "classnames/bind";
@@ -23,12 +23,17 @@ const CoordiDetail = () => {
   const { coordiId } = useParams();
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState("coordi");
+  const [isLoading, setIsLoading] = useState("");
 
-  const { data: coordi = { data: [] }, isLoading } = useCoordiByIdQuery(coordiId);
+  const { data: coordi = { data: [] } } = useCoordiByIdQuery(coordiId);
 
-  if (isLoading) {
-    return <h1>loading</h1>;
-  }
+  const aiExists = Boolean(coordi.data?.aiImageUrl);
+
+  useEffect(() => {
+    if (aiExists && coordi?.data?.aiImageUrl) {
+      setIsLoading(true);
+    }
+  }, [coordi?.data?.aiImageUrl, aiExists]);
 
   const handleEditClick = () => {
     navigate(`/closet/coordi/editor/${coordiId}`);
@@ -44,8 +49,8 @@ const CoordiDetail = () => {
 
     navigate("/ai-fitting", {
       state: {
-        cordiId: coordi.data.coordiId,
-        clothesItems,
+        coordiId: coordiId,
+        clothesItems: clothesItems,
       },
     });
   };
@@ -61,11 +66,9 @@ const CoordiDetail = () => {
       queryClient.invalidateQueries(["coordis"]);
 
       alert("삭제가 완료되었습니다.");
-      navigate(-1);
+      navigate("/closet", { state: { isCoordiTab: true } });
     }
   };
-
-  const aiExists = Boolean(coordi.data?.aiImageUrl);
 
   return (
     <div className={cx("container")}>
@@ -135,7 +138,24 @@ const CoordiDetail = () => {
         <>
           <div className={cx("wrapper", !aiExists && "empty-ai")}>
             {aiExists ? (
-              <img className={cx("image")} src={coordi?.data?.aiImageUrl} alt="AI 피팅 결과" />
+              <>
+                {isLoading && (
+                  <div className={cx("loadingOverlay")}>
+                    <div className={cx("loadingBox")}>
+                      <div className={cx("spinner")}></div>
+                      <p className={cx("loadingText")}>AI 이미지 불러오는 중...</p>
+                    </div>
+                  </div>
+                )}
+                <img
+                  className={cx("image")}
+                  src={coordi?.data?.aiImageUrl}
+                  alt="AI 피팅 결과"
+                  onLoad={() => setIsLoading(false)} // ✅ 이미지 로드 완료 시 숨김
+                  onError={() => setIsLoading(false)} // 에러 시에도 숨김
+                  style={{ display: isLoading ? "none" : "block" }} // 로딩 중엔 숨김
+                />
+              </>
             ) : (
               <button className={cx("cta-button")} onClick={handleAIFitClick}>
                 <img src={aiIcon} className={cx("cta-icon")} />

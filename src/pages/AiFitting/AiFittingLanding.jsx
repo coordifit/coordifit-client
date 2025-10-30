@@ -28,6 +28,7 @@ const AiFittingLanding = () => {
   const loadAvatars = useAiFittingStore((state) => state.loadAvatars);
   const hasLoadedAvatars = useAiFittingStore((state) => state.hasLoadedAvatars);
   const resetAiFittingState = useAiFittingStore((state) => state.resetAiFittingState);
+  const { targetCoordiId, setTargetCoordiId } = useAiFittingStore();
   const user = useUserStore((state) => state.user);
   const loadUserFromToken = useUserStore((state) => state.loadUserFromToken);
   const userId = user?.userId;
@@ -42,12 +43,11 @@ const AiFittingLanding = () => {
   const isMountedRef = useRef(true);
   const prefetchedAvatarIdsRef = useRef(new Set());
   const lastFetchedUserIdRef = useRef(null);
+
   const selectedAvatar = useMemo(
     () => avatars.find((avatar) => avatar.id === selectedAvatarId) ?? null,
     [avatars, selectedAvatarId],
   );
-
-  const [coordiId, setCoordiId] = useState("");
 
   const location = useLocation();
 
@@ -89,7 +89,6 @@ const AiFittingLanding = () => {
       setIsLoadingClothes(true);
       try {
         const response = await clothesService.getUserClothes();
-        console.log("API 응답 데이터:", response);
 
         if (response.success && response.data) {
           const transformedClothes = transformClothesApiData(response.data);
@@ -118,21 +117,26 @@ const AiFittingLanding = () => {
 
     if (!locatedData) return;
 
-    const validCategories = ["B20001", "B20002", "B20003"];
+    if (locatedData.clothesItems) {
+      const validCategories = ["B20001", "B20002", "B20003"];
 
-    const filteredCategoryData = locatedData.clothesItems.filter((item) =>
-      validCategories.includes(CATEGORIES[item.categoryCode].parent),
-    );
+      const filteredCategoryData = locatedData.clothesItems.filter((item) =>
+        validCategories.includes(CATEGORIES[item.categoryCode].parent),
+      );
 
-    if (filteredCategoryData.length !== 0 && myClothes.length !== 0) {
-      const clothesMap = new Map(myClothes.map((item) => [item.id, item]));
+      if (filteredCategoryData.length !== 0 && myClothes.length !== 0) {
+        const clothesMap = new Map(myClothes.map((item) => [item.id, item]));
 
-      const transData = filteredCategoryData.map((clothes) => clothesMap.get(clothes.clothesId));
+        const transData = filteredCategoryData.map((clothes) => clothesMap.get(clothes.clothesId));
 
-      setCoordiId(locatedData.coordiId);
-      transData.forEach((addTarget) => {
-        updateClothingSelection(addTarget.category, addTarget);
-      });
+        transData.forEach((addTarget) => {
+          updateClothingSelection(addTarget.category, addTarget);
+        });
+      }
+    }
+
+    if (locatedData.coordiId) {
+      setTargetCoordiId(locatedData.coordiId);
     }
   }, [location.state, updateClothingSelection, myClothes]);
 
@@ -158,6 +162,7 @@ const AiFittingLanding = () => {
       });
     };
   }, [avatars]);
+
   const currentClosetMainCategory = useMemo(() => {
     if (!activeClothingType) return null;
     return CLOTHING_CATEGORIES[activeClothingType] || null;
@@ -211,11 +216,6 @@ const AiFittingLanding = () => {
   const handleConfirmSelection = () => {
     if (!activeClothingType || !highlightedItem) return;
 
-    console.log(
-      "어떤 아이템을 업데이트하는지 선택된 아이템들",
-      activeClothingType,
-      highlightedItem,
-    );
     updateClothingSelection(activeClothingType, highlightedItem);
     setActiveClothingType(null);
     setActiveSubCategory("all");
@@ -258,7 +258,7 @@ const AiFittingLanding = () => {
           selectedAvatarId,
           clothingSelection,
           selectedAvatar: avatars.find((avatar) => avatar.id === selectedAvatarId),
-          ...(coordiId && { coordiId }),
+          ...(targetCoordiId && { targetCoordiId }),
         },
       });
     } catch (error) {
@@ -281,9 +281,6 @@ const AiFittingLanding = () => {
     }
   };
 
-  console.log("myClothes 에서 옷 아이디를 찾아서 아이템가져오자", myClothes);
-
-  console.log("리렌더링후 선택된 옷상태", clothingSelection);
   return (
     <div className={styles.page}>
       <div className={styles.pageContent}>

@@ -47,9 +47,10 @@ export const useAiFittingStore = create(
       isLoadingAvatars: false,
       avatarError: null,
       hasLoadedAvatars: false,
-
       clothingSelection: createEmptySelection(),
-
+      targetCoordiId: null,
+      setTargetCoordiId: (id) => set({ targetCoordiId: id }),
+      resetTargetCoordiId: () => set({ targetCoordiId: null }),
       setSelectedAvatarId: (avatarId) => set({ selectedAvatarId: avatarId }),
 
       // 아바타 목록 불러오기

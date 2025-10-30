@@ -44,8 +44,8 @@ const CoordiDetail = () => {
 
     navigate("/ai-fitting", {
       state: {
-        cordiId: coordi.data.coordiId,
-        clothesItems,
+        coordiId: coordiId,
+        clothesItems: clothesItems,
       },
     });
   };

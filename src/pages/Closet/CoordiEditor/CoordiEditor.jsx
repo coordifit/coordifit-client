@@ -48,11 +48,6 @@ const CoordiEditor = () => {
   const { coordiId } = useParams();
   const location = useLocation();
 
-  const isCoordiNameValid = coordiName && coordiName.length <= 30;
-  const isDescriptionValid = description && description.length <= 200;
-  const isItemsValid = coordiItems.length > 0;
-  const isDisabled = !(isItemsValid && isCoordiNameValid && isDescriptionValid);
-
   useEffect(() => {
     if (location.state?.dataUrl) {
       setAiExists(true);
@@ -73,6 +68,11 @@ const CoordiEditor = () => {
   } = useCoordiStore();
 
   const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
+
+  const isCoordiNameValid = coordiName && coordiName.length <= 30;
+  const isDescriptionValid = description && description.length <= 200;
+  const isItemsValid = coordiItems.length > 0;
+  const isDisabled = !(isItemsValid && isCoordiNameValid && isDescriptionValid);
 
   useBeforeUnload((e) => {
     if (!isSaving && isDirty) {

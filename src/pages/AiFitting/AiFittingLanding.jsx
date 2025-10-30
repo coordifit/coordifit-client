@@ -54,6 +54,10 @@ const AiFittingLanding = () => {
   useEffect(() => {
     return () => {
       // 컴포넌트 언마운트 시 상태 초기화
+      const nextPath = window.location.pathname;
+      if (nextPath.startsWith("/ai-fitting/avatars")) {
+        return;
+      }
       resetAiFittingState();
     };
   }, [resetAiFittingState]);

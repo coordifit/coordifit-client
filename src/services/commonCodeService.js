@@ -13,42 +13,11 @@ class CommonCodeService {
 
   async getCategoryData() {
     try {
-      const response = await this.getCommonCodes();
-
-      if (response.success && response.data) {
-        const commonCodes = response.data;
-
-        const mainCategories = Object.values(commonCodes["B00001"].children["B10001"].children).map(
-          (category) => ({
-            codeId: category.codeId,
-            codeName: category.codeName,
-            children: category.children || {},
-          }),
-        );
-
-        const subCategoriesMap = {};
-        Object.values(commonCodes["B00001"].children["B10001"].children).forEach((mainCategory) => {
-          if (mainCategory.children) {
-            const subCategories = Object.values(mainCategory.children).map((subCategory) => ({
-              codeId: subCategory.codeId,
-              codeName: subCategory.codeName,
-            }));
-
-            const allSubOption = { codeId: "all", codeName: "전체" };
-            subCategoriesMap[mainCategory.codeId] = [allSubOption, ...subCategories];
-          } else {
-            subCategoriesMap[mainCategory.codeId] = [{ codeId: "all", codeName: "전체" }];
-          }
-        });
-
-        const allOption = { codeId: "all", codeName: "전체", children: {} };
-
-        return {
-          mainCategories: [allOption, ...mainCategories],
-          subCategoriesMap,
-        };
+      const response = await api.get("/common-codes/category");
+      if (response.data.success) {
+        return response.data.data;
       } else {
-        throw new Error(response.message || "카테고리 데이터 조회에 실패했습니다.");
+        throw new Error(response.data.message || "카테고리 데이터 조회에 실패했습니다.");
       }
     } catch (error) {
       console.error("카테고리 데이터 조회 오류:", error);

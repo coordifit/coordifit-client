@@ -38,12 +38,6 @@
   background-color: #333333;
 }
 
-.button:hover {
-  background-color: #0056b3;
-}
-.button:active {
-  background-color: #004085;
-}
 .button:disabled {
   background-color: #c0c0c0;
   cursor: not-allowed;

@@ -88,7 +88,7 @@
 }
 
 .carousel-slot {
-  height: 75px;
+  height: 74px;
 }
 
 .button-wrapper {
@@ -213,7 +213,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 5px;
+  padding: 3px 5px;
   height: 30px;
   border-radius: 8px;
   border: 1px solid transparent;

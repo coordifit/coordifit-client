@@ -48,6 +48,11 @@ const CoordiEditor = () => {
   const { coordiId } = useParams();
   const location = useLocation();
 
+  const isCoordiNameValid = coordiName && coordiName.length <= 30;
+  const isDescriptionValid = description && description.length <= 200;
+  const isItemsValid = coordiItems.length > 0;
+  const isDisabled = !(isItemsValid && isCoordiNameValid && isDescriptionValid);
+
   useEffect(() => {
     if (location.state?.dataUrl) {
       setAiExists(true);
@@ -75,6 +80,8 @@ const CoordiEditor = () => {
       e.returnValue = "";
     } else {
       clearCoordiItems();
+      setDescription("");
+      setCoordiName("");
       navigate(-1);
     }
   });
@@ -241,6 +248,8 @@ const CoordiEditor = () => {
         pastClothesRef.current = coordiItems;
         setIsDirty(false);
         clearCoordiItems();
+        setCoordiName("");
+        setDescription("");
 
         setTimeout(() => {
           navigate("/closet", { replace: true });
@@ -473,13 +482,15 @@ const CoordiEditor = () => {
       />
       <div className={styles["button-wrapper"]}>
         <>
-          <Button onClick={saveImage} style="default" disabled={coordiItems.length === 0}>
+          <Button onClick={saveImage} style="default" disabled={isDisabled}>
             저장하기
           </Button>
           <Button
             onClick={(e) => {
               e.preventDefault();
               clearCoordiItems();
+              setDescription("");
+              setCoordiName("");
               navigate(-1);
             }}
             style="secondary"
@@ -539,6 +550,8 @@ const CoordiEditor = () => {
                 type="button"
                 onClick={() => {
                   clearCoordiItems();
+                  setCoordiName("");
+                  setDescription("");
                   confirm();
                 }}
               >

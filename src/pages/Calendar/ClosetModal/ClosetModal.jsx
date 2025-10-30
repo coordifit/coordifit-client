@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/constants/category";
 import { CLOSET_TABS } from "@/pages/ClosetPage/closetData";
 import { useAllCoordisQuery } from "@/hooks/useCoordiQuery";
+import { IoClose } from "react-icons/io5";
 
 const cn = classNames.bind(styles);
 
@@ -228,7 +229,7 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                       onClick={() => onRemove(item.clothesId)}
                       aria-label="아이템 제거"
                     >
-                      ×
+                      <IoClose size={12} />
                     </button>
                     <div className={cn("selectedThumbWrap")}>
                       <img src={item.imageUrl} alt={item.name} className={cn("selectedThumb")} />

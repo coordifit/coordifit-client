@@ -74,40 +74,41 @@ const CoordiDetail = () => {
           <TitleBox title={coordi?.data?.coordiName} />
           <DescriptionBox description={coordi?.data?.description} />
         </div>
+        <div className={cx("view-toggle-wrapper")}>
+          <div className={cx("view-toggle")} role="tablist" aria-label="보기 전환">
+            <button
+              role="tab"
+              aria-selected={viewMode === "coordi"}
+              className={cx("toggle-option", viewMode === "coordi" && "active")}
+              onClick={() => setViewMode("coordi")}
+              title="코디 아이템 보기"
+            >
+              <TbShirt className={cx("toggle-icon")} />
+              <span className={cx("span")}>코디</span>
+            </button>
 
-        <div className={cx("view-toggle")} role="tablist" aria-label="보기 전환">
-          <button
-            role="tab"
-            aria-selected={viewMode === "coordi"}
-            className={cx("toggle-option", viewMode === "coordi" && "active")}
-            onClick={() => setViewMode("coordi")}
-            title="코디 아이템 보기"
-          >
-            <TbShirt className={cx("toggle-icon")} />
-            <span className={cx("span")}>코디</span>
-          </button>
+            <button
+              role="tab"
+              aria-selected={viewMode === "ai"}
+              className={cx(
+                "toggle-option",
+                "toggle-ai",
+                viewMode === "ai" && "active",
+                !aiExists && "empty", // 시각적으로 '없음' 상태 표시
+              )}
+              onClick={() => setViewMode("ai")}
+              title={aiExists ? "AI 피팅 이미지 보기" : "AI 피팅하러 가기"}
+            >
+              <img src={aiIcon} className={cx("toggle-icon")} />
+              <span className={cx("span")}>AI 피팅</span>
 
-          <button
-            role="tab"
-            aria-selected={viewMode === "ai"}
-            className={cx(
-              "toggle-option",
-              "toggle-ai",
-              viewMode === "ai" && "active",
-              !aiExists && "empty", // 시각적으로 '없음' 상태 표시
-            )}
-            onClick={() => setViewMode("ai")}
-            title={aiExists ? "AI 피팅 이미지 보기" : "AI 피팅하러 가기"}
-          >
-            <img src={aiIcon} className={cx("toggle-icon")} />
-            <span className={cx("span")}>AI 피팅</span>
-
-            {aiExists ? (
-              <span className={cx("ai-badge", "ok")}>완료</span>
-            ) : (
-              <span className={cx("ai-badge", "none")}>없음</span>
-            )}
-          </button>
+              {aiExists ? (
+                <span className={cx("ai-badge", "ok")}>완료</span>
+              ) : (
+                <span className={cx("ai-badge", "none")}>없음</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

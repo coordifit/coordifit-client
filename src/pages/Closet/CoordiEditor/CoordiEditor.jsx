@@ -6,7 +6,7 @@ import Modal from "@/components/Modal/Modal";
 
 import { Layer, Rect, Stage } from "react-konva";
 import { useCoordiStore } from "@/stores/coordiStore";
-import { useBeforeUnload, useNavigate, useParams } from "react-router-dom";
+import { useBeforeUnload, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,6 +16,9 @@ import { getCanvasPosition } from "@/utils/canvasUtils";
 import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
 import { api } from "@/services/axiosInstance";
 import Button from "@/components/Button/Button";
+import { TbShirt } from "react-icons/tb";
+import { FiImage } from "react-icons/fi";
+import aiIcon from "@/assets/icons/samsung_ai.webp";
 
 const cn = classNames.bind(styles);
 const MAX_NAME_LEN = 30;
@@ -29,17 +32,31 @@ const CoordiEditor = () => {
   const [description, setDescription] = useState("");
   const [coordiName, setCoordiName] = useState("");
   const [errors, setErrors] = useState({ name: "", desc: "" });
+  const [viewMode, setViewMode] = useState("coordi");
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadStatusMap, setLoadStatusMap] = useState({});
+  const [aiExists, setAiExists] = useState(false);
+  const [aiImageUrl, setAiImageUrl] = useState("");
 
   const pastClothesRef = useRef([]);
   const queryClient = useQueryClient();
   const stageRef = useRef(null);
   const navigate = useNavigate();
   const { coordiId } = useParams();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.dataUrl) {
+      setAiExists(true);
+    }
+
+    if (location.state?.clothesList) {
+      console.log("location.state?.clothesList", location.state?.clothesList);
+    }
+  }, [location]);
 
   const {
     coordiItems,
@@ -53,10 +70,9 @@ const CoordiEditor = () => {
   const { open, confirm, cancel } = useLeaveConfirm(!isSaving && isDirty);
 
   useBeforeUnload((e) => {
-    e.preventDefault();
-
     if (!isSaving && isDirty) {
-      open();
+      e.preventDefault();
+      e.returnValue = "";
     } else {
       clearCoordiItems();
       navigate(-1);
@@ -85,6 +101,12 @@ const CoordiEditor = () => {
       setCoordiItems(pastClothes);
       setDescription(coordi.data.description || "");
       setCoordiName(coordi.data.coordiName || "");
+    }
+
+    console.log("coordidata", coordi.data);
+    if (coordi?.data?.aiImageUrl) {
+      setAiImageUrl(coordi?.data?.aiImageUrl);
+      setAiExists(true);
     }
   }, [coordi]);
 
@@ -123,10 +145,6 @@ const CoordiEditor = () => {
       setErrors((prev) => ({ ...prev, desc: "" }));
     }
     setDescription(value);
-  };
-
-  const handleClickSave = () => {
-    setIsModalOpen(true);
   };
 
   const handleClickCancel = () => {
@@ -198,9 +216,25 @@ const CoordiEditor = () => {
         formData.append("coordiName", coordiName);
         formData.append("canvasJson", JSON.stringify(coordiItems));
 
+        console.log("canvasJson", JSON.stringify(coordiItems));
         if (coordiId) {
-          await api.put(`/coordi/${coordiId}`, formData);
+          if (aiExists && !aiImageUrl) {
+            const cleanBase64 = location.state.dataUrl.value.replace(/\s+/g, "");
+            const dataUrl = `data:image/png;base64,${cleanBase64}`;
+
+            await api.put(`/coordi/${coordiId}/ai-image`, {
+              dataUrl,
+            });
+          } else {
+            await api.put(`/coordi/${coordiId}`, formData);
+          }
         } else {
+          if (aiExists && aiImageUrl) {
+            const cleanBase64 = location.state.dataUrl.value.replace(/\s+/g, "");
+            const dataUrl = `data:image/png;base64,${cleanBase64}`;
+
+            formData.append("dataUrl", dataUrl);
+          }
           await api.post(`/coordi`, formData);
         }
 
@@ -223,7 +257,121 @@ const CoordiEditor = () => {
 
   return (
     <div className={cn("wrapper")}>
-      <header className={cn("header")}></header>
+      <div className={cn("headerWapper")}>
+        <div className={cn("content-header")}>
+          <div className={cn("header-left")}>
+            <div className={cn("label-wrapper")}>
+              <label htmlFor="coordiName" className={cn("inputLabel")}>
+                코디 제목<span className={cn("requiredMark")}>*</span>
+              </label>
+              <span className={cn("charCounter", coordiName.length > 30 && "error")}>
+                {coordiName.length}/30자
+              </span>
+            </div>
+            <div className={cn("inputWrapper")}>
+              <input
+                id="coordiName"
+                type="text"
+                className={cn("titleInput", errors.name && "error")}
+                value={coordiName}
+                placeholder="코디 제목을 입력하세요 (최대 30자)"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCoordiName(val);
+                  setErrors((prev) => ({
+                    ...prev,
+                    name: val.length > 30 ? "제목은 30자 이내로 입력해주세요." : "",
+                  }));
+                }}
+              />
+              <div className={cn("counterRow")}>
+                {errors.name ? (
+                  <span className={cn("errorMsgInline")}>{errors.name}</span>
+                ) : (
+                  <div className={cn("emptyErrorMsg")} />
+                )}
+              </div>
+            </div>
+          </div>
+          <div className={cn("view-toggle-wrapper")}>
+            <div className={cn("view-toggle")} role="tablist" aria-label="보기 전환">
+              <button
+                role="tab"
+                aria-selected={viewMode === "coordi"}
+                className={cn("toggle-option", viewMode === "coordi" && "active")}
+                onClick={() => setViewMode("coordi")}
+                title="코디 아이템 보기"
+              >
+                <TbShirt className={cn("toggle-icon")} />
+                <span className={cn("span")}>코디</span>
+              </button>
+
+              <button
+                role="tab"
+                aria-selected={viewMode === "ai"}
+                className={cn(
+                  "toggle-option",
+                  "toggle-ai",
+                  viewMode === "ai" && "active",
+                  !aiExists && "empty", // 시각적으로 '없음' 상태 표시
+                )}
+                onClick={() => {
+                  setViewMode("ai");
+                  setIsLoading(false);
+                }}
+                title={aiExists ? "AI 피팅 이미지 보기" : "AI 피팅하러 가기"}
+              >
+                <img src={aiIcon} className={cn("toggle-icon")} />
+                <span className={cn("span")}>AI 피팅</span>
+
+                {aiExists ? (
+                  <span className={cn("ai-badge", "ok")}>완료</span>
+                ) : (
+                  <span className={cn("ai-badge", "none")}>없음</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className={cn("inputGroup")}>
+          <div className={cn("label-wrapper")}>
+            <label htmlFor="description" className={cn("inputLabel")}>
+              상세 설명
+              <span className={cn("requiredMark")}>*</span>
+            </label>
+            <span className={cn("charCounter", description.length > 200 && "error")}>
+              {description.length}/200자
+            </span>
+          </div>
+
+          <div className={cn("inputWrapper")}>
+            <input
+              type="text"
+              name="description"
+              className={cn("descInput", errors.desc && "error")}
+              defaultValue={description}
+              value={description}
+              placeholder="설명을 입력하세요 (최대 200자)"
+              onChange={(e) => {
+                const val = e.target.value;
+                setDescription(val);
+                setErrors((prev) => ({
+                  ...prev,
+                  desc: val.length > 200 ? "설명은 200자 이내로 입력해주세요." : "",
+                }));
+              }}
+            />
+            <div className={cn("counterRow")}>
+              {errors.desc ? (
+                <span className={cn("errorMsgInline")}>{errors.desc}</span>
+              ) : (
+                <div className={cn("emptyErrorMsg")} />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className={cn("editorRow")}>
         {isLoading && (
           <div className={cn("canvas-loading-center")}>
@@ -234,62 +382,86 @@ const CoordiEditor = () => {
           </div>
         )}
         <div className={cn("canvasCard")}>
-          <Stage
-            ref={stageRef}
-            width={CANVAS_CONFIG.WIDTH}
-            height={CANVAS_CONFIG.HEIGHT}
-            className={cn("stage")}
-          >
-            <Layer>
-              <Rect
+          {viewMode === "coordi" ? (
+            <>
+              <Stage
+                ref={stageRef}
                 width={CANVAS_CONFIG.WIDTH}
                 height={CANVAS_CONFIG.HEIGHT}
-                fill={bgColor}
-                onMouseDown={() => setSelectedId(null)}
-                onTouchStart={() => setSelectedId(null)}
+                className={cn("stage")}
+              >
+                <Layer>
+                  <Rect
+                    width={CANVAS_CONFIG.WIDTH}
+                    height={CANVAS_CONFIG.HEIGHT}
+                    fill={bgColor}
+                    onMouseDown={() => setSelectedId(null)}
+                    onTouchStart={() => setSelectedId(null)}
+                  />
+                </Layer>
+                <Layer>
+                  {coordiItems.map((item) => (
+                    <CanvasItem
+                      key={item.clothesId}
+                      obj={item}
+                      isSelected={item.clothesId === selectedId}
+                      onSelect={() => setSelectedId(item.clothesId)}
+                      onChange={(next) => updateCoordiItem(item.clothesId, next)}
+                      onLoad={handleLoadStatus}
+                    />
+                  ))}
+                </Layer>
+              </Stage>
+              <div className={cn("toolbar")}>
+                <div className={cn("colors")}>
+                  {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
+                    <button
+                      key={hexColor}
+                      className={cn("colorDot", { activeDot: bgColor === hexColor })}
+                      onClick={() => setBgColor(hexColor)}
+                      title={hexColor}
+                      style={{ backgroundColor: hexColor }}
+                    />
+                  ))}
+                </div>
+                <div className={cn("actions")}>
+                  <button className={cn("btnDanger")} onClick={removeSelected}>
+                    삭제하기
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : aiExists ? (
+            <>
+              <img
+                src={aiImageUrl}
+                alt="" // 장식용
+                className={cn("aiLayer")}
               />
-            </Layer>
-            <Layer>
-              {coordiItems.map((item) => (
-                <CanvasItem
-                  key={item.clothesId}
-                  obj={item}
-                  isSelected={item.clothesId === selectedId}
-                  onSelect={() => setSelectedId(item.clothesId)}
-                  onChange={(next) => updateCoordiItem(item.clothesId, next)}
-                  onLoad={handleLoadStatus}
-                />
-              ))}
-            </Layer>
-          </Stage>
-          <div className={cn("toolbar")}>
-            <div className={cn("colors")}>
-              {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
-                <button
-                  key={hexColor}
-                  className={cn("colorDot", { activeDot: bgColor === hexColor })}
-                  onClick={() => setBgColor(hexColor)}
-                  title={hexColor}
-                  style={{ backgroundColor: hexColor }}
-                />
-              ))}
-            </div>
-            <div className={cn("actions")}>
-              <button className={cn("btnDanger")} onClick={removeSelected}>
-                삭제하기
-              </button>
-            </div>
-          </div>
+            </>
+          ) : (
+            <>
+              <div className={cn("aiEmpty")}>
+                <div className={cn("aiEmptyIcon")}>
+                  <FiImage />
+                </div>
+                <p className={cn("aiEmptyTitle")}>AI 시착 이미지가 없습니다</p>
+                <p className={cn("aiEmptySub")}>코디를 저장한 뒤 AI 이미지를 생성할 수 있어요.</p>
+              </div>
+            </>
+          )}
         </div>
-        <button
-          className={cn("fab")}
-          onClick={(e) => {
-            e.stopPropagation();
-            setSheetOpen(true);
-          }}
-        >
-          +
-        </button>
+        {viewMode === "coordi" && (
+          <button
+            className={cn("fab")}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSheetOpen(true);
+            }}
+          >
+            +
+          </button>
+        )}
       </div>
       <ItemCarousel items={coordiItems} selectedId={selectedId} onClick={setSelectedId} />
       <ClosetModal
@@ -301,7 +473,7 @@ const CoordiEditor = () => {
       />
       <div className={styles["button-wrapper"]}>
         <>
-          <Button onClick={handleClickSave} style="default" disabled={coordiItems.length === 0}>
+          <Button onClick={saveImage} style="default" disabled={coordiItems.length === 0}>
             저장하기
           </Button>
           <Button

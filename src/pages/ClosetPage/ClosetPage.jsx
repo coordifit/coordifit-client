@@ -219,7 +219,7 @@ const ClosetPage = () => {
       return;
     }
 
-    if (viewMode === "ai") {
+    if (viewMode === "ai" && !item.aiImageUrl) {
       navigate("/ai-fitting");
     } else {
       navigate(`/closet/coordi/${item.coordiId}`);
@@ -463,7 +463,9 @@ const ClosetPage = () => {
                   viewMode === "ai"
                     ? item.aiImageUrl || noAiImage
                     : item.thumbImageUrl || noAiImage;
-
+                const aiImageStyle = item.aiImageUrl
+                  ? styles.cardImageAi
+                  : styles.cardDefaultImageAi;
                 return (
                   <article
                     key={item.coordiId}
@@ -474,8 +476,9 @@ const ClosetPage = () => {
                       <img
                         src={imageSrc}
                         alt={item.coordiName}
-                        className={viewMode === "ai" ? styles.cardImageAi : styles.cardImage}
+                        className={viewMode === "ai" ? aiImageStyle : styles.cardImage}
                       />
+                      {console.log("item", item)}
                       {viewMode === "ai" && !item.aiImageUrl && (
                         <button
                           type="button"

@@ -80,6 +80,8 @@ const CoordiEditor = () => {
       e.returnValue = "";
     } else {
       clearCoordiItems();
+      setDescription("");
+      setCoordiName("");
       navigate(-1);
     }
   });
@@ -246,6 +248,8 @@ const CoordiEditor = () => {
         pastClothesRef.current = coordiItems;
         setIsDirty(false);
         clearCoordiItems();
+        setCoordiName("");
+        setDescription("");
 
         setTimeout(() => {
           navigate("/closet", { replace: true });
@@ -485,6 +489,8 @@ const CoordiEditor = () => {
             onClick={(e) => {
               e.preventDefault();
               clearCoordiItems();
+              setDescription("");
+              setCoordiName("");
               navigate(-1);
             }}
             style="secondary"
@@ -544,6 +550,8 @@ const CoordiEditor = () => {
                 type="button"
                 onClick={() => {
                   clearCoordiItems();
+                  setCoordiName("");
+                  setDescription("");
                   confirm();
                 }}
               >

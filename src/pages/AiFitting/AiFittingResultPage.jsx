@@ -19,7 +19,7 @@ const AiFittingResultPage = () => {
   const avatars = useAiFittingStore((state) => state.avatars);
   const selectedAvatarId = useAiFittingStore((state) => state.selectedAvatarId);
   const clothingSelection = useAiFittingStore((state) => state.clothingSelection);
-  const clearClothingSelection = useAiFittingStore((state) => state.clearClothingSelection);
+  const resetAiFittingState = useAiFittingStore((state) => state.resetAiFittingState);
 
   const location = useLocation();
 
@@ -90,7 +90,7 @@ const AiFittingResultPage = () => {
   );
 
   const handleRetry = () => {
-    clearClothingSelection();
+    resetAiFittingState();
     navigate("/ai-fitting");
   };
 

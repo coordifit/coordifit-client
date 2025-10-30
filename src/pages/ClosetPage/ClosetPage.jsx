@@ -125,6 +125,10 @@ const ClosetPage = () => {
         }
       }
     }
+
+    if (location.state?.isCoordiTab) {
+      setActiveTab("B20007");
+    }
   }, [location.state, mainCategories, subCategoriesMap]);
 
   useEffect(() => {

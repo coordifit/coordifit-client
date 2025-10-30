@@ -72,7 +72,7 @@ const CoordiEditor = () => {
       clearCoordiItems();
       setDescription("");
       setCoordiName("");
-      navigate(-1);
+      navigate("/closet", { state: { isCoordiTab: true } });
     }
   });
 
@@ -252,7 +252,7 @@ const CoordiEditor = () => {
         setDescription("");
 
         setTimeout(() => {
-          navigate("/closet", { replace: true });
+          navigate("/closet", { replace: true, state: { isCoordiTab: true } });
         }, 0);
 
         queryClient.invalidateQueries(["coordis"]);
@@ -490,7 +490,7 @@ const CoordiEditor = () => {
               clearCoordiItems();
               setDescription("");
               setCoordiName("");
-              navigate(-1);
+              navigate("/closet", { state: { isCoordiTab: true } });
             }}
             style="secondary"
           >

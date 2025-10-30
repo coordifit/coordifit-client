@@ -66,7 +66,7 @@ const CoordiDetail = () => {
       queryClient.invalidateQueries(["coordis"]);
 
       alert("삭제가 완료되었습니다.");
-      navigate(-1);
+      navigate("/closet", { state: { isCoordiTab: true } });
     }
   };
 

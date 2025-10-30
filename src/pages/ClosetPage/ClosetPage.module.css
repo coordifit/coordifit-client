@@ -842,8 +842,10 @@
 
 /* 버튼 스타일 */
 .addButton {
-  position: sticky;
-  bottom: 0px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   color: #fff;
   width: 100%;
   padding: 12px 16px;

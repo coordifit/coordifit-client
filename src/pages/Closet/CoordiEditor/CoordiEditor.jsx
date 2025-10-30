@@ -1,23 +1,26 @@
-import ClosetModal from "@/pages/Calendar/ClosetModal/ClosetModal";
-import styles from "./CoordiEditor.module.css";
+import { useEffect, useRef, useState } from "react";
+import { useBeforeUnload, useLocation, useNavigate, useParams } from "react-router-dom";
+
+import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames/bind";
+import { Layer, Rect, Stage } from "react-konva";
+import styles from "./CoordiEditor.module.css";
+import { TbShirt } from "react-icons/tb";
+import { FiImage } from "react-icons/fi";
+
 import ItemCarousel from "@/components/ItemCarousel/ItemCarousel";
 import Modal from "@/components/Modal/Modal";
 
-import { Layer, Rect, Stage } from "react-konva";
+import ClosetModal from "@/pages/Calendar/ClosetModal/ClosetModal";
+import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
+import Button from "@/components/Button/Button";
+
 import { useCoordiStore } from "@/stores/coordiStore";
-import { useBeforeUnload, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
-import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCoordiByIdQuery } from "@/hooks/useCoordiQuery";
 import { CANVAS_CONFIG } from "@/constants/calendar";
 import { getCanvasPosition } from "@/utils/canvasUtils";
-import CanvasItem from "@/pages/Calendar/CanvasItem/CanvasItem";
 import { api } from "@/services/axiosInstance";
-import Button from "@/components/Button/Button";
-import { TbShirt } from "react-icons/tb";
-import { FiImage } from "react-icons/fi";
 import aiIcon from "@/assets/icons/samsung_ai.webp";
 
 const cn = classNames.bind(styles);

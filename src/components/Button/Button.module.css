@@ -33,9 +33,11 @@
 }
 .secondary {
   background-color: #8e8e93;
+  font-family: "Pretendard", "Noto Sans KR", sans-serif;
 }
 .default {
   background-color: #333333;
+  font-family: "Pretendard", "Noto Sans KR", sans-serif;
 }
 
 .button:disabled {

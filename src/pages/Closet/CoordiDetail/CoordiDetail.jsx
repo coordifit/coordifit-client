@@ -132,6 +132,7 @@ const CoordiDetail = () => {
                 return [];
               }
             })()}
+            onClick={(clothesId) => navigate(`/closet/item/${clothesId}`)}
           />
         </>
       ) : (

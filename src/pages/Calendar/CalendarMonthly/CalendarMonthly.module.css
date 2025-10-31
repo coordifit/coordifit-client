@@ -89,6 +89,11 @@
   height: 90px;
 }
 
+:global(.react-calendar__month-view__days) {
+  height: 450px;
+  overflow-y: auto;
+}
+
 .summaryRow {
   margin-top: 10px;
   display: grid;

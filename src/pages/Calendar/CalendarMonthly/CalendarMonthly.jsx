@@ -58,6 +58,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
           }
           value={targetDate}
           onClickDay={handleClickDay}
+          showNeighboringMonth={false}
           showNavigation={false}
           tileClassName={({ date, view }) => {
             if (view !== "month") return null;

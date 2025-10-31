@@ -272,6 +272,7 @@ const ClosetDetailPage = () => {
 
       if (response.success) {
         alert("옷이 삭제되었습니다.");
+        queryClient.invalidateQueries(["coordis"]);
         navigate("/closet");
       } else {
         alert("삭제에 실패했습니다: " + response.message);

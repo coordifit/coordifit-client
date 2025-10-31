@@ -232,30 +232,53 @@ const getWeatherLabel = (code) => {
   if ([56, 57, 66, 67, 71, 73, 75, 77, 85, 86].includes(code)) return "눈";
   return "맑음";
 };
-
-// 이번 달 전체 날짜 생성
+// ✅ 이번 달 날짜 + 전달 말일 + 다음달 1일 포함
 const generateCurrentMonthDays = () => {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
 
+  // 이번 달 마지막 날짜
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  // 전달 마지막 날짜
+  const prevMonthLastDate = new Date(year, month, 0).getDate();
+
   const days = [];
 
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // ✅ 1. 전달 마지막 날 추가
+  const prevMonthLast = new Date(year, month - 1, prevMonthLastDate);
+  days.push({
+    id: `${prevMonthLast.getFullYear()}-${String(prevMonthLast.getMonth() + 1).padStart(2, "0")}-${String(prevMonthLast.getDate()).padStart(2, "0")}`,
+    day: dayNames[prevMonthLast.getDay()],
+    date: prevMonthLast.getDate(),
+    dateObj: prevMonthLast,
+    isExtra: true, // 비활성 표시용
+  });
+
+  // ✅ 2. 이번 달 날짜들 추가
   for (let date = 1; date <= daysInMonth; date++) {
     const dateObj = new Date(year, month, date);
-    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    // 로컬 시간 기준으로 날짜 문자열 생성 (UTC 변환으로 인한 날짜 오차 방지)
     const localDateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
-
     days.push({
-      id: localDateString, // 로컬 시간 기준 YYYY-MM-DD
+      id: localDateString,
       day: dayNames[dateObj.getDay()],
-      date: date,
-      dateObj: dateObj,
+      date,
+      dateObj,
+      isExtra: false,
     });
   }
+
+  // ✅ 3. 다음달 첫째 날 추가
+  const nextMonthFirst = new Date(year, month + 1, 1);
+  days.push({
+    id: `${nextMonthFirst.getFullYear()}-${String(nextMonthFirst.getMonth() + 1).padStart(2, "0")}-${String(nextMonthFirst.getDate()).padStart(2, "0")}`,
+    day: dayNames[nextMonthFirst.getDay()],
+    date: nextMonthFirst.getDate(),
+    dateObj: nextMonthFirst,
+    isExtra: true, // 비활성 표시용
+  });
 
   return days;
 };
@@ -833,50 +856,86 @@ const MainPage = () => {
       };
     });
   }, [dailyLooks, weatherData]);
-
-  // 페이지 로드 시 오늘 날짜로 스크롤
+  // ✅ 오늘 날짜 카드 포커스 (끝일 때는 오른쪽 끝으로)
   useEffect(() => {
     const container = scrollRef.current;
     if (!container || !calendarData.length) return;
 
-    // 약간의 지연을 두어 렌더링 완료 후 스크롤
     const timer = setTimeout(() => {
-      // 오늘 날짜 찾기 (date 필드로 직접 찾기)
       const today = new Date();
       const todayDate = today.getDate();
 
-      // date 필드로 오늘 날짜 찾기 (하루 추가해서 올바른 포커스)
-      const targetDate = todayDate + 1; // 하루 추가
-      const todayIndex = calendarData.findIndex((day) => day.date === targetDate);
+      const todayIndex = calendarData.findIndex((day) => day.date === todayDate);
+      if (todayIndex === -1) return;
 
-      // 카드 너비 + 간격 계산 (대략적으로)
-      if (todayIndex !== -1) {
-        // 카드 너비 + 간격 계산 (대략적으로)
-        const cardWidth = 90; // CSS에서 설정된 카드 너비
-        const gap = 12; // CSS gap 값
-        const scrollPosition = todayIndex * (cardWidth + gap);
+      const cards = container.querySelectorAll(`.${styles.calendarCard}`);
+      const targetCard = cards[todayIndex];
+      if (!targetCard) return;
 
-        // 중앙 정렬을 위해 컨테이너 너비의 절반만큼 빼기
-        const centerOffset = container.clientWidth / 2 - cardWidth / 2;
-        const finalScrollPosition = Math.max(0, scrollPosition - centerOffset);
+      const containerCenter = container.clientWidth / 2;
+      const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+      const totalCards = cards.length;
 
-        container.scrollTo({
-          left: finalScrollPosition,
-          behavior: "smooth",
-        });
+      let finalScrollPosition;
 
-        // 활성 인덱스도 함께 업데이트
-        setActiveCalendarIndex(todayIndex);
-
-        // 스크롤 완료 후 실제 활성 인덱스 확인
-        setTimeout(() => {
-          // 스크롤 완료 후 처리 로직
-        }, 150);
+      // ✅ 1) 첫 주 (1~5일) → 왼쪽 시작 기준
+      if (todayIndex < 4) {
+        finalScrollPosition = 0;
       }
-    }, 100); // 100ms 지연
+      // ✅ 2) 마지막 주 (예: 27~31일) → 오른쪽 끝 기준
+      else if (todayIndex > totalCards - 5) {
+        finalScrollPosition = container.scrollWidth - container.clientWidth;
+      }
+      // ✅ 3) 중간 날짜 → 중앙 정렬
+      else {
+        finalScrollPosition = cardCenter - containerCenter;
+      }
+
+      // 범위 보정
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (finalScrollPosition < 0) finalScrollPosition = 0;
+      if (finalScrollPosition > maxScroll) finalScrollPosition = maxScroll;
+
+      container.scrollTo({
+        left: finalScrollPosition,
+        behavior: "smooth",
+      });
+
+      setActiveCalendarIndex(todayIndex);
+    }, 200);
 
     return () => clearTimeout(timer);
   }, [calendarData]);
+
+  // ✅ 스크롤 시 중앙 카드 확대 효과
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const cards = container.querySelectorAll(`.${styles.calendarCard}`);
+      const containerRect = container.getBoundingClientRect();
+      const centerX = containerRect.left + containerRect.width / 2;
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+      cards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(centerX - cardCenter);
+        const scale = Math.max(0.9, 1.0 - distance / 500);
+        const opacity = Math.max(0.6, 1.1 - distance / 400);
+        card.style.transform = `scale(${scale})`;
+        card.style.opacity = opacity;
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+      setActiveCalendarIndex(closestIndex);
+    };
+    handleScroll();
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const canNavigateSnap = snaps.length > 0;
 
@@ -1090,7 +1149,8 @@ const MainPage = () => {
               className={`${styles.calendarCard} ${
                 index === activeCalendarIndex ? styles.activeCalendarCard : ""
               }`}
-              onClick={() => handleCalendarCardClick(day)}
+              data-extra={day.isExtra}
+              onClick={() => !day.isExtra && handleCalendarCardClick(day)}
             >
               <div className={styles.calendarCardHeader}>
                 <div>

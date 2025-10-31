@@ -263,6 +263,7 @@ const ClosetPage = () => {
           queryClient.invalidateQueries(["coordis"]);
         } else {
           setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.clothesId)));
+          queryClient.invalidateQueries(["coordis"]);
         }
         setSelectedItems([]);
         setIsSelecting(false);

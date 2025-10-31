@@ -179,14 +179,16 @@ const CoordiDetail = () => {
             </Button>
           </>
         ) : (
-          <>
-            <Button onClick={() => setViewMode("coordi")} style="secondary">
-              아이템 보기
-            </Button>
-            <Button onClick={handleAIFitClick} style="default">
-              다시 피팅하기
-            </Button>
-          </>
+          aiExists && (
+            <>
+              <Button onClick={() => setViewMode("coordi")} style="secondary">
+                아이템 보기
+              </Button>
+              <Button onClick={handleAIFitClick} style="default">
+                다시 피팅하기
+              </Button>
+            </>
+          )
         )}
       </div>
     </div>

@@ -379,8 +379,7 @@ const ClosetPage = () => {
           )}
         </section>
       )}
-      {/* 유틸리티 바 */}
-
+      {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
       <div className={clsx(styles.utilityRow, isCoordiTab && styles.coordiUtilRow)}>
         <button
           type="button"
@@ -411,8 +410,8 @@ const ClosetPage = () => {
               : sortType === "purchase"
                 ? "구매일순"
                 : sortType === "wear"
-                  ? "입은횟수순"
-                  : "최근착용순"}
+                  ? "입은 횟수순"
+                  : "최근 착용순"}
             <span className={styles.sortArrow} aria-hidden />
           </button>
 
@@ -471,7 +470,7 @@ const ClosetPage = () => {
             ))}
         </div>
       </div>
-      {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
+
       <section className={styles.gridSection}>
         <div className={styles.grid}>
           {isCoordiTab ? (

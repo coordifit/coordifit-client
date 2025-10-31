@@ -94,6 +94,10 @@
   overflow-y: auto;
 }
 
+:global(.react-calendar__month-view__days::-webkit-scrollbar) {
+  display: none;
+}
+
 .summaryRow {
   margin-top: 10px;
   display: grid;

@@ -58,6 +58,11 @@
 .meta {
   display: flex;
   flex-direction: column;
+  overflow: scroll;
+}
+
+.meta::-webkit-scrollbar {
+  display: none;
 }
 
 .name {

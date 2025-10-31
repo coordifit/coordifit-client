@@ -26,7 +26,7 @@ const deleteCoordi = async (coordiId) => {
 };
 
 const deleteCoordis = async (coordiIds) => {
-  const response = await api.delete("/coordi", { data: { coordiIds } });
+  const response = await api.delete("/coordi", { data: coordiIds });
 
   return response.data;
 };

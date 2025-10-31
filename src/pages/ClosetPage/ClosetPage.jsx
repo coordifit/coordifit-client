@@ -11,6 +11,7 @@ import paymentIcon from "@/assets/images/payment.png";
 import { deleteCoordis } from "@/services/coordiService";
 import noAiImage from "@/assets/icons/ai_default.png";
 import CoordiViewMode from "../Closet/CoordiViewMode/CoordiViewMode";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ClosetPage = () => {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ const ClosetPage = () => {
   const [modalPosition, setModalPosition] = useState("bottom");
   const sortRef = useRef(null);
 
+  const queryClient = useQueryClient();
   const { data: coordi = { data: [] } } = useAllCoordisQuery();
 
   const [sortType, setSortType] = useState(() => {
@@ -247,15 +249,21 @@ const ClosetPage = () => {
     try {
       let response;
       if (isCoordiTab) {
-        response = deleteCoordis(selectedItems);
+        response = await deleteCoordis(selectedItems);
+
+        console.log("삭제후 응답", response);
       } else {
         response = await clothesService.bulkDeleteClothes(selectedItems);
       }
 
       if (response.success) {
         alert("선택한 아이템이 삭제되었습니다.");
-        // 삭제된 아이템 제거
-        setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.clothesId)));
+        if (isCoordiTab) {
+          setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.coordiId)));
+          queryClient.invalidateQueries(["coordis"]);
+        } else {
+          setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.clothesId)));
+        }
         setSelectedItems([]);
         setIsSelecting(false);
       } else {
@@ -371,8 +379,7 @@ const ClosetPage = () => {
           )}
         </section>
       )}
-      {/* 유틸리티 바 */}
-
+      {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
       <div className={clsx(styles.utilityRow, isCoordiTab && styles.coordiUtilRow)}>
         <button
           type="button"
@@ -403,8 +410,8 @@ const ClosetPage = () => {
               : sortType === "purchase"
                 ? "구매일순"
                 : sortType === "wear"
-                  ? "입은횟수순"
-                  : "최근착용순"}
+                  ? "입은 횟수순"
+                  : "최근 착용순"}
             <span className={styles.sortArrow} aria-hidden />
           </button>
 
@@ -463,7 +470,7 @@ const ClosetPage = () => {
             ))}
         </div>
       </div>
-      {isCoordiTab && <CoordiViewMode viewMode={viewMode} onClickViewMode={setViewMode} />}
+
       <section className={styles.gridSection}>
         <div className={styles.grid}>
           {isCoordiTab ? (
@@ -600,11 +607,7 @@ const ClosetPage = () => {
           )}
         </div>
       </section>
-      {isCoordiTab && (
-        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
-          + 코디 추가하기
-        </button>
-      )}
+
       {/* Floating Action Button */}
       {!isCoordiTab && !isSelecting && (
         <button
@@ -623,7 +626,11 @@ const ClosetPage = () => {
           삭제
         </button>
       )}
-
+      {isCoordiTab && !isSelecting && (
+        <button className={styles.addButton} onClick={handleClickCoordiEditor}>
+          + 코디 추가하기
+        </button>
+      )}
       {/* Add Item Modal for FAB */}
       {isAddModalOpen && modalPosition === "fab" && (
         <AddItemModal onClose={() => setIsAddModalOpen(false)} position={modalPosition} />

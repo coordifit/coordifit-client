@@ -84,9 +84,10 @@
 }
 
 .btnDanger {
-  background: #ffefef;
-  border-color: #f88;
-  color: rgb(255, 66, 66);
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  background: #333333;
+  border-color: #333333;
+  color: #ffffff;
   word-break: keep-all;
   border-radius: 5px;
   padding: 2px 5px;

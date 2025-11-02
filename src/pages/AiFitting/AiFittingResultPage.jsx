@@ -104,7 +104,7 @@ const AiFittingResultPage = () => {
     navigate("/ai-fitting");
   };
 
-  const outfitSummary = selectedItems.map((item) => item.name).join(" / ");
+  const outfitSummary = selectedItems.map((item) => item.name);
 
   const resultImageSrc = useMemo(() => {
     if (!imageBase64) return fallbackResultImage;
@@ -240,7 +240,25 @@ const AiFittingResultPage = () => {
 
         <div className={styles.avatarInfo}>
           <span className={styles.avatarName}>{selectedAvatar?.name ?? "선택된 아바타 없음"}</span>
-          {outfitSummary && <span className={styles.outfitSummary}>{outfitSummary}</span>}
+          {outfitSummary?.length > 0 && (
+            <div className={styles.outfitSummary}>
+              {outfitSummary.slice(0, 3).map((name, idx, arr) => {
+                const basis = arr.length === 1 ? "100%" : arr.length === 2 ? "50%" : "33.33%";
+                return (
+                  <>
+                    <span key={idx} className={styles.outfitItem} style={{ flexBasis: basis }}>
+                      {name}
+                    </span>
+                    {idx < arr.length - 1 && (
+                      <span key={"slash-" + idx} className={styles.outfitSlash}>
+                        /
+                      </span>
+                    )}
+                  </>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className={styles.actionRow}>

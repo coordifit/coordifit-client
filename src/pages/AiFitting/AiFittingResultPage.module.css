@@ -2,7 +2,6 @@
   min-height: 100%;
   max-width: 360px;
   margin: 0 auto;
-  padding: 0px 10px 40px;
 }
 
 .main {
@@ -75,15 +74,34 @@
 }
 
 .outfitSummary {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  width: 100%;
+  max-width: 280px;
+  color: #a6a6a6;
   font-family: "Pretendard Variable", "Pretendard", sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 24px;
-  color: #a6a6a6;
-  white-space: nowrap;
+}
+
+.outfitItem {
+  flex: 1 1 auto;
+  flex-shrink: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  white-space: nowrap;
+  text-align: left;
+  display: block;
+}
+.outfitSlash {
+  color: #a6a6a6;
+  margin: 0 4px;
+  user-select: none;
 }
 
 .actionRow {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PasswordResetPage.module.css";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 // ✅ 서비스 함수만 import
 import { checkEmailDuplicate, sendPasswordResetCode, resetPassword } from "@/services/authService";
@@ -28,6 +29,9 @@ const PasswordReset = () => {
   const [verificationTimer, setVerificationTimer] = useState(0);
   const [sentVerificationCode, setSentVerificationCode] = useState("");
   const [messages, setMessages] = useState({});
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const emailCheckTimeoutRef = useRef(null);
 
@@ -140,7 +144,8 @@ const PasswordReset = () => {
   /* ✅ 이메일 인증 코드 발송 */
   const handleSendVerification = async () => {
     if (!validation.email) {
-      alert("유효한 이메일을 먼저 입력해주세요.");
+      setErrorMessage("유효한 이메일을 먼저 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
     setIsLoading(true);
@@ -149,12 +154,15 @@ const PasswordReset = () => {
       if (result.success) {
         setSentVerificationCode(result.data);
         setVerificationTimer(600);
-        alert("인증 코드가 발송되었습니다.");
+        setErrorMessage("인증 코드가 발송되었습니다.");
+        setShowSuccessModal(true);
       } else {
-        alert(result.message);
+        setErrorMessage(result.message);
+        setShowErrorModal(true);
       }
     } catch {
-      alert("인증 코드 발송 중 오류가 발생했습니다.");
+      setErrorMessage("인증 코드 발송 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +193,8 @@ const PasswordReset = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!Object.values(validation).every(Boolean)) {
-      alert("모든 필수 항목을 확인해주세요.");
+      setErrorMessage("모든 필수 항목을 확인해주세요.");
+      setShowErrorModal(true);
       return;
     }
     setIsLoading(true);
@@ -196,13 +205,18 @@ const PasswordReset = () => {
         formData.newPassword,
       );
       if (result.success) {
-        alert("비밀번호가 성공적으로 재설정되었습니다!");
-        navigate("/login");
+        setErrorMessage("비밀번호가 성공적으로 재설정되었습니다!");
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } else {
-        alert(result.message || "비밀번호 재설정에 실패했습니다.");
+        setErrorMessage(result.message || "비밀번호 재설정에 실패했습니다.");
+        setShowErrorModal(true);
       }
     } catch {
-      alert("비밀번호 재설정 중 오류가 발생했습니다.");
+      setErrorMessage("비밀번호 재설정 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     } finally {
       setIsLoading(false);
     }
@@ -328,6 +342,30 @@ const PasswordReset = () => {
           {isLoading ? "처리 중..." : "비밀번호 재설정"}
         </button>
       </form>
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
+
+      {/* 성공 모달 */}
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => setShowSuccessModal(false)}
+        title="성공"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import postService from "../../services/postService";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 import profileImage from "@/assets/images/profile.png";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import { useUserStore } from "@/stores/userStore";
@@ -32,6 +33,10 @@ const SnapDetailPage = () => {
   const [expandedReplies, setExpandedReplies] = useState(new Set());
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loadPostDetail = async () => {
@@ -86,7 +91,8 @@ const SnapDetailPage = () => {
 
   const handleSubmitComment = async () => {
     if (!commentContent.trim()) {
-      alert("댓글 내용을 입력해주세요.");
+      setErrorMessage("댓글 내용을 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -105,13 +111,16 @@ const SnapDetailPage = () => {
         }
         setCommentContent("");
         setReplyingTo(null);
-        alert("댓글이 등록되었습니다.");
+        setErrorMessage("댓글이 등록되었습니다.");
+        setShowSuccessModal(true);
       } else {
-        alert(response.message || "댓글 등록에 실패했습니다.");
+        setErrorMessage(response.message || "댓글 등록에 실패했습니다.");
+        setShowErrorModal(true);
       }
     } catch (err) {
       console.error("댓글 작성 실패:", err);
-      alert("댓글 작성 중 오류가 발생했습니다.");
+      setErrorMessage("댓글 작성 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     } finally {
       setIsSubmittingComment(false);
     }
@@ -173,7 +182,8 @@ const SnapDetailPage = () => {
           liked: previousState.liked,
           likeCount: previousState.likeCount,
         }));
-        alert("좋아요 처리 중 오류가 발생했습니다.");
+        setErrorMessage("좋아요 처리 중 오류가 발생했습니다.");
+        setShowErrorModal(true);
       }
     } catch (err) {
       console.error("게시글 좋아요 처리 실패:", err);
@@ -182,7 +192,8 @@ const SnapDetailPage = () => {
         liked: previousState.liked,
         likeCount: previousState.likeCount,
       }));
-      alert("좋아요 처리 중 오류가 발생했습니다.");
+      setErrorMessage("좋아요 처리 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     }
   };
 
@@ -233,7 +244,8 @@ const SnapDetailPage = () => {
           ...prev,
           comments: previousComments,
         }));
-        alert("좋아요 처리 중 오류가 발생했습니다.");
+        setErrorMessage("좋아요 처리 중 오류가 발생했습니다.");
+        setShowErrorModal(true);
       }
     } catch (err) {
       console.error("댓글 좋아요 처리 실패:", err);
@@ -241,7 +253,8 @@ const SnapDetailPage = () => {
         ...prev,
         comments: previousComments,
       }));
-      alert("좋아요 처리 중 오류가 발생했습니다.");
+      setErrorMessage("좋아요 처리 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     }
   };
 
@@ -274,16 +287,23 @@ const SnapDetailPage = () => {
   };
 
   const handleDeletePost = async () => {
-    if (window.confirm("게시글을 삭제하시겠습니까?")) {
-      try {
-        await postService.deletePost(postDetail.postId);
-        alert("게시글이 삭제되었습니다.");
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeletePost = async () => {
+    setShowDeleteModal(false);
+    setIsOptionsModalOpen(false);
+    try {
+      await postService.deletePost(postDetail.postId);
+      setErrorMessage("게시글이 삭제되었습니다.");
+      setShowSuccessModal(true);
+      setTimeout(() => {
         navigate(-1);
-      } catch (error) {
-        console.error("게시글 삭제 오류:", error);
-        alert("게시글 삭제에 실패했습니다.");
-      }
-      setIsOptionsModalOpen(false);
+      }, 2000);
+    } catch (error) {
+      console.error("게시글 삭제 오류:", error);
+      setErrorMessage("게시글 삭제에 실패했습니다.");
+      setShowErrorModal(true);
     }
   };
 
@@ -784,6 +804,42 @@ const SnapDetailPage = () => {
           </div>
         </BottomSheet>
       )}
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
+
+      {/* 성공 모달 */}
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => setShowSuccessModal(false)}
+        title="성공"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
+
+      {/* 삭제 확인 모달 */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeletePost}
+        title="게시글 삭제"
+        message="게시글을 삭제하시겠습니까?"
+        confirmText="삭제"
+        cancelText="취소"
+        variant="danger"
+      />
     </div>
   );
 };

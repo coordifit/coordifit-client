@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 import { useUserStore } from "@/stores/userStore";
 import { TokenManager } from "@/services/axiosInstance";
 import userService from "@/services/userService";
@@ -28,6 +29,9 @@ const ProfileEditPage = () => {
   const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(null);
   const [isGenderModalOpen, setGenderModalOpen] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const loadGenderCodes = async () => {
     const response = await commonCodeService.getCommonCodesByParentCodeId("A10002");
@@ -56,11 +60,15 @@ const ProfileEditPage = () => {
         TokenManager.setTokens(accessToken, refreshToken);
       }
 
-      alert("프로필이 성공적으로 수정되었습니다.");
-      navigate(-1);
+      setErrorMessage("프로필이 성공적으로 수정되었습니다.");
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000);
     } catch (error) {
       console.error("프로필 저장 오류:", error);
-      alert("프로필 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setErrorMessage("프로필 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setShowErrorModal(true);
     }
   };
 
@@ -93,7 +101,8 @@ const ProfileEditPage = () => {
       navigate("/login");
     } catch (error) {
       console.error("계정 비활성화 실패:", error);
-      alert("계정 비활성화 중 오류가 발생했습니다.");
+      setErrorMessage("계정 비활성화 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     }
   };
 
@@ -275,6 +284,30 @@ const ProfileEditPage = () => {
           </p>
         </Modal>
       )}
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
+
+      {/* 성공 모달 */}
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => setShowSuccessModal(false)}
+        title="성공"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
     </form>
   );
 };

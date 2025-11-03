@@ -143,7 +143,6 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
             )}
           </section>
         )}
-
         <div className={cn("sheetBody", { coordiTab: isCoordiTab })}>
           {isLoading && <div className={cn("loading")}>불러오는 중…</div>}
           <div className={cn("closetGrid")}>
@@ -175,13 +174,19 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                         });
                       }}
                     >
-                      <img
-                        src={coordi.originImageUrl}
-                        alt={coordi.coordiName}
-                        className={cn("closetImg")}
-                      />
+                      <div className={cn("closetFrame")}>
+                        <img
+                          src={coordi.thumbImageUrl}
+                          alt={coordi.coordiName}
+                          className={cn("closetImg")}
+                        />
+                      </div>
+
                       <div className={cn("closetInfo")}>
                         <div className={cn("closetName")}>{coordi.coordiName}</div>
+                        <div className={cn("closetCat")}>
+                          {coordi.description ? coordi.description : ""}
+                        </div>
                       </div>
                     </button>
                   );
@@ -204,7 +209,9 @@ const ClosetModal = ({ onRemove, onAdd, clothes, onClose, isOpen }) => {
                         }
                       }}
                     >
-                      <img src={item.imageUrl} alt={item.name} className={cn("closetImg")} />
+                      <div className={cn("closetFrame")}>
+                        <img src={item.imageUrl} alt={item.name} className={cn("closetImg")} />
+                      </div>
                       <div className={cn("closetInfo")}>
                         <div className={cn("closetName")}>{item.name}</div>
                         <div className={cn("closetCat")}>{item.categoryName}</div>

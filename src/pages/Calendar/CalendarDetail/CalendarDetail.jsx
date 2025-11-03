@@ -10,6 +10,8 @@ import { deleteDailyLookByDate } from "@/services/dailyLookApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/utils/calendarUtils";
 import DescriptionBox from "../DescriptionBox/DescriptionBox";
+import { useState } from "react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const cx = classNames.bind(styles);
 
@@ -17,6 +19,7 @@ const CalendarDetail = () => {
   const queryClient = useQueryClient();
   const { date } = useParams();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleAddDailyLook = () => {
     navigate("editor");
@@ -24,10 +27,12 @@ const CalendarDetail = () => {
 
   const { data: dailyLook = { data: {} }, isLoading, isError } = useDailyLookByDateQuery(date);
 
+  const handleDeleteClick = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
   const handleEditClick = () => {
     navigate("editor");
   };
-  const handleDeleteClick = async () => {
+  const handleConfirm = async () => {
     if (!dailyLook) {
       alert("삭제할 데일리룩이 없습니다.");
       return;
@@ -46,6 +51,9 @@ const CalendarDetail = () => {
     <div className={cx("container")}>
       {dailyLook?.data?.canvasJson ? (
         <>
+          <label htmlFor="coordiName" className={cx("inputLabel")}>
+            데일리룩 설명
+          </label>
           <DescriptionBox description={dailyLook.data.description} />
           <div className={cx("wrapper")}>
             <img
@@ -63,6 +71,16 @@ const CalendarDetail = () => {
             <Button onClick={handleDeleteClick} style="secondary">
               삭제하기
             </Button>
+            <ConfirmModal
+              isOpen={isOpen}
+              onClose={handleClose}
+              onConfirm={handleConfirm}
+              title="삭제 확인"
+              message="이 데일리룩를 삭제하시겠습니까?"
+              confirmText="삭제"
+              cancelText="취소"
+              variant="danger"
+            />
           </div>
         </>
       ) : (

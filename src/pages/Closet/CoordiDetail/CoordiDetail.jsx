@@ -15,6 +15,7 @@ import { deleteCoordi } from "@/services/coordiService";
 
 import styles from "./CoordiDetail.module.css";
 import aiIcon from "@/assets/icons/samsung_ai.webp";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const cx = classNames.bind(styles);
 
@@ -24,6 +25,7 @@ const CoordiDetail = () => {
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState("coordi");
   const [isLoading, setIsLoading] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const { data: coordi = { data: [] } } = useCoordiByIdQuery(coordiId);
 
@@ -55,9 +57,11 @@ const CoordiDetail = () => {
     });
   };
 
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
+  const handleConfirm = async () => {
     if (!coordi) {
-      alert("삭제할 데일리룩이 없습니다.");
+      alert("삭제할 코디가 없습니다.");
       return;
     } else {
       await deleteCoordi(coordiId);
@@ -65,53 +69,62 @@ const CoordiDetail = () => {
       queryClient.invalidateQueries(["coordi", coordiId]);
       queryClient.invalidateQueries(["coordis"]);
 
-      alert("삭제가 완료되었습니다.");
       navigate("/closet", { state: { isCoordiTab: true } });
     }
   };
 
   return (
     <div className={cx("container")}>
-      <div className={cx("content-header")}>
-        <div className={cx("header-left")}>
-          <TitleBox title={coordi?.data?.coordiName} />
-          <DescriptionBox description={coordi?.data?.description} />
-        </div>
-        <div className={cx("view-toggle-wrapper")}>
-          <div className={cx("view-toggle")} role="tablist" aria-label="보기 전환">
-            <button
-              role="tab"
-              aria-selected={viewMode === "coordi"}
-              className={cx("toggle-option", viewMode === "coordi" && "active")}
-              onClick={() => setViewMode("coordi")}
-              title="코디 아이템 보기"
-            >
-              <TbShirt className={cx("toggle-icon")} />
-              <span className={cx("span")}>코디</span>
-            </button>
-
-            <button
-              role="tab"
-              aria-selected={viewMode === "ai"}
-              className={cx(
-                "toggle-option",
-                "toggle-ai",
-                viewMode === "ai" && "active",
-                !aiExists && "empty", // 시각적으로 '없음' 상태 표시
-              )}
-              onClick={() => setViewMode("ai")}
-              title={aiExists ? "AI 피팅 이미지 보기" : "AI 피팅하러 가기"}
-            >
-              <img src={aiIcon} className={cx("toggle-icon")} />
-              <span className={cx("span")}>AI 피팅</span>
-
-              {aiExists ? (
-                <span className={cx("ai-badge", "ok")}>완료</span>
-              ) : (
-                <span className={cx("ai-badge", "none")}>없음</span>
-              )}
-            </button>
+      <div classname={cx("header-wapper")}>
+        <div className={cx("content-header")}>
+          <div className={cx("header-left")}>
+            <label htmlFor="coordiName" className={cx("inputLabel")}>
+              코디 제목
+            </label>
+            <TitleBox title={coordi?.data?.coordiName} />
           </div>
+          <div className={cx("view-toggle-wrapper")}>
+            <div className={cx("view-toggle")} role="tablist" aria-label="보기 전환">
+              <button
+                role="tab"
+                aria-selected={viewMode === "coordi"}
+                className={cx("toggle-option", viewMode === "coordi" && "active")}
+                onClick={() => setViewMode("coordi")}
+                title="코디 아이템 보기"
+              >
+                <TbShirt className={cx("toggle-icon")} />
+                <span className={cx("span")}>코디</span>
+              </button>
+
+              <button
+                role="tab"
+                aria-selected={viewMode === "ai"}
+                className={cx(
+                  "toggle-option",
+                  "toggle-ai",
+                  viewMode === "ai" && "active",
+                  !aiExists && "empty", // 시각적으로 '없음' 상태 표시
+                )}
+                onClick={() => setViewMode("ai")}
+                title={aiExists ? "AI 피팅 이미지 보기" : "AI 피팅하러 가기"}
+              >
+                <img src={aiIcon} className={cx("toggle-icon")} />
+                <span className={cx("span")}>AI 피팅</span>
+
+                {aiExists ? (
+                  <span className={cx("ai-badge", "ok")}>완료</span>
+                ) : (
+                  <span className={cx("ai-badge", "none")}>없음</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className={cx("header-left")}>
+          <label htmlFor="coordiName" className={cx("inputLabel")}>
+            코디 설명
+          </label>
+          <DescriptionBox description={coordi?.data?.description} />
         </div>
       </div>
 
@@ -178,6 +191,16 @@ const CoordiDetail = () => {
             <Button onClick={handleDeleteClick} style="secondary">
               삭제하기
             </Button>
+            <ConfirmModal
+              isOpen={isOpen}
+              onClose={handleClose}
+              onConfirm={handleConfirm}
+              title="삭제 확인"
+              message="이 코디를 삭제하시겠습니까?"
+              confirmText="삭제"
+              cancelText="취소"
+              variant="danger" // ✅ 강조 색상 (짙은 회색 등)
+            />
           </>
         ) : (
           aiExists && (

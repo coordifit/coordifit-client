@@ -1,4 +1,5 @@
-import styles from "./Weather.module.css";
+import { useEffect, useState } from "react";
+
 import {
   WiDaySunny,
   WiCloud,
@@ -7,8 +8,12 @@ import {
   WiSnowflakeCold,
   WiDayFog,
 } from "react-icons/wi";
-import { useEffect, useState } from "react";
+import classNames from "classnames/bind";
+
 import { useDailyWeatherQuery } from "@/hooks/useDailyWeatherQuery";
+import styles from "./Weather.module.css";
+
+const cn = classNames.bind(styles);
 
 const iconByCode = (code) => {
   if (code === 0) return <WiDaySunny />;
@@ -48,16 +53,28 @@ const Weather = ({ targetDate }) => {
 
   const q = useDailyWeatherQuery(targetDate, coords);
 
-  if (!coords) return geoTried ? null : <span style={{ color: "#888" }}>위치 확인 중…</span>;
-  if (q.isLoading) return <span style={{ color: "#888" }}>날씨 불러오는 중…</span>;
+  if (!coords)
+    return geoTried ? null : (
+      <div className={cn("badge")}>
+        <span className={cn("loadingText")}>위치 확인 중…</span>
+      </div>
+    );
+
+  if (q.isLoading) {
+    return (
+      <div className={cn("badge")}>
+        <span className={cn("loadingText")}>날씨 불러오는 중…</span>
+      </div>
+    );
+  }
   if (q.isError || !q.data) return null;
 
   const { tmax, tmin, wcode } = q.data;
 
   return (
-    <div className={styles.badge}>
-      <span className={styles.icon}>{iconByCode(wcode)}</span>
-      <span className={styles.text}>{`${tmax}°C /${tmin}°C`}</span>
+    <div className={cn("badge")}>
+      <span className={cn("icon")}>{iconByCode(wcode)}</span>
+      <span className={cn("text")}>{`${tmax}°C / ${tmin}°C`}</span>
     </div>
   );
 };

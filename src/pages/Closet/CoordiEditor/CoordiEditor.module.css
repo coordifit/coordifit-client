@@ -9,7 +9,9 @@
 .headerWapper {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
+
 .content-header {
   display: flex;
   align-items: center;
@@ -92,24 +94,32 @@
 }
 
 .btnDanger {
-  background: #ffefef;
-  border-color: #f88;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  background: #333333;
+  font-size: 11px;
+  border-color: #333333;
+  color: #ffffff;
   word-break: keep-all;
   border-radius: 5px;
   padding: 2px 5px;
+  transition: opacity 0.15s ease; /* 부드럽게 전환 */
 }
 
+.btnDanger.hidden {
+  opacity: 0;
+  pointer-events: none; /* 클릭 방지 */
+}
 .fab {
   position: absolute;
   width: 45px;
   height: 45px;
-  bottom: -30px;
+  bottom: -20px;
   right: calc(50% - 26px);
   border-radius: 50%;
   border: none;
   background: #111;
   color: #fff;
-  font-size: 24px;
+  font-size: 30px;
   line-height: 56px;
   text-align: center;
   display: flex;
@@ -362,7 +372,7 @@
 }
 /* ai 이미지 없는 경우 */
 .aiEmpty {
-  height: 420px;
+  height: 416px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -374,21 +384,18 @@
 }
 
 .aiEmptyIcon {
-  width: 64px;
-  height: 64px;
+  border: none;
   border-radius: 14px;
   display: grid;
   place-items: center;
   margin-bottom: 8px;
   color: #0f172a;
-  background: #eef2f7;
-  box-shadow: inset 0 0 0 1px #e2e8f0;
   font-size: 28px;
 }
 
 .aiEmptyTitle {
   font-weight: 800;
-  margin-bottom: 4px;
+  margin: 10px auto;
 }
 .aiEmptySub {
   font-size: 13px;
@@ -412,7 +419,7 @@
   width: 100%;
   border: none;
   outline: none;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #0f172a;
   background: transparent;
@@ -437,9 +444,12 @@
 .descInput {
   flex: 1;
   width: 100%;
+  min-height: 1.2em;
+  overflow-y: auto;
+  resize: none;
   border: none;
   outline: none;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #0f172a;
   background: transparent;
@@ -448,6 +458,12 @@
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease;
+
+  font-family: inherit;
+}
+
+.descInput::-webkit-scrollbar {
+  display: none;
 }
 
 .descInput::placeholder {

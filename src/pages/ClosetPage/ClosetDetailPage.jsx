@@ -200,6 +200,8 @@ const ClosetDetailPage = () => {
         };
 
         queryClient.invalidateQueries(["clothes"]);
+        queryClient.invalidateQueries(["coordis"]);
+        queryClient.invalidateQueries(["coordi"]);
 
         const response = await clothesService.updateClothes(itemId, updateData);
 

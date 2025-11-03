@@ -133,7 +133,7 @@ const CalendarLayout = () => {
       {viewMode === "monthly" && (
         <>
           <CalendarHeader onButtonClick={handleMonthMove}>
-            <div>
+            <div className={cx("header-wrapper")}>
               <span className={cx("monthLabel")}>
                 {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
               </span>
@@ -147,7 +147,7 @@ const CalendarLayout = () => {
       {viewMode === "daily" && (
         <>
           <CalendarHeader onButtonClick={handleDayMove}>
-            <div>
+            <div className={cx("header-wrapper")}>
               <span className={cx("monthLabel")}>{formatDate(targetDate)}</span>
               <Weather targetDate={targetDate} />
             </div>

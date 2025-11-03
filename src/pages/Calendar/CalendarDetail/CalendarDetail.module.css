@@ -1,5 +1,5 @@
 .button-wrapper {
-  margin-top: 10px;
+  margin-top: 8px;
   display: flex;
   gap: 10px;
 }
@@ -10,7 +10,7 @@
 
 .wrapper {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  /* aspect-ratio: 3.3 / 4; */
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -30,7 +30,7 @@
   display: flex;
   width: 100%;
   flex-direction: column;
-  gap: 5px;
+  gap: 10px;
   padding: 0 20px;
   padding-top: 0;
   overflow: hidden;
@@ -170,4 +170,14 @@
 .placeholder-box i {
   font-size: 12px;
   opacity: 0.7;
+}
+
+.inputLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4e5662;
+  letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }

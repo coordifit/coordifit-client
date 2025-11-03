@@ -2,6 +2,12 @@
   color: red;
 }
 
+.header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .content-box {
   display: flex;
   flex-direction: column;

@@ -16,6 +16,13 @@ const Header = () => {
   const showBack = handle.showBack ?? true;
 
   const onBack = () => {
+    const currentPath = window.location.pathname;
+
+    if (currentPath.startsWith("/closet/coordi")) {
+      navigate("/closet", { state: { isCoordiTab: true } });
+      return;
+    }
+
     if (window.history.state && window.history.state.idx > 0) navigate(-1);
     else navigate("/main");
   };

@@ -810,6 +810,7 @@
 }
 
 .addAiButton {
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
   position: absolute;
   background: none;
   bottom: -10px;

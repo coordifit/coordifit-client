@@ -24,8 +24,8 @@ import { api } from "@/services/axiosInstance";
 import aiIcon from "@/assets/icons/samsung_ai.webp";
 
 const cn = classNames.bind(styles);
-const MAX_NAME_LEN = 30;
-const MAX_DESC_LEN = 200;
+const MAX_NAME_LEN = 20;
+const MAX_DESC_LEN = 60;
 
 const CoordiEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -65,7 +65,7 @@ const CoordiEditor = () => {
   const isCoordiNameValid = coordiName && coordiName.length <= 30;
   const isDescriptionValid = description && description.length <= 200;
   const isItemsValid = coordiItems.length > 0;
-  const isDisabled = !(isItemsValid && isCoordiNameValid && isDescriptionValid);
+  const isDisabled = !(!isSaving && isItemsValid && isCoordiNameValid && isDescriptionValid);
 
   useBeforeUnload((e) => {
     if (!isSaving && isDirty) {
@@ -195,7 +195,7 @@ const CoordiEditor = () => {
       setAiExists(true);
     }
 
-    if (location.state?.clothesItems) {
+    if (location.state?.clothesItems && viewMode === "coordi") {
       location.state.clothesItems.forEach((itemData) => {
         addToCanvas(itemData.apiData);
       });
@@ -259,6 +259,7 @@ const CoordiEditor = () => {
         }, 0);
 
         queryClient.invalidateQueries(["coordis"]);
+        queryClient.invalidateQueries(["coordi"]);
 
         setSelectedId(prev);
       } finally {
@@ -276,8 +277,8 @@ const CoordiEditor = () => {
               <label htmlFor="coordiName" className={cn("inputLabel")}>
                 코디 제목<span className={cn("requiredMark")}>*</span>
               </label>
-              <span className={cn("charCounter", coordiName.length > 30 && "error")}>
-                {coordiName.length}/30자
+              <span className={cn("charCounter", coordiName.length > 20 && "error")}>
+                {coordiName.length} / 20자
               </span>
             </div>
             <div className={cn("inputWrapper")}>
@@ -286,13 +287,13 @@ const CoordiEditor = () => {
                 type="text"
                 className={cn("titleInput", errors.name && "error")}
                 value={coordiName}
-                placeholder="코디 제목을 입력하세요 (최대 30자)"
+                placeholder="코디 제목을 입력하세요 (최대 20자)"
                 onChange={(e) => {
                   const val = e.target.value;
                   setCoordiName(val);
                   setErrors((prev) => ({
                     ...prev,
-                    name: val.length > 30 ? "제목은 30자 이내로 입력해주세요." : "",
+                    name: val.length > 20 ? "제목은 20자 이내로 입력해주세요." : "",
                   }));
                 }}
               />
@@ -351,24 +352,33 @@ const CoordiEditor = () => {
               상세 설명
               <span className={cn("requiredMark")}>*</span>
             </label>
-            <span className={cn("charCounter", description.length > 200 && "error")}>
-              {description.length}/200자
+            <span className={cn("charCounter", description.length > 60 && "error")}>
+              {description.length} / 60자
             </span>
           </div>
 
           <div className={cn("inputWrapper")}>
-            <input
+            <textarea
               type="text"
               name="description"
               className={cn("descInput", errors.desc && "error")}
               value={description}
-              placeholder="설명을 입력하세요 (최대 200자)"
+              placeholder="코디 특징이나 설명을 입력하세요 (최대 60자)"
+              rows={2}
+              maxLength={60}
               onChange={(e) => {
                 const val = e.target.value;
+                const lines = val.split("\n");
+
+                if (lines.length > 2) {
+                  e.target.value = description;
+                  return;
+                }
+
                 setDescription(val);
                 setErrors((prev) => ({
                   ...prev,
-                  desc: val.length > 200 ? "설명은 200자 이내로 입력해주세요." : "",
+                  desc: val.length > 60 ? "설명은 60자 이내로 입력해주세요." : "",
                 }));
               }}
             />
@@ -381,9 +391,6 @@ const CoordiEditor = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className={cn("editorRow")}>
         {isLoading && (
           <div className={cn("canvas-loading-center")}>
             <div className={cn("loading-blur-box")}>
@@ -435,9 +442,21 @@ const CoordiEditor = () => {
                     />
                   ))}
                 </div>
+                <button
+                  className={cn("fab")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSheetOpen(true);
+                  }}
+                >
+                  +
+                </button>
                 <div className={cn("actions")}>
-                  <button className={cn("btnDanger")} onClick={removeSelected}>
-                    삭제하기
+                  <button
+                    className={cn("btnDanger", { hidden: !selectedId })}
+                    onClick={removeSelected}
+                  >
+                    옷 지우기
                   </button>
                 </div>
               </div>
@@ -454,7 +473,7 @@ const CoordiEditor = () => {
             <>
               <div className={cn("aiEmpty")}>
                 <div className={cn("aiEmptyIcon")}>
-                  <FiImage />
+                  <FiImage size="50" />
                 </div>
                 <p className={cn("aiEmptyTitle")}>AI 시착 이미지가 없습니다</p>
                 <p className={cn("aiEmptySub")}>코디를 저장한 뒤 AI 이미지를 생성할 수 있어요.</p>
@@ -462,17 +481,6 @@ const CoordiEditor = () => {
             </>
           )}
         </div>
-        {viewMode === "coordi" && (
-          <button
-            className={cn("fab")}
-            onClick={(e) => {
-              e.stopPropagation();
-              setSheetOpen(true);
-            }}
-          >
-            +
-          </button>
-        )}
       </div>
       <ItemCarousel items={coordiItems} selectedId={selectedId} onClick={setSelectedId} />
       <ClosetModal
@@ -501,44 +509,6 @@ const CoordiEditor = () => {
           </Button>
         </>
       </div>
-      {isModalOpen && (
-        <Modal
-          title="코디 상세정보 입력"
-          onClose={handleClickCancel}
-          children={
-            <>
-              <div className={cn("field")}>
-                <label className={cn("label")}>코디 제목</label>
-                <input
-                  className={cn("input")}
-                  placeholder="예) 오피스 캐주얼 룩"
-                  value={coordiName}
-                  onChange={handleNameChange}
-                />
-                {errors.name && <p className={cn("error")}>{errors.name}</p>}
-              </div>
-
-              <div className={cn("field")}>
-                <label className={cn("label")}>상세 설명</label>
-                <input
-                  className={cn("input")}
-                  placeholder="코디의 포인트나 특징을 자유롭게 써주세요"
-                  value={description}
-                  onChange={handleDescChange}
-                />
-                {errors.desc && <p className={cn("error")}>{errors.desc}</p>}
-              </div>
-              <button
-                className={cn("saveButton")}
-                onClick={saveImage}
-                disabled={isSaving || isInvalid}
-              >
-                {isSaving ? "저장 중..." : "저장하기"}
-              </button>
-            </>
-          }
-        />
-      )}
       {open && (
         <Modal
           title="뒤로 가기"

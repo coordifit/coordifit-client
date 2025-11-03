@@ -20,6 +20,9 @@ import { useLeaveConfirm } from "@/hooks/useLeaveConfirm";
 import { getCanvasPosition } from "@/utils/canvasUtils";
 import { formatDateString } from "@/utils/calendarUtils";
 import Weather from "../Weather/Weather";
+import classNames from "classnames/bind";
+
+const cn = classNames.bind(styles);
 
 const CalendarEditor = () => {
   const [closetModal, setClosetModal] = useState(false);
@@ -30,6 +33,7 @@ const CalendarEditor = () => {
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadStatusMap, setLoadStatusMap] = useState({});
+  const [errors, setErrors] = useState({ desc: "" });
 
   const pastClothesRef = useRef([]);
   const stageRef = useRef(null);
@@ -168,32 +172,65 @@ const CalendarEditor = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <header className={styles.header}>
-        <span className={styles.headerTitle}>{formatDateString(date)}</span>
+    <div className={cn("wrapper")}>
+      <header className={cn("header")}>
+        <span className={cn("headerTitle")}>{formatDateString(date)}</span>
         <Weather targetDate={new Date(date)} />
       </header>
-      <div className={styles.editorRow}>
+      <div className={cn("editorRow")}>
         {isLoading && (
-          <div className={styles["canvas-loading-center"]}>
-            <div className={styles["loading-blur-box"]}>
-              <div className={styles.spinner} />
-              <p className={styles["loading-text"]}>이미지 추가 중...</p>
+          <div className={cn("canvas-loading-center")}>
+            <div className={cn("loading-blur-box")}>
+              <div className={cn("spinner")} />
+              <p className={cn("loading-text")}>이미지 추가 중...</p>
             </div>
           </div>
         )}
-        <input
-          className={styles.input}
-          placeholder="오늘의 데일리룩에 대한 코멘트를 남겨주세요."
+        <div className={cn("label-wrapper")}>
+          <label htmlFor="coordiName" className={cn("inputLabel")}>
+            데일리룩 설명
+          </label>
+          <span className={cn("charCounter", description.length > 60 && "error")}>
+            {description.length} / 60자
+          </span>
+        </div>
+        <textarea
+          type="text"
+          name="description"
+          className={cn("descInput", errors.desc && "error")}
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          placeholder="데일리룩의 특징이나 설명을 입력하세요 (최대 60자)"
+          rows={2}
+          maxLength={60}
+          onChange={(e) => {
+            const val = e.target.value;
+            const lines = val.split("\n");
+
+            if (lines.length > 2) {
+              e.target.value = description;
+              return;
+            }
+
+            setDescription(val);
+            setErrors((prev) => ({
+              ...prev,
+              desc: val.length > 60 ? "설명은 60자 이내로 입력해주세요." : "",
+            }));
+          }}
         />
-        <div className={styles.canvasCard}>
+        <div className={cn("counterRow")}>
+          {errors.desc ? (
+            <span className={cn("errorMsgInline")}>{errors.desc}</span>
+          ) : (
+            <div className={cn("emptyErrorMsg")} />
+          )}
+        </div>
+        <div className={cn("canvasCard")}>
           <Stage
             ref={stageRef}
             width={CANVAS_CONFIG.WIDTH}
             height={CANVAS_CONFIG.HEIGHT}
-            className={styles.stage}
+            className={cn("stage")}
           >
             <Layer>
               <Rect
@@ -217,27 +254,25 @@ const CalendarEditor = () => {
               ))}
             </Layer>
           </Stage>
-          <div className={styles.toolbar}>
-            <div className={styles.colors}>
+          <div className={cn("toolbar")}>
+            <div className={cn("colors")}>
               {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
                 <button
                   key={hexColor}
-                  className={`${styles.colorDot} ${bgColor === hexColor ? styles.activeDot : ""}`}
+                  className={cn("colorDot", { activeDot: bgColor === hexColor })}
                   onClick={() => setBgColor(hexColor)}
                   title={hexColor}
                   style={{ backgroundColor: hexColor }}
                 />
               ))}
             </div>
-            <div className={styles.actions}>
-              <button className={styles.btnDanger} onClick={removeSelected}>
-                삭제하기
-              </button>
-            </div>
+            <button className={cn("btnDanger", { hidden: !selectedId })} onClick={removeSelected}>
+              옷 지우기
+            </button>
           </div>
         </div>
         <button
-          className={styles.fab}
+          className={cn("fab")}
           onClick={(e) => {
             e.stopPropagation();
             setClosetModal(true);
@@ -254,9 +289,13 @@ const CalendarEditor = () => {
         clothes={clothes}
         onRemove={removeClothes}
       />
-      <div className={styles["button-wrapper"]}>
+      <div className={cn("button-wrapper")}>
         <>
-          <Button onClick={saveImage} style="default" disabled={isSaving || clothes.length === 0}>
+          <Button
+            onClick={saveImage}
+            style="default"
+            disabled={isSaving || clothes.length === 0 || description.length > 60}
+          >
             {isSaving ? "저장 중..." : "저장하기"}
           </Button>
           <Button

@@ -104,7 +104,7 @@ const CalendarMonthly = ({ targetDate, date, setTargetDate, setViewMode, handleC
           className={cx("summaryCard")}
           disabled={!summary?.data?.mostWornClothesOverall?.clothesId}
           onClick={() => {
-            const id = summary?.mostWornClothesOverall?.clothesId;
+            const id = summary?.data?.mostWornClothesOverall?.clothesId;
             if (id) navigate(`/closet/item/${id}`);
           }}
         >

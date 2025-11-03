@@ -12,6 +12,7 @@ import OuterIcon from "@/assets/images/outericon.png";
 import AccessoriesIcon from "@/assets/images/accessoriesicon.png";
 import { useQueryClient } from "@tanstack/react-query";
 import ImagePlusIcon from "@/assets/images/imageplusicon.png";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const ClosetDetailPage = () => {
   const navigate = useNavigate();
@@ -31,6 +32,9 @@ const ClosetDetailPage = () => {
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [deletedFileIds, setDeletedFileIds] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const CATEGORY_ICON_MAP = {
     상의: TopIcon,
@@ -65,13 +69,15 @@ const ClosetDetailPage = () => {
           setItem(response.data);
         } else {
           console.error("옷 상세 조회 실패:", response.message);
-          alert("옷 정보를 불러오는데 실패했습니다.");
-          navigate("/closet");
+          setErrorMessage("옷 정보를 불러오는데 실패했습니다.");
+          setShowErrorModal(true);
+          setTimeout(() => navigate("/closet"), 2000);
         }
       } catch (err) {
         console.error("옷 상세 조회 실패:", err);
-        alert("옷 정보를 불러오는데 실패했습니다.");
-        navigate("/closet");
+        setErrorMessage("옷 정보를 불러오는데 실패했습니다.");
+        setShowErrorModal(true);
+        setTimeout(() => navigate("/closet"), 2000);
       } finally {
         setLoading(false);
       }
@@ -140,47 +146,56 @@ const ClosetDetailPage = () => {
     if (isEditing) {
       // 수정 저장 전 유효성 검사
       if (!item.name || item.name.trim().length === 0) {
-        alert("이름을 입력해주세요.");
+        setErrorMessage("이름을 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (item.name.trim().length > 100) {
-        alert("이름은 100자 이내로 입력해주세요.");
+        setErrorMessage("이름은 100자 이내로 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (!item.categoryCode) {
-        alert("카테고리를 선택해주세요.");
+        setErrorMessage("카테고리를 선택해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (!item.brand || item.brand.trim().length === 0) {
-        alert("브랜드를 입력해주세요.");
+        setErrorMessage("브랜드를 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (item.brand.trim().length > 100) {
-        alert("브랜드는 100자 이내로 입력해주세요.");
+        setErrorMessage("브랜드는 100자 이내로 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (item.clothesSize && item.clothesSize.length > 20) {
-        alert("사이즈는 20자 이내로 입력해주세요.");
+        setErrorMessage("사이즈는 20자 이내로 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (item.price && item.price.toString().length > 10) {
-        alert("가격은 10자리 이내로 입력해주세요.");
+        setErrorMessage("가격은 10자리 이내로 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (item.purchaseUrl && item.purchaseUrl.length > 1000) {
-        alert("구매링크는 1000자 이내로 입력해주세요.");
+        setErrorMessage("구매링크는 1000자 이내로 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
       if (item.description && item.description.length > 1000) {
-        alert("설명은 1000자 이내로 입력해주세요.");
+        setErrorMessage("설명은 1000자 이내로 입력해주세요.");
+        setShowErrorModal(true);
         return;
       }
 
@@ -206,7 +221,8 @@ const ClosetDetailPage = () => {
         const response = await clothesService.updateClothes(itemId, updateData);
 
         if (response.success) {
-          alert("수정이 완료되었습니다.");
+          setErrorMessage("수정이 완료되었습니다.");
+          setShowErrorModal(true);
           setIsEditing(false);
           setDeletedFileIds([]); // 삭제 목록 초기화
           setNewFiles([]); // 새 파일 목록 초기화
@@ -224,11 +240,13 @@ const ClosetDetailPage = () => {
             setItem(detailResponse.data);
           }
         } else {
-          alert("수정에 실패했습니다: " + response.message);
+          setErrorMessage("수정에 실패했습니다: " + response.message);
+          setShowErrorModal(true);
         }
       } catch (error) {
         console.error("수정 오류:", error);
-        alert("수정 중 오류가 발생했습니다.");
+        setErrorMessage("수정 중 오류가 발생했습니다.");
+        setShowErrorModal(true);
       }
     } else {
       // 편집 모드 시작
@@ -266,22 +284,31 @@ const ClosetDetailPage = () => {
     fetchClothesDetail();
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("정말 이 옷을 삭제하시겠습니까?")) return;
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    setShowDeleteModal(false);
     try {
       const response = await clothesService.deleteClothes(itemId);
 
       if (response.success) {
-        alert("옷이 삭제되었습니다.");
+        setErrorMessage("옷이 삭제되었습니다.");
+        setShowErrorModal(true);
         queryClient.invalidateQueries(["coordis"]);
-        navigate("/closet");
+        // 모달 확인 후 navigate 하도록 setTimeout 사용
+        setTimeout(() => {
+          navigate("/closet");
+        }, 2000);
       } else {
-        alert("삭제에 실패했습니다: " + response.message);
+        setErrorMessage("삭제에 실패했습니다: " + response.message);
+        setShowErrorModal(true);
       }
     } catch (error) {
       console.error("삭제 오류:", error);
-      alert("삭제 중 오류가 발생했습니다.");
+      setErrorMessage("삭제 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     }
   };
 
@@ -670,6 +697,31 @@ const ClosetDetailPage = () => {
           </>
         )}
       </footer>
+
+      {/* 삭제 확인 모달 */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="옷 삭제"
+        message="정말 이 옷을 삭제하시겠습니까?"
+        confirmText="삭제"
+        cancelText="취소"
+        variant="danger"
+      />
+
+      {/* 오류/성공 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title={
+          errorMessage.includes("완료") || errorMessage.includes("삭제되었습니다") ? "완료" : "오류"
+        }
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

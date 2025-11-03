@@ -45,9 +45,11 @@ const ConfirmModal = ({
         </div>
 
         <div className={styles.actions}>
-          <button type="button" className={styles.cancelButton} onClick={onClose}>
-            {cancelText}
-          </button>
+          {cancelText && (
+            <button type="button" className={styles.cancelButton} onClick={onClose}>
+              {cancelText}
+            </button>
+          )}
           <button
             type="button"
             className={`${styles.confirmButton} ${

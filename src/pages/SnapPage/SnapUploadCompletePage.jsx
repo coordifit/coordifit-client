@@ -4,6 +4,7 @@ import clothesService from "@/services/clothesService";
 import postService from "../../services/postService";
 import { useSnapStore } from "../../stores/snapStore";
 import styles from "./SnapUploadCompletePage.module.css";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 const SnapUploadCompletePage = () => {
   const navigate = useNavigate();
@@ -23,6 +24,10 @@ const SnapUploadCompletePage = () => {
   const [isPublic, setIsPublic] = useState(true);
   const [clothesItems, setClothesItems] = useState([]);
   const [uploading, setUploading] = useState(false);
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     // Zustand store에서 모든 데이터 가져오기
@@ -80,9 +85,12 @@ const SnapUploadCompletePage = () => {
         });
 
         console.log("게시물 수정 성공:", result);
-        alert("게시물이 성공적으로 수정되었습니다.");
+        setErrorMessage("게시물이 성공적으로 수정되었습니다.");
+        setShowSuccessModal(true);
         clearSnapData();
-        navigate("/main");
+        setTimeout(() => {
+          navigate("/main");
+        }, 2000);
       } else {
         // 게시물 등록
         const result = await postService.createPost({
@@ -98,11 +106,12 @@ const SnapUploadCompletePage = () => {
       }
     } catch (error) {
       console.error(editPostData ? "게시물 수정 실패:" : "게시물 등록 실패:", error);
-      alert(
+      setErrorMessage(
         editPostData
           ? "게시물 수정에 실패했습니다. 다시 시도해주세요."
           : "게시물 등록에 실패했습니다. 다시 시도해주세요.",
       );
+      setShowErrorModal(true);
     } finally {
       setUploading(false);
     }
@@ -178,6 +187,28 @@ const SnapUploadCompletePage = () => {
           {uploading ? "처리 중..." : editPostData ? "수정 완료" : "업로드"}
         </button>
       </div>
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
+
+      {/* 성공 모달 */}
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => setShowSuccessModal(false)}
+        title="완료"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

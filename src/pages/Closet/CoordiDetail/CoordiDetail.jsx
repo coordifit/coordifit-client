@@ -26,6 +26,8 @@ const CoordiDetail = () => {
   const [viewMode, setViewMode] = useState("coordi");
   const [isLoading, setIsLoading] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const { data: coordi = { data: [] } } = useCoordiByIdQuery(coordiId);
 
@@ -61,7 +63,8 @@ const CoordiDetail = () => {
   const handleClose = () => setIsOpen(false);
   const handleConfirm = async () => {
     if (!coordi) {
-      alert("삭제할 코디가 없습니다.");
+      setErrorMessage("삭제할 코디가 없습니다.");
+      setShowErrorModal(true);
       return;
     } else {
       await deleteCoordi(coordiId);
@@ -215,6 +218,17 @@ const CoordiDetail = () => {
           )
         )}
       </div>
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

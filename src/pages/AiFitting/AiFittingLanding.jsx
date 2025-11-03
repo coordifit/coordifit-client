@@ -18,6 +18,7 @@ import chevronDown from "@/assets/images/chevron-down.svg";
 import userIcon from "@/assets/images/usericon.png";
 import { requestAiFitting } from "@/services/avatars.js";
 import { CATEGORIES } from "@/constants/category";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const AiFittingLanding = () => {
   const navigate = useNavigate();
@@ -39,6 +40,8 @@ const AiFittingLanding = () => {
   const [myClothes, setMyClothes] = useState([]);
   const [groupedClothes, setGroupedClothes] = useState({ top: [], bottom: [], shoes: [] });
   const [isLoadingClothes, setIsLoadingClothes] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const requestAbortControllerRef = useRef(null);
   const isMountedRef = useRef(true);
   const prefetchedAvatarIdsRef = useRef(new Set());
@@ -267,9 +270,8 @@ const AiFittingLanding = () => {
       }
 
       console.error("AI fitting 요청 중 오류가 발생했습니다:", error);
-      if (typeof window !== "undefined" && typeof window.alert === "function") {
-        window.alert("AI 옷입히기 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      }
+      setErrorMessage("AI 옷입히기 요청 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.");
+      setShowErrorModal(true);
     } finally {
       if (requestAbortControllerRef.current === controller) {
         requestAbortControllerRef.current = null;
@@ -473,6 +475,17 @@ const AiFittingLanding = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
     </div>
   );
 };

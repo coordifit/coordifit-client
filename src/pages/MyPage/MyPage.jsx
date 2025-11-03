@@ -7,6 +7,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useSnapStore } from "@/stores/snapStore";
 import profileImage from "@/assets/images/profile.png";
 import styles from "./MyPage.module.css";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 const TAB_ITEMS = [
   { id: "snap", label: "스냅", icon: "grid" },
@@ -34,6 +35,8 @@ const MyPage = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const tabSectionRef = useRef(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const currentUserId = urlUserId || user?.userId;
   const isMyPage = user?.userId === currentUserId;
@@ -137,11 +140,13 @@ const MyPage = () => {
           setMyPageData(myPageResponse.data);
         }
       } else {
-        alert(response.message || "팔로우 처리에 실패했습니다.");
+        setErrorMessage(response.message || "팔로우 처리에 실패했습니다.");
+        setShowErrorModal(true);
       }
     } catch (err) {
       console.error("팔로우 처리 실패:", err);
-      alert("팔로우 처리 중 오류가 발생했습니다.");
+      setErrorMessage("팔로우 처리 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     } finally {
       setFollowLoading(false);
     }
@@ -354,6 +359,17 @@ const MyPage = () => {
           </div>
         </div>
       )}
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 import commonCodeService from "../../services/commonCodeService";
 import clothesService from "@/services/clothesService";
 import { useSnapStore } from "../../stores/snapStore";
@@ -29,6 +30,8 @@ const SnapAddPage = () => {
   const [subCategoriesMap, setSubCategoriesMap] = useState({});
   const [clothesItems, setClothesItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -123,19 +126,22 @@ const SnapAddPage = () => {
       const filesToAdd = files.slice(0, remainingSlots);
 
       if (filesToAdd.length === 0) {
-        alert("최대 10장까지만 업로드 가능합니다.");
+        setErrorMessage("최대 10장까지만 업로드 가능합니다.");
+        setShowErrorModal(true);
         return;
       }
 
       // 파일 유효성 검사
       const validFiles = filesToAdd.filter((file) => {
         if (!file.type.startsWith("image/")) {
-          alert(`${file.name}은(는) 이미지 파일이 아닙니다.`);
+          setErrorMessage(`${file.name}은(는) 이미지 파일이 아닙니다.`);
+          setShowErrorModal(true);
           return false;
         }
         if (file.size > 10 * 1024 * 1024) {
           // 10MB 제한
-          alert(`${file.name}은(는) 10MB를 초과합니다.`);
+          setErrorMessage(`${file.name}은(는) 10MB를 초과합니다.`);
+          setShowErrorModal(true);
           return false;
         }
         return true;
@@ -361,6 +367,18 @@ const SnapAddPage = () => {
             : "상품을 선택하세요."}
         </button>
       </div>
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
     </div>
   );
 };

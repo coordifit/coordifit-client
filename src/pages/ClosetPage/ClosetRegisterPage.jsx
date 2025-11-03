@@ -18,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import ImagePlusIcon from "@/assets/images/imageplusicon.png";
 import ArrowLeftIcon from "@/assets/images/arrow-left.png";
 import ArrowRightIcon from "@/assets/images/arrow-right.png";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 const MAX_PHOTOS = 5;
 
@@ -70,6 +71,10 @@ const ClosetRegisterPage = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const queryClient = useQueryClient();
 
   const handleFileChange = (event) => {
@@ -78,7 +83,8 @@ const ClosetRegisterPage = () => {
     const filesToAdd = files.slice(0, remainingSlots);
 
     if (filesToAdd.length === 0) {
-      alert("최대 5장까지만 업로드 가능합니다.");
+      setErrorMessage("최대 5장까지만 업로드 가능합니다.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -181,52 +187,62 @@ const ClosetRegisterPage = () => {
     event.preventDefault();
 
     if (photoPreviews.length === 0) {
-      alert("사진을 1장 이상 등록해주세요.");
+      setErrorMessage("사진을 1장 이상 등록해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.name.trim().length === 0) {
-      alert("이름을 입력해주세요.");
+      setErrorMessage("이름을 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.name.trim().length > 100) {
-      alert("이름은 100자 이내로 입력해주세요.");
+      setErrorMessage("이름은 100자 이내로 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (!formData.category || !formData.subCategory) {
-      alert("카테고리를 선택해주세요.");
+      setErrorMessage("카테고리를 선택해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.brand.trim().length === 0) {
-      alert("브랜드를 입력해주세요.");
+      setErrorMessage("브랜드를 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.brand.trim().length > 100) {
-      alert("브랜드는 100자 이내로 입력해주세요.");
+      setErrorMessage("브랜드는 100자 이내로 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.size && formData.size.length > 20) {
-      alert("사이즈는 20자 이내로 입력해주세요.");
+      setErrorMessage("사이즈는 20자 이내로 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.price && formData.price.length > 10) {
-      alert("가격은 10자리 이내로 입력해주세요.");
+      setErrorMessage("가격은 10자리 이내로 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.purchaseLink && formData.purchaseLink.length > 1000) {
-      alert("구매링크는 1000자 이내로 입력해주세요.");
+      setErrorMessage("구매링크는 1000자 이내로 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
     if (formData.description && formData.description.length > 1000) {
-      alert("설명은 1000자 이내로 입력해주세요.");
+      setErrorMessage("설명은 1000자 이내로 입력해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -257,7 +273,8 @@ const ClosetRegisterPage = () => {
 
           if (updatedProducts.length > 0) {
             // 남은 상품이 있는 경우
-            alert("옷이 성공적으로 등록되었습니다! 다음 상품을 등록해주세요.");
+            setErrorMessage("옷이 성공적으로 등록되었습니다! 다음 상품을 등록해주세요.");
+            setShowSuccessModal(true);
 
             // 폼 초기화
             setFormData({
@@ -282,20 +299,28 @@ const ClosetRegisterPage = () => {
             // 인덱스가 유효하면 그대로 유지 (자동으로 다음 상품으로 이동)
           } else {
             // 모든 상품 등록 완료
-            alert("모든 상품이 성공적으로 등록되었습니다!");
-            navigate("/closet");
+            setErrorMessage("모든 상품이 성공적으로 등록되었습니다!");
+            setShowSuccessModal(true);
+            setTimeout(() => {
+              navigate("/closet");
+            }, 2000);
           }
         } else {
           // 단일 등록인 경우
-          alert("옷이 성공적으로 등록되었습니다!");
-          navigate("/closet");
+          setErrorMessage("옷이 성공적으로 등록되었습니다!");
+          setShowSuccessModal(true);
+          setTimeout(() => {
+            navigate("/closet");
+          }, 2000);
         }
       } else {
-        alert(response.message || "등록에 실패했습니다.");
+        setErrorMessage(response.message || "등록에 실패했습니다.");
+        setShowErrorModal(true);
       }
     } catch (error) {
       console.error("옷 등록 오류:", error);
-      alert("등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setErrorMessage("등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setShowErrorModal(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -608,6 +633,28 @@ const ClosetRegisterPage = () => {
           </div>
         </div>
       )}
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
+
+      {/* 성공 모달 */}
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => setShowSuccessModal(false)}
+        title="완료"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

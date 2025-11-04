@@ -29,6 +29,8 @@ const AvatarSelectionPage = () => {
   const [deletingAvatarId, setDeletingAvatarId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [avatarToDelete, setAvatarToDelete] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -64,9 +66,8 @@ const AvatarSelectionPage = () => {
       await removeAvatar(avatarToDelete.id);
     } catch (error) {
       console.error("Failed to delete avatar", error);
-      if (typeof window !== "undefined" && typeof window.alert === "function") {
-        window.alert("아바타 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      }
+      setErrorMessage("아바타 삭제 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.");
+      setShowErrorModal(true);
     } finally {
       setDeletingAvatarId(null);
       setAvatarToDelete(null);
@@ -190,6 +191,17 @@ const AvatarSelectionPage = () => {
         confirmText="삭제"
         cancelText="취소"
         variant="danger"
+      />
+
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
       />
     </div>
   );

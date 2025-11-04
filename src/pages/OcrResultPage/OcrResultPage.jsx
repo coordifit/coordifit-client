@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 import styles from "./OcrResultPage.module.css";
 import editIcon from "@/assets/images/editpencil.png";
 import trashIcon from "@/assets/images/trash.png";
@@ -71,6 +72,8 @@ const OcrResultPage = () => {
   const [editValues, setEditValues] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const { originalImage, ocrData, analysisResult } = location.state || {};
 
@@ -258,7 +261,8 @@ const OcrResultPage = () => {
     console.log("선택된 아이템들:", Array.from(selectedItems));
 
     if (selectedItems.size === 0) {
-      alert("추가할 상품을 선택해주세요.");
+      setErrorMessage("추가할 상품을 선택해주세요.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -636,6 +640,18 @@ const OcrResultPage = () => {
             </button>
           </div>
         )}
+
+        {/* 오류 모달 */}
+        <ConfirmModal
+          isOpen={showErrorModal}
+          onClose={() => setShowErrorModal(false)}
+          onConfirm={() => setShowErrorModal(false)}
+          title="오류"
+          message={errorMessage}
+          confirmText="확인"
+          cancelText=""
+          variant="default"
+        />
       </div>
     </div>
   );

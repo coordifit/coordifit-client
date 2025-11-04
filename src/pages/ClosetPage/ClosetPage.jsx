@@ -12,6 +12,7 @@ import { deleteCoordis } from "@/services/coordiService";
 import noAiImage from "@/assets/icons/ai_default.png";
 import CoordiViewMode from "../Closet/CoordiViewMode/CoordiViewMode";
 import { useQueryClient } from "@tanstack/react-query";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 const ClosetPage = () => {
   const navigate = useNavigate();
@@ -36,6 +37,10 @@ const ClosetPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState("bottom");
   const sortRef = useRef(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const queryClient = useQueryClient();
   const { data: coordi = { data: [] } } = useAllCoordisQuery();
@@ -242,10 +247,13 @@ const ClosetPage = () => {
     navigate("/closet/coordi/editor");
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedItems.length) return;
-    if (!window.confirm(`선택한 ${selectedItems.length}개 아이템을 삭제하시겠습니까?`)) return;
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    setShowDeleteModal(false);
     try {
       let response;
       if (isCoordiTab) {
@@ -257,7 +265,8 @@ const ClosetPage = () => {
       }
 
       if (response.success) {
-        alert("선택한 아이템이 삭제되었습니다.");
+        setErrorMessage("선택한 아이템이 삭제되었습니다.");
+        setShowErrorModal(true);
         if (isCoordiTab) {
           setClothesItems((prev) => prev.filter((item) => !selectedItems.includes(item.coordiId)));
           queryClient.invalidateQueries(["coordis"]);
@@ -268,11 +277,13 @@ const ClosetPage = () => {
         setSelectedItems([]);
         setIsSelecting(false);
       } else {
-        alert("삭제에 실패했습니다: " + response.message);
+        setErrorMessage("삭제에 실패했습니다: " + response.message);
+        setShowErrorModal(true);
       }
     } catch (error) {
       console.error("삭제 오류:", error);
-      alert("삭제 중 오류가 발생했습니다.");
+      setErrorMessage("삭제 중 오류가 발생했습니다.");
+      setShowErrorModal(true);
     }
   };
 
@@ -636,6 +647,29 @@ const ClosetPage = () => {
       {isAddModalOpen && modalPosition === "fab" && (
         <AddItemModal onClose={() => setIsAddModalOpen(false)} position={modalPosition} />
       )}
+
+      {/* 삭제 확인 모달 */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="삭제 확인"
+        message={`선택한 ${selectedItems.length}개 아이템을 삭제하시겠습니까?`}
+        confirmText="삭제"
+        cancelText="취소"
+        variant="danger"
+      />
+
+      {/* 오류/성공 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title={errorMessage.includes("삭제되었습니다") ? "완료" : "오류"}
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

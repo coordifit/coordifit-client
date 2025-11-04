@@ -20,6 +20,9 @@ const CalendarDetail = () => {
   const { date } = useParams();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleAddDailyLook = () => {
     navigate("editor");
@@ -34,7 +37,8 @@ const CalendarDetail = () => {
   };
   const handleConfirm = async () => {
     if (!dailyLook) {
-      alert("삭제할 데일리룩이 없습니다.");
+      setErrorMessage("삭제할 데일리룩이 없습니다.");
+      setShowErrorModal(true);
       return;
     } else {
       await deleteDailyLookByDate(date);
@@ -42,8 +46,7 @@ const CalendarDetail = () => {
       queryClient.invalidateQueries(["dailyLook", date]);
       queryClient.invalidateQueries(["dailyLooks", formatDate(new Date(date))]);
 
-      alert("삭제가 완료되었습니다.");
-      navigate("/calendar");
+      setShowSuccessModal(true);
     }
   };
 
@@ -76,7 +79,7 @@ const CalendarDetail = () => {
               onClose={handleClose}
               onConfirm={handleConfirm}
               title="삭제 확인"
-              message="이 데일리룩를 삭제하시겠습니까?"
+              message="이 데일리룩을 삭제하시겠습니까?"
               confirmText="삭제"
               cancelText="취소"
               variant="danger"
@@ -100,6 +103,34 @@ const CalendarDetail = () => {
           </div>
         </>
       )}
+
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
+
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/calendar");
+        }}
+        onConfirm={() => {
+          setShowSuccessModal(false);
+          navigate("/calendar");
+        }}
+        title="삭제 완료"
+        message="삭제가 완료되었습니다."
+        confirmText="확인"
+        cancelText=""
+        variant="default"
+      />
     </div>
   );
 };

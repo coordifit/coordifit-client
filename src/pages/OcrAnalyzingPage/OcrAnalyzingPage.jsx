@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./OcrAnalyzingPage.module.css";
 import autoAwesomeIcon from "@/assets/images/auto_awesome.png";
 import ocrService from "@/services/ocrService";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 const OcrAnalyzingPage = () => {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ const OcrAnalyzingPage = () => {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState("ocr"); // 'ocr', 'chatgpt', 'complete'
   const isAnalyzing = useRef(false); // 중복 실행 방지
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const selectedFile = location.state?.selectedFile;
 
@@ -59,8 +62,11 @@ const OcrAnalyzingPage = () => {
       });
     } catch (error) {
       console.error("분석 실패:", error);
-      alert(`분석에 실패했습니다: ${error.message}`);
-      navigate("/closet/ocr");
+      setErrorMessage(`분석에 실패했습니다: ${error.message}`);
+      setShowErrorModal(true);
+      setTimeout(() => {
+        navigate("/closet/ocr");
+      }, 2000);
     } finally {
       isAnalyzing.current = false;
     }
@@ -122,6 +128,17 @@ const OcrAnalyzingPage = () => {
           <div className={styles.stepMessage}>{getStepMessage()}</div>
         </div>
       </div>
+
+      {/* 오류 모달 */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="오류"
+        message={errorMessage}
+        confirmText="확인"
+        cancelText=""
+      />
     </div>
   );
 };

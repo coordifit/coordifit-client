@@ -232,57 +232,34 @@ const getWeatherLabel = (code) => {
   if ([56, 57, 66, 67, 71, 73, 75, 77, 85, 86].includes(code)) return "눈";
   return "맑음";
 };
-// ✅ 이번 달 날짜 + 전달 말일 + 다음달 1일 포함
+// ✅ 이번 달 1일부터 오늘+7일까지 캘린더 카드 생성
 const generateCurrentMonthDays = () => {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-
-  // 이번 달 마지막 날짜
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  // 전달 마지막 날짜
-  const prevMonthLastDate = new Date(year, month, 0).getDate();
+  const todayDate = today.getDate();
 
   const days = [];
-
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // ✅ 1. 전달 마지막 날 추가
-  const prevMonthLast = new Date(year, month - 1, prevMonthLastDate);
-  days.push({
-    id: `${prevMonthLast.getFullYear()}-${String(prevMonthLast.getMonth() + 1).padStart(2, "0")}-${String(prevMonthLast.getDate()).padStart(2, "0")}`,
-    day: dayNames[prevMonthLast.getDay()],
-    date: prevMonthLast.getDate(),
-    dateObj: prevMonthLast,
-    isExtra: true, // 비활성 표시용
-  });
+  // 이번 달 1일부터 오늘+7일까지 생성
+  const endDate = todayDate + 7;
 
-  // ✅ 2. 이번 달 날짜들 추가
-  for (let date = 1; date <= daysInMonth; date++) {
+  for (let date = 1; date <= endDate; date++) {
     const dateObj = new Date(year, month, date);
-    const localDateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+    const localDateString = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+
     days.push({
       id: localDateString,
       day: dayNames[dateObj.getDay()],
-      date,
+      date: dateObj.getDate(),
       dateObj,
       isExtra: false,
     });
   }
 
-  // ✅ 3. 다음달 첫째 날 추가
-  const nextMonthFirst = new Date(year, month + 1, 1);
-  days.push({
-    id: `${nextMonthFirst.getFullYear()}-${String(nextMonthFirst.getMonth() + 1).padStart(2, "0")}-${String(nextMonthFirst.getDate()).padStart(2, "0")}`,
-    day: dayNames[nextMonthFirst.getDay()],
-    date: nextMonthFirst.getDate(),
-    dateObj: nextMonthFirst,
-    isExtra: true, // 비활성 표시용
-  });
-
   return days;
 };
-
 const MainPage = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
@@ -520,25 +497,30 @@ const MainPage = () => {
             }
           }
 
-          // 현재/미래 날씨 데이터 (오늘부터 이번 달 마지막까지)
+          // 현재/미래 날씨 데이터 (오늘부터 최대 7일 예보까지만)
           if (todayStr <= lastDayStr) {
+            // Open-Meteo forecast API는 최대 7일 예보만 제공
+            const maxForecastDate = new Date(today);
+            maxForecastDate.setDate(maxForecastDate.getDate() + 7);
+            const maxForecastStr = `${maxForecastDate.getFullYear()}-${String(maxForecastDate.getMonth() + 1).padStart(2, "0")}-${String(maxForecastDate.getDate()).padStart(2, "0")}`;
+
+            // 요청 종료일은 이번 달 마지막과 7일 예보 중 더 이른 날짜
+            const forecastEndDate = lastDayStr < maxForecastStr ? lastDayStr : maxForecastStr;
+
             const currentWeatherData = await getCurrentWeatherRange({
               lat,
               lng,
               startDate: todayStr,
-              endDate: lastDayStr,
+              endDate: forecastEndDate, // 7일 예보 제한 적용
             });
 
-            // 현재/미래 데이터 매핑 (이번 달에 속하는 날짜만)
+            // 현재/미래 데이터 매핑
             currentWeatherData.time.forEach((dateStr, index) => {
-              // 이번 달에 속하는 날짜인지 확인
-              if (dateStr >= firstDayStr && dateStr <= lastDayStr) {
-                weatherMap[dateStr] = {
-                  tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
-                  tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
-                  wcode: currentWeatherData.weathercode[index],
-                };
-              }
+              weatherMap[dateStr] = {
+                tmax: Math.round(currentWeatherData.temperature_2m_max[index]),
+                tmin: Math.round(currentWeatherData.temperature_2m_min[index]),
+                wcode: currentWeatherData.weathercode[index],
+              };
             });
           }
         } catch (error) {

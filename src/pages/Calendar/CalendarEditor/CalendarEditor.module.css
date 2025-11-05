@@ -163,16 +163,6 @@
   cursor: not-allowed;
 }
 
-.button-wrapper {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-}
-
 .canvas-loading-center {
   position: absolute;
   top: 50%;
@@ -311,4 +301,28 @@
 .emptyErrorMsg {
   height: 12px;
   width: 100%;
+}
+
+.content-box {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 82px);
+  overflow-y: scroll;
+}
+
+.button-wrapper {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.header-wrapper {
+  position: relative;
+  top: 0px;
+  display: flex;
+  z-index: 10;
 }

@@ -89,19 +89,22 @@ const CalendarEditor = () => {
   };
 
   const addToCanvas = (item) => {
-    const pos =
-      item.x != null && item.y != null
-        ? { x: item.x, y: item.y, scale: 1 }
-        : getCanvasPosition(item.categoryCode);
+    const isClosetItem = !item.instanceId;
+
+    const position = isClosetItem
+      ? getCanvasPosition(item.categoryCode)
+      : { x: item.x, y: item.y, scale: item.scaleX };
 
     const img = new Image();
     img.src = item.imageUrl;
     img.onload = () => {
-      const maxWidth = 350;
-      let scale = 1;
+      let scale = position.scale ?? 1;
 
-      if (img.width > maxWidth) {
-        scale = maxWidth / img.width;
+      if (isClosetItem) {
+        const maxWidth = 350;
+        if (img.width > maxWidth) {
+          scale = (maxWidth / img.width) * scale;
+        }
       }
 
       const konvaObject = {
@@ -110,13 +113,11 @@ const CalendarEditor = () => {
         imageUrl: item.imageUrl,
         name: item.name,
         categoryCode: item.categoryCode,
-        x: pos.x,
-        y: pos.y,
-        scaleX: (pos.scale ?? 1) * scale,
-        scaleY: (pos.scale ?? 1) * scale,
+        x: position.x,
+        y: position.y,
+        scaleX: scale,
+        scaleY: scale,
         rotation: item.rotation ?? 0,
-        ...(item.width && { width: item.width }),
-        ...(item.height && { height: item.height }),
       };
 
       addClothes(konvaObject);
@@ -173,122 +174,120 @@ const CalendarEditor = () => {
 
   return (
     <div className={cn("wrapper")}>
-      <header className={cn("header")}>
-        <span className={cn("headerTitle")}>{formatDateString(date)}</span>
-        <Weather targetDate={new Date(date)} />
-      </header>
-      <div className={cn("editorRow")}>
-        {isLoading && (
-          <div className={cn("canvas-loading-center")}>
-            <div className={cn("loading-blur-box")}>
-              <div className={cn("spinner")} />
-              <p className={cn("loading-text")}>이미지 추가 중...</p>
-            </div>
-          </div>
-        )}
-        <div className={cn("label-wrapper")}>
-          <label htmlFor="coordiName" className={cn("inputLabel")}>
-            데일리룩 설명
-          </label>
-          <span className={cn("charCounter", description.length > 60 && "error")}>
-            {description.length} / 60자
-          </span>
-        </div>
-        <textarea
-          type="text"
-          name="description"
-          className={cn("descInput", errors.desc && "error")}
-          value={description}
-          placeholder="데일리룩의 특징이나 설명을 입력하세요 (최대 60자)"
-          rows={2}
-          maxLength={60}
-          onChange={(e) => {
-            const val = e.target.value;
-            const lines = val.split("\n");
-
-            if (lines.length > 2) {
-              e.target.value = description;
-              return;
-            }
-
-            setDescription(val);
-            setErrors((prev) => ({
-              ...prev,
-              desc: val.length > 60 ? "설명은 60자 이내로 입력해주세요." : "",
-            }));
-          }}
-        />
-        <div className={cn("counterRow")}>
-          {errors.desc ? (
-            <span className={cn("errorMsgInline")}>{errors.desc}</span>
-          ) : (
-            <div className={cn("emptyErrorMsg")} />
-          )}
-        </div>
-        <div className={cn("canvasCard")}>
-          <Stage
-            ref={stageRef}
-            width={CANVAS_CONFIG.WIDTH}
-            height={CANVAS_CONFIG.HEIGHT}
-            className={cn("stage")}
-          >
-            <Layer>
-              <Rect
-                width={CANVAS_CONFIG.WIDTH}
-                height={CANVAS_CONFIG.HEIGHT}
-                fill={bgColor}
-                onMouseDown={() => setSelectedId(null)}
-                onTouchStart={() => setSelectedId(null)}
-              />
-            </Layer>
-            <Layer>
-              {clothes.map((item) => (
-                <CanvasItem
-                  key={item.clothesId}
-                  obj={item}
-                  isSelected={item.clothesId === selectedId}
-                  onSelect={() => setSelectedId(item.clothesId)}
-                  onChange={(next) => updateClothes(item.clothesId, next)}
-                  onLoad={handleLoadStatus}
-                />
-              ))}
-            </Layer>
-          </Stage>
-          <div className={cn("toolbar")}>
-            <div className={cn("colors")}>
-              {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
-                <button
-                  key={hexColor}
-                  className={cn("colorDot", { activeDot: bgColor === hexColor })}
-                  onClick={() => setBgColor(hexColor)}
-                  title={hexColor}
-                  style={{ backgroundColor: hexColor }}
-                />
-              ))}
-            </div>
-            <button className={cn("btnDanger", { hidden: !selectedId })} onClick={removeSelected}>
-              옷 지우기
-            </button>
-          </div>
-        </div>
-        <button
-          className={cn("fab")}
-          onClick={(e) => {
-            e.stopPropagation();
-            setClosetModal(true);
-          }}
-        >
-          +
-        </button>
+      <div className={cn("header-wrapper")}>
+        <header className={cn("header")}>
+          <span className={cn("headerTitle")}>{formatDateString(date)}</span>
+          <Weather targetDate={new Date(date)} />
+        </header>
       </div>
-      <ItemCarousel items={clothes} selectedId={selectedId} onClick={setSelectedId} />
-      <ClosetModal
-        isOpen={closetModal}
-        onClose={setClosetModal}
-        onAdd={addToCanvas}
-        clothes={clothes}
-        onRemove={removeClothes}
-      />
+      <div className={cn("content-box")}>
+        <div className={cn("editorRow")}>
+          {isLoading && (
+            <div className={cn("canvas-loading-center")}>
+              <div className={cn("loading-blur-box")}>
+                <div className={cn("spinner")} />
+                <p className={cn("loading-text")}>이미지 추가 중...</p>
+              </div>
+            </div>
+          )}
+          <div className={cn("label-wrapper")}>
+            <label htmlFor="coordiName" className={cn("inputLabel")}>
+              데일리룩 설명
+            </label>
+            <span className={cn("charCounter", description.length > 60 && "error")}>
+              {description.length} / 60자
+            </span>
+          </div>
+          <textarea
+            type="text"
+            name="description"
+            className={cn("descInput", errors.desc && "error")}
+            value={description}
+            placeholder="데일리룩의 특징이나 설명을 입력하세요 (최대 60자)"
+            rows={2}
+            maxLength={100}
+            onChange={(e) => {
+              const inputText = e.target.value;
+
+              setDescription(inputText);
+              setErrors((prev) => ({
+                ...prev,
+                desc: inputText.length > 60 ? "설명은 60자 이내로 입력해주세요." : "",
+              }));
+            }}
+          />
+          <div className={cn("counterRow")}>
+            {errors.desc ? (
+              <span className={cn("errorMsgInline")}>{errors.desc}</span>
+            ) : (
+              <div className={cn("emptyErrorMsg")} />
+            )}
+          </div>
+          <div className={cn("canvasCard")}>
+            <Stage
+              ref={stageRef}
+              width={CANVAS_CONFIG.WIDTH}
+              height={CANVAS_CONFIG.HEIGHT}
+              className={cn("stage")}
+            >
+              <Layer>
+                <Rect
+                  width={CANVAS_CONFIG.WIDTH}
+                  height={CANVAS_CONFIG.HEIGHT}
+                  fill={bgColor}
+                  onMouseDown={() => setSelectedId(null)}
+                  onTouchStart={() => setSelectedId(null)}
+                />
+              </Layer>
+              <Layer>
+                {clothes.map((item) => (
+                  <CanvasItem
+                    key={item.clothesId}
+                    obj={item}
+                    isSelected={item.clothesId === selectedId}
+                    onSelect={() => setSelectedId(item.clothesId)}
+                    onChange={(next) => updateClothes(item.clothesId, next)}
+                    onLoad={handleLoadStatus}
+                  />
+                ))}
+              </Layer>
+            </Stage>
+            <div className={cn("toolbar")}>
+              <div className={cn("colors")}>
+                {CANVAS_CONFIG.PALLETTE.map((hexColor) => (
+                  <button
+                    key={hexColor}
+                    className={cn("colorDot", { activeDot: bgColor === hexColor })}
+                    onClick={() => setBgColor(hexColor)}
+                    title={hexColor}
+                    style={{ backgroundColor: hexColor }}
+                  />
+                ))}
+              </div>
+              <button className={cn("btnDanger", { hidden: !selectedId })} onClick={removeSelected}>
+                옷 지우기
+              </button>
+            </div>
+          </div>
+          <button
+            className={cn("fab")}
+            onClick={(e) => {
+              e.stopPropagation();
+              setClosetModal(true);
+            }}
+          >
+            +
+          </button>
+        </div>
+        <ItemCarousel items={clothes} selectedId={selectedId} onClick={setSelectedId} />
+        <ClosetModal
+          isOpen={closetModal}
+          onClose={setClosetModal}
+          onAdd={addToCanvas}
+          clothes={clothes}
+          onRemove={removeClothes}
+        />
+      </div>
       <div className={cn("button-wrapper")}>
         <>
           <Button

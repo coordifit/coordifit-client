@@ -104,7 +104,7 @@ const AiFittingResultPage = () => {
     navigate("/ai-fitting");
   };
 
-  const outfitSummary = selectedItems.map((item) => item.name);
+  const outfitSummary = useMemo(() => selectedItems.map((item) => item.name), [selectedItems]);
 
   const resultImageSrc = useMemo(() => {
     if (!imageBase64) return fallbackResultImage;
@@ -142,7 +142,7 @@ const AiFittingResultPage = () => {
             imageBase64: imageBase64.startsWith("data:")
               ? imageBase64
               : `data:image/png;base64,${imageBase64}`,
-            hint: outfitSummary || "",
+            hint: Array.isArray(outfitSummary) ? outfitSummary.join(" / ") : outfitSummary || "",
           },
           { signal: controller.signal },
         );

@@ -12,6 +12,8 @@
   width: 100%;
   z-index: 1001; /* BottomNav보다 위 */
   box-sizing: border-box;
+  backdrop-filter: blur(10px); /* 배경 흐림 효과 */
+  -webkit-backdrop-filter: blur(10px); /* Safari */
 }
 
 /* 데스크톱에서는 360px 컨테이너 내부에만 표시 */
@@ -22,6 +24,7 @@
     width: 360px;
     max-width: 360px;
     border-radius: 14px 14px 0 0; /* 상단 모서리 둥글게 */
+    background: #ffffff; /* 명시적 배경색 재지정 */
   }
 }
 

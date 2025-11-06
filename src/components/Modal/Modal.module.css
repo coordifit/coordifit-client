@@ -5,7 +5,7 @@
   place-items: center;
   background: rgba(0, 0, 0, 0.45);
   padding: 20px;
-  z-index: 1000;
+  z-index: 2000; /* Header(1001)보다 높게 */
 }
 .modal {
   width: 100%;

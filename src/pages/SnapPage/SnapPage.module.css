@@ -28,6 +28,9 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
   position: relative;
+
+  /* 가로 스크롤 허용 */
+  overscroll-behavior-x: contain;
 }
 
 .categoryScroller::after {
@@ -162,7 +165,7 @@
   flex: 1;
   overflow-y: auto;
   background-color: #fafafa;
-  padding-bottom: 80px; /* 하단 탭을 위한 여백 */
+  padding-bottom: calc(79px + env(safe-area-inset-bottom)); /* BottomNav 높이 + safe-area */
   /* 스크롤바 숨김 */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */

@@ -36,7 +36,9 @@
   flex: 1;
   overflow: auto;
   padding: 12px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  padding-bottom: calc(
+    89px + env(safe-area-inset-bottom)
+  ); /* BottomNav 높이(79px) + 여백(10px) + safe-area */
   /* 스크롤바 숨기기 (WebKit 브라우저용) */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */

@@ -19,7 +19,7 @@ export default defineConfig({
         name: "CoordiFit",
         short_name: "CoordiFit",
         description: "AI 기반 코디 추천 및 가상 피팅 플랫폼",
-        theme_color: "#3721ED",
+        theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
         start_url: "/",

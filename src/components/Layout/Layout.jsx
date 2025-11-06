@@ -25,7 +25,12 @@ const Layout = () => {
     <div className={cn("page")}>
       <div className={cn("app")}>
         {showHeader !== false && <Header />}
-        <main className={cn("main-content", { "no-padding": isNoPad })}>
+        <main
+          className={cn("main-content", {
+            "no-padding": isNoPad,
+            "no-header": showHeader === false,
+          })}
+        >
           <Outlet />
         </main>
         {showTabbar && <BottomNav />}

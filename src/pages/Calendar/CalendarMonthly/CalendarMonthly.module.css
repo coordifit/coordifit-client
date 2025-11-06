@@ -26,7 +26,8 @@
 :global(.react-calendar__month-view__weekdays__weekday abbr) {
   text-decoration: none;
   font-size: 0.8rem;
-  cursor: default; /* 손모양 커서도 기본 화살표로 */
+  color: #000;
+  cursor: default;
 }
 
 /* react-calendar style override */

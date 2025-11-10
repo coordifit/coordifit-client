@@ -36,14 +36,33 @@
   flex: 1;
   overflow: auto;
   padding: 12px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  padding-top: calc(68px + 12px); /* Header 높이 + 원래 padding */
+  padding-bottom: calc(
+    89px + env(safe-area-inset-bottom)
+  ); /* BottomNav 높이(79px) + 여백(10px) + safe-area */
   /* 스크롤바 숨기기 (WebKit 브라우저용) */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
 
+/* 헤더가 없는 페이지 */
+.no-header {
+  padding-top: 12px; /* 원래 padding만 */
+}
+
 .no-padding {
   padding: 0;
+}
+
+/* no-padding이면서 헤더가 있는 경우 */
+.no-padding:not(.no-header) {
+  padding-top: 68px; /* Header 높이만 유지 */
+  padding-bottom: calc(79px + env(safe-area-inset-bottom)); /* BottomNav 공간 */
+}
+
+/* no-padding이면서 헤더가 없는 경우 */
+.no-padding.no-header {
+  padding-bottom: calc(79px + env(safe-area-inset-bottom)); /* BottomNav 공간만 */
 }
 
 .main-content::-webkit-scrollbar {

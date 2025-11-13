@@ -190,6 +190,7 @@ const CoordiEditor = () => {
   useEffect(() => {
     if (location.state?.dataUrl) {
       setAiExists(true);
+      setAiImageUrl(location.state?.dataUrl);
     }
 
     if (location.state?.clothesItems && viewMode === "coordi") {
@@ -217,7 +218,7 @@ const CoordiEditor = () => {
         const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
         const blob = await (await fetch(uri)).blob();
         const formData = new FormData();
-        const fileName = `look-${Date.now()}.png`;
+        const fileName = `coordi-${Date.now()}.png`;
 
         formData.append("image", blob, fileName);
         formData.append("description", description);
@@ -226,7 +227,7 @@ const CoordiEditor = () => {
 
         if (coordiId) {
           if (aiExists && !aiImageUrl) {
-            const cleanBase64 = location.state.dataUrl.value.replace(/\s+/g, "");
+            const cleanBase64 = location.state.dataUrl.replace(/\s+/g, "");
             const dataUrl = `data:image/png;base64,${cleanBase64}`;
 
             await api.put(`/coordi/${coordiId}/ai-image`, {
@@ -237,7 +238,7 @@ const CoordiEditor = () => {
           }
         } else {
           if (aiExists && aiImageUrl) {
-            const cleanBase64 = location.state.dataUrl.value.replace(/\s+/g, "");
+            const cleanBase64 = location.state.dataUrl.replace(/\s+/g, "");
             const dataUrl = `data:image/png;base64,${cleanBase64}`;
 
             formData.append("dataUrl", dataUrl);
@@ -461,7 +462,10 @@ const CoordiEditor = () => {
           ) : aiExists ? (
             <>
               <img
-                src={aiImageUrl || `data:image/png;base64,${location.state?.dataUrl}`}
+                src={
+                  `data:image/png;base64,${aiImageUrl}` ||
+                  `data:image/png;base64,${location.state?.dataUrl}`
+                }
                 alt="" // 장식용
                 className={cn("aiLayer")}
               />
